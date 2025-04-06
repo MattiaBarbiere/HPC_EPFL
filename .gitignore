@@ -32,6 +32,7 @@
 *.app
 
 
+lap2D_5pt_n1000.mtx
 lap2D_5pt_n2000.mtx
 
 *.data*
