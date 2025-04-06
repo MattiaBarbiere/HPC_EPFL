@@ -1,4 +1,5 @@
 #include "matrix_coo.hh"
+#include <mpi.h>
 extern "C" {
 #include "mmio.h" // Matrix Market I/O functions
 }

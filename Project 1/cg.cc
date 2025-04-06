@@ -72,7 +72,7 @@ void CGSolverSparse::solve(std::vector<double> &x)
     std::cout << "\t[STEP " << k << "] residual = " << std::scientific << std::sqrt(rsold) << ", ||x|| = " << nx
               << ", ||Ax - b||/||b|| = " << res << std::endl;
   }
-
+  
 }
 
 void CGSolverSparse::read_matrix(const std::string &filename)

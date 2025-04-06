@@ -2,20 +2,11 @@
 #SBATCH --qos=math-454
 #SBATCH --account=math-454
 #SBATCH --nodes=1                   # Number of nodes
-#SBATCH --ntasks=1                   # Number of MPI tasks (processors)
+#SBATCH --ntasks=2                   # Number of MPI tasks (processors)
 #SBATCH --time=00:10:00              # Time limit (hh:mm:ss)
 
-# # Load the MPI module (if required by your cluster)
-# module load gcc openmpi openblas
-
-# # Run the MPI program
-# srun ./parallel_mat_vec
-#!/bin/bash -l
-#SBATCH --qos=math-454
-#SBATCH --account=math-454
-#SBATCH --time=03:00:00
-./cgsolver lap2D_5pt_n100.mtx
-./cgsolver lap2D_5pt_n200.mtx
-./cgsolver lap2D_5pt_n300.mtx
-./cgsolver lap2D_5pt_n600.mtx
-./cgsolver lap2D_5pt_n1000.mtx
+srun ./cgsolver lap2D_5pt_n100.mtx
+# srun ./cgsolver lap2D_5pt_n300.mtx
+# srun ./cgsolver lap2D_5pt_n600.mtx
+# srun ./cgsolver lap2D_5pt_n200.mtx
+# srun ./cgsolver lap2D_5pt_n1000.mtx#!/bin/bash
