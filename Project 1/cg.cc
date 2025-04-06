@@ -5,7 +5,7 @@
 #include <iostream>
 
 const double NEARZERO = 1.0e-14; // Small value to avoid division by zero
-const bool DEBUG = false;        // Debugging flag
+const bool DEBUG = true;        // Debugging flag
 
 /*
 Sparse version of the Conjugate Gradient (CG) solver
@@ -56,10 +56,10 @@ void CGSolverSparse::solve(std::vector<double> &x)
 
     rsold = rsnew; // Update residual norm
 
-    if (DEBUG)
-    {
-      std::cout << "\t[STEP " << k << "] residual = " << std::scientific << std::sqrt(rsold) << "\r" << std::flush;
-    }
+    // if (DEBUG)
+    // {
+    //   std::cout << "\t[STEP " << k << "] residual = " << std::scientific << std::sqrt(rsold) << "\r" << std::flush;
+    // }
   }
 
   if (DEBUG)
@@ -72,6 +72,7 @@ void CGSolverSparse::solve(std::vector<double> &x)
     std::cout << "\t[STEP " << k << "] residual = " << std::scientific << std::sqrt(rsold) << ", ||x|| = " << nx
               << ", ||Ax - b||/||b|| = " << res << std::endl;
   }
+
 }
 
 void CGSolverSparse::read_matrix(const std::string &filename)

@@ -1,0 +1,28 @@
+Call CG sparse on matrix size 10000 x 10000)
+	[STEP 488] residual = 1.098602e-10, ||x|| = 2.147364e+09, ||Ax - b||/||b|| = 1.319176e-12
+Time for CG (sparse solver)  = 1.139286e+00 [s]
+Call CG sparse on matrix size 40000 x 40000)
+	[STEP 1041] residual = 1.018182e-10, ||x|| = 6.770146e+10, ||Ax - b||/||b|| = 7.141533e-12
+Time for CG (sparse solver)  = 9.712802e+00 [s]
+Call CG sparse on matrix size 90000 x 90000)
+	[STEP 1584] residual = 1.000195e-10, ||x|| = 5.115438e+11, ||Ax - b||/||b|| = 1.933371e-11
+Time for CG (sparse solver)  = 3.345824e+01 [s]
+Call CG sparse on matrix size 360000 x 360000)
+	[STEP 3227] residual = 1.027105e-10, ||x|| = 1.628740e+13, ||Ax - b||/||b|| = 1.072412e-10
+Time for CG (sparse solver)  = 2.721653e+02 [s]
+Call CG sparse on matrix size 1000000 x 1000000)
+	[STEP 5638] residual = 1.007731e-10, ||x|| = 2.090356e+14, ||Ax - b||/||b|| = 3.803524e-10
+Time for CG (sparse solver)  = 1.343786e+03 [s]
+
+
+#!/bin/bash
+#SBATCH --qos=math-454
+#SBATCH --account=math-454
+#SBATCH --nodes=1                   # Number of nodes
+#SBATCH --ntasks=1                   # Number of MPI tasks (processors)
+#SBATCH --time=00:10:00              # Time limit (hh:mm:ss)
+./cgsolver lap2D_5pt_n100.mtx
+./cgsolver lap2D_5pt_n200.mtx
+./cgsolver lap2D_5pt_n300.mtx
+./cgsolver lap2D_5pt_n600.mtx
+./cgsolver lap2D_5pt_n1000.mtx

@@ -1,5 +1,21 @@
+#!/bin/bash
+#SBATCH --qos=math-454
+#SBATCH --account=math-454
+#SBATCH --nodes=1                   # Number of nodes
+#SBATCH --ntasks=1                   # Number of MPI tasks (processors)
+#SBATCH --time=00:10:00              # Time limit (hh:mm:ss)
+
+# # Load the MPI module (if required by your cluster)
+# module load gcc openmpi openblas
+
+# # Run the MPI program
+# srun ./parallel_mat_vec
 #!/bin/bash -l
 #SBATCH --qos=math-454
 #SBATCH --account=math-454
 #SBATCH --time=03:00:00
-perf record -F 4000 -m 512 -o perf.data --call-graph dwarf ./cgsolver lap2D_5pt_n300.mtx > perf_output_sequential.txt 2>&1
+./cgsolver lap2D_5pt_n100.mtx
+./cgsolver lap2D_5pt_n200.mtx
+./cgsolver lap2D_5pt_n300.mtx
+./cgsolver lap2D_5pt_n600.mtx
+./cgsolver lap2D_5pt_n1000.mtx
