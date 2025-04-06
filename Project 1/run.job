@@ -2,11 +2,11 @@
 #SBATCH --qos=math-454
 #SBATCH --account=math-454
 #SBATCH --nodes=1                   # Number of nodes
-#SBATCH --ntasks=2                   # Number of MPI tasks (processors)
+#SBATCH --ntasks=20                   # Number of MPI tasks (processors)
 #SBATCH --time=00:10:00              # Time limit (hh:mm:ss)
 
 srun ./cgsolver lap2D_5pt_n100.mtx
-# srun ./cgsolver lap2D_5pt_n300.mtx
-# srun ./cgsolver lap2D_5pt_n600.mtx
-# srun ./cgsolver lap2D_5pt_n200.mtx
-# srun ./cgsolver lap2D_5pt_n1000.mtx#!/bin/bash
+srun ./cgsolver lap2D_5pt_n200.mtx
+srun ./cgsolver lap2D_5pt_n300.mtx
+srun ./cgsolver lap2D_5pt_n600.mtx
+srun ./cgsolver lap2D_5pt_n1000.mtx

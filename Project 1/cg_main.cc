@@ -14,6 +14,12 @@ Simple CG solver using a matrix in Matrix Market (MTX) format.
 int main(int argc, char **argv)
 {
   // Initialize MPI
+  MPI_Init(&argc, &argv); // Initialize MPI
+   // Get the rank and size of the MPI communicator
+   int rank, size;
+   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+   MPI_Comm_size(MPI_COMM_WORLD, &size);
+
   if (argc < 2)
   {
     // Ensure a matrix file is provided as an argument
@@ -32,15 +38,24 @@ int main(int argc, char **argv)
 
   std::vector<double> x_s(n, 0.);    // Initialize solution vector with zeros
 
+  if (rank == 0){
   std::cout << "Call CG sparse on matrix size " << m << " x " << n << ")" << std::endl;
-
-  auto t1 = clk::now();              // Start timing
-  MPI_Init(&argc, &argv); // Initialize MPI
-  sparse_solver.solve(x_s);          // Solve the system
-  MPI_Finalize(); // Finalize MPI
-  second elapsed = clk::now() - t1;  // Compute elapsed time
-
-  std::cout << "Time for CG (sparse solver)  = " << elapsed.count() << " [s]\n";
+  }
   
+  auto t1 = clk::now();              // Start timing
+  sparse_solver.solve(x_s);          // Solve the system
+  
+  second elapsed = clk::now() - t1;  // Compute elapsed time
+  auto t = elapsed.count(); // Get elapsed time in seconds
+
+  // Get the average time across all processes
+  double avg_time;
+  MPI_Reduce(&(t), &avg_time, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+  avg_time /= size; // Average time across all processes
+
+  if (rank == 0){
+  std::cout << "Time for CG (sparse solver)  = " << avg_time << " [s]\n";
+  }
+  MPI_Finalize(); // Finalize MPI
   return 0; // Exit successfully
 }

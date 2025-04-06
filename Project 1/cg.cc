@@ -5,13 +5,14 @@
 #include <iostream>
 
 const double NEARZERO = 1.0e-14; // Small value to avoid division by zero
-const bool DEBUG = true;        // Debugging flag
+const bool DEBUG = false;        // Debugging flag
 
 /*
 Sparse version of the Conjugate Gradient (CG) solver
 */
 void CGSolverSparse::solve(std::vector<double> &x)
 {
+
   std::vector<double> r(m_n), p(m_n), Ap(m_n), tmp(m_n);
 
   // Compute initial residual: r = b - A * x

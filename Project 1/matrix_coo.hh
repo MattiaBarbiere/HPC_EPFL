@@ -23,11 +23,9 @@ public:
   // Perform matrix-vector multiplication: y = A * x
   void mat_vec(const std::vector<double> &x, std::vector<double> &y) {
 
-    // Get the rank and size of the MPI communicator
     int rank, size;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
-
 
     // Amount of non zeros
     size_t non_zeros = irn.size();
