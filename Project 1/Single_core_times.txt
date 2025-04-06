@@ -10,3 +10,15 @@ Call CG sparse on matrix size 1000000 x 1000000)
 Time for CG (sparse solver)  = 1155.4 [s]
 Call CG sparse on matrix size 4000000 x 4000000)
 slurmstepd: error: *** JOB 33534273 ON jst199 CANCELLED AT 2025-04-06T14:14:43 ***
+
+
+Code for JOB
+#!/bin/bash -l
+#SBATCH --qos=math-454
+#SBATCH --account=math-454
+#SBATCH --time=03:00:00
+./cgsolver lap2D_5pt_n100.mtx
+./cgsolver lap2D_5pt_n200.mtx
+./cgsolver lap2D_5pt_n300.mtx
+./cgsolver lap2D_5pt_n600.mtx
+./cgsolver lap2D_5pt_n1000.mtx # This one took too long so I canceled it
