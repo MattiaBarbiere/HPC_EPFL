@@ -1,4 +1,10 @@
 #!/bin/bash -l
 #SBATCH --qos=math-454
 #SBATCH --account=math-454
+#SBATCH --time=03:00:00
 ./cgsolver lap2D_5pt_n100.mtx
+./cgsolver lap2D_5pt_n200.mtx
+./cgsolver lap2D_5pt_n300.mtx
+./cgsolver lap2D_5pt_n600.mtx
+./cgsolver lap2D_5pt_n1000.mtx
+./cgsolver lap2D_5pt_n2000.mtx
