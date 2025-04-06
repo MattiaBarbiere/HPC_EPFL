@@ -1,0 +1,10 @@
+Call CG sparse on matrix size 90000 x 90000)
+Time for CG (sparse solver)  = 35.4636 [s]
+[ perf record: Woken up 1138 times to write data ]
+[ perf record: Captured and wrote 1137.099 MB perf.data (141304 samples) ]
+
+#!/bin/bash -l
+#SBATCH --qos=math-454
+#SBATCH --account=math-454
+#SBATCH --time=03:00:00
+perf record -F 4000 -m 512 -o perf.data --call-graph dwarf ./cgsolver lap2D_5pt_n300.mtx > perf_output_sequential.txt 2>&1

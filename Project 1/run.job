@@ -2,9 +2,4 @@
 #SBATCH --qos=math-454
 #SBATCH --account=math-454
 #SBATCH --time=03:00:00
-./cgsolver lap2D_5pt_n100.mtx
-./cgsolver lap2D_5pt_n200.mtx
-./cgsolver lap2D_5pt_n300.mtx
-./cgsolver lap2D_5pt_n600.mtx
-./cgsolver lap2D_5pt_n1000.mtx
-./cgsolver lap2D_5pt_n2000.mtx
+perf record -F 4000 -m 512 -o perf.data --call-graph dwarf ./cgsolver lap2D_5pt_n300.mtx > perf_output_sequential.txt 2>&1
