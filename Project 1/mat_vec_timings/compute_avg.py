@@ -3,7 +3,7 @@ import os
 path = os.path.dirname(os.path.abspath(__file__))
 
 def process_files():
-    processor_counts = [1, 2, 10, 50, 100]
+    processor_counts = [1, 2, 3, 5, 8, 10, 15, 20, 30, 40, 50, 75, 100]
 
     for count in processor_counts:
         filename = f"{path}/mat_vec_time_p{count}.txt"

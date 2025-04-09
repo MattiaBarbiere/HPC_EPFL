@@ -1,4 +1,4 @@
-Rank 3 time in mat_vec: 0.0127418 s
+Rank 3 time in mat_vec: 0.0127418 s  |  Average over 112820: 0.0121539 s
 Rank 9 time in mat_vec: 0.0128816 s
 Rank 1 time in mat_vec: 0.0130524 s
 lap2D_5pt_n1000.mtx
