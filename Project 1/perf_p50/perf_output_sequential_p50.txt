@@ -1,0 +1,5 @@
+lap2D_5pt_n300.mtx
+p = 1 Time = 30.0596 [s]
+
+[ perf record: Woken up 971 times to write data ]
+[ perf record: Captured and wrote 979.206 MB perf.data (121722 samples) ]
