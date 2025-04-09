@@ -1,4 +1,4 @@
-lap2D_5pt_n1000.mtx
+lap2D_5pt_n1000.mtx  |  Average over 56400: 0.0145596 s
 Rank 5 time in mat_vec: 0.0106218 s
 Rank 1 time in mat_vec: 0.0102762 s
 Rank 0 time in mat_vec: 0.0105385 s

@@ -9,8 +9,9 @@ processor_counts = [1, 2, 4, 8, 10, 15, 20, 25, 30, 40, 50, 75, 100]
 data = {}
 
 for p in processor_counts:
-    filename = f'SS_{p}.txt'
+    filename = f'./Project 1/SS_{p}.txt'
     if not os.path.isfile(filename):
+        print("here")
         continue
 
     with open(filename, 'r') as f:
@@ -35,6 +36,8 @@ for p in processor_counts:
 fig, ax = plt.subplots(figsize=(10, 6))
 
 for n in sorted(data):
+    if n == 2000:
+        continue
     p_vals = sorted(data[n])
     t_vals = [data[n][p] for p in p_vals]
     plt.plot(p_vals, t_vals, marker='o', label=f'n = {n}')
@@ -45,6 +48,7 @@ plt.title('Execution Time vs Number of Processors')
 plt.legend(title='Problem Size n')
 plt.grid(True)
 plt.tight_layout()
+plt.show()
 
 # Save image under images
-fig.savefig('images/execution_time_vs_processors.png')
+fig.savefig('Project 1/images/execution_time_vs_processors.png')
