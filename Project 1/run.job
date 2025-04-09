@@ -2,8 +2,8 @@
 #SBATCH --qos=math-454
 #SBATCH --account=math-454
 #SBATCH --nodes=2
-#SBATCH --ntasks=100
-#SBATCH --output=mat_vec_time_p100.txt
+#SBATCH --ntasks=75
+#SBATCH --output=mat_vec_timings/mat_vec_time_p75.txt
 #SBATCH --time=05:00:00
 
 # srun ./cgsolver lap2D_5pt_n100.mtx
