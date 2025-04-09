@@ -1,0 +1,18 @@
+lap2D_5pt_n100.mtx
+p = 40 Time = 0.171561 [s]
+
+lap2D_5pt_n200.mtx
+p = 40 Time = 1.12673 [s]
+
+lap2D_5pt_n300.mtx
+p = 40 Time = 4.33865 [s]
+
+lap2D_5pt_n600.mtx
+p = 40 Time = 46.2425 [s]
+
+lap2D_5pt_n1000.mtx
+p = 40 Time = 250.185 [s]
+
+lap2D_5pt_n2000.mtx
+p = 40 Time = 6097.58 [s]
+

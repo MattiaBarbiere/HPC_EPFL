@@ -31,7 +31,7 @@ int main(int argc, char **argv)
   CGSolverSparse sparse_solver;
   sparse_solver.read_matrix(argv[1]); // Load the matrix from the file
   int n = sparse_solver.n();         // Number of rows
-  int m = sparse_solver.m();         // Number of columns
+  //int m = sparse_solver.m();         // Number of columns
   double h = 1. / n;                 // Grid spacing
 
   sparse_solver.init_source_term(h); // Initialize the source term
@@ -39,7 +39,8 @@ int main(int argc, char **argv)
   std::vector<double> x_s(n, 0.);    // Initialize solution vector with zeros
 
   if (rank == 0){
-  std::cout << "Call CG sparse on matrix size " << m << " x " << n << ")" << std::endl;
+  std::cout << argv[1] << std::endl;
+
   }
   
   auto t1 = clk::now();              // Start timing
@@ -54,8 +55,9 @@ int main(int argc, char **argv)
   avg_time /= size; // Average time across all processes
 
   if (rank == 0){
-  std::cout << "Time for CG (sparse solver)  = " << avg_time << " [s]\n";
-  }
+  std::cout << "p = " << size << " Time = " << avg_time << " [s]\n";
+  std::cout << std::endl;
+}
   MPI_Finalize(); // Finalize MPI
   return 0; // Exit successfully
 }

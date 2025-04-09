@@ -1,0 +1,71 @@
+lap2D_5pt_n100.mtx
+p = 25 Time = 0.168457 [s]
+
+lap2D_5pt_n200.mtx
+p = 25 Time = 1.6543 [s]
+
+lap2D_5pt_n300.mtx
+p = 25 Time = 6.75652 [s]
+
+lap2D_5pt_n600.mtx
+p = 25 Time = 69.4847 [s]
+
+lap2D_5pt_n1000.mtx
+p = 25 Time = 365.43 [s]
+
+lap2D_5pt_n2000.mtx
+[jst049:127622:0:127622] ib_mlx5_log.c:162  Transport retry count exceeded on mlx5_bond_0:1/RoCE (synd 0x15 vend 0x85 hw_synd 0/0)
+[jst049:127622:0:127622] ib_mlx5_log.c:162  RC QP 0xe72b wqe[17195]: SEND --e [inl len 61] [rqpn 0x10e6b dlid=0 sl=0 port=1 src_path_bits=0 dgid=::ffff:10.91.44.53 sgid_index=3 traffic_class=0]
+==== backtrace (tid: 127622) ====
+ 0  /ssoft/spack/syrah/v3/opt/spack/linux-rhel9-icelake/gcc-11.3.0/ucx-1.12.1-mcggqmcvjobtoc4p26hednzka6pjghgm/lib/libucs.so.0(ucs_handle_error+0x2e4) [0x7f2ab41cc124]
+ 1  /ssoft/spack/syrah/v3/opt/spack/linux-rhel9-icelake/gcc-11.3.0/ucx-1.12.1-mcggqmcvjobtoc4p26hednzka6pjghgm/lib/libucs.so.0(ucs_fatal_error_message+0xb2) [0x7f2ab41c8e32]
+ 2  /ssoft/spack/syrah/v3/opt/spack/linux-rhel9-icelake/gcc-11.3.0/ucx-1.12.1-mcggqmcvjobtoc4p26hednzka6pjghgm/lib/libucs.so.0(ucs_log_default_handler+0xe25) [0x7f2ab41cdc05]
+ 3  /ssoft/spack/syrah/v3/opt/spack/linux-rhel9-icelake/gcc-11.3.0/ucx-1.12.1-mcggqmcvjobtoc4p26hednzka6pjghgm/lib/libucs.so.0(ucs_log_dispatch+0xd3) [0x7f2ab41cdd83]
+ 4  /ssoft/spack/syrah/v3/opt/spack/linux-rhel9-icelake/gcc-11.3.0/ucx-1.12.1-mcggqmcvjobtoc4p26hednzka6pjghgm/lib/ucx/libuct_ib.so.0(uct_ib_mlx5_completion_with_err+0x5e5) [0x7f2ab2d12145]
+ 5  /ssoft/spack/syrah/v3/opt/spack/linux-rhel9-icelake/gcc-11.3.0/ucx-1.12.1-mcggqmcvjobtoc4p26hednzka6pjghgm/lib/ucx/libuct_ib.so.0(+0x37e02) [0x7f2ab2d24e02]
+ 6  /ssoft/spack/syrah/v3/opt/spack/linux-rhel9-icelake/gcc-11.3.0/ucx-1.12.1-mcggqmcvjobtoc4p26hednzka6pjghgm/lib/libucp.so.0(ucp_worker_progress+0x5a) [0x7f2ab428fc1a]
+ 7  /ssoft/spack/syrah/v3/opt/spack/linux-rhel9-icelake/gcc-11.3.0/openmpi-4.1.3-azmtin5fhibiyc5sezar7ptdnxmoclsl/lib/libopen-pal.so.40(opal_progress+0x2b) [0x7f2ab434145b]
+ 8  /ssoft/spack/syrah/v3/opt/spack/linux-rhel9-icelake/gcc-11.3.0/openmpi-4.1.3-azmtin5fhibiyc5sezar7ptdnxmoclsl/lib/libmpi.so.40(ompi_request_default_wait+0x3d) [0x7f2ab4d89b5d]
+ 9  /ssoft/spack/syrah/v3/opt/spack/linux-rhel9-icelake/gcc-11.3.0/openmpi-4.1.3-azmtin5fhibiyc5sezar7ptdnxmoclsl/lib/libmpi.so.40(ompi_coll_base_sendrecv_actual+0xac) [0x7f2ab4dee47c]
+10  /ssoft/spack/syrah/v3/opt/spack/linux-rhel9-icelake/gcc-11.3.0/openmpi-4.1.3-azmtin5fhibiyc5sezar7ptdnxmoclsl/lib/libmpi.so.40(ompi_coll_base_allreduce_intra_redscat_allgather+0xa41) [0x7f2ab4df3681]
+11  /ssoft/spack/syrah/v3/opt/spack/linux-rhel9-icelake/gcc-11.3.0/openmpi-4.1.3-azmtin5fhibiyc5sezar7ptdnxmoclsl/lib/libmpi.so.40(ompi_coll_tuned_allreduce_intra_dec_fixed+0x4a) [0x7f2ab4e0809a]
+12  /ssoft/spack/syrah/v3/opt/spack/linux-rhel9-icelake/gcc-11.3.0/openmpi-4.1.3-azmtin5fhibiyc5sezar7ptdnxmoclsl/lib/libmpi.so.40(PMPI_Allreduce+0xd6) [0x7f2ab4d9f5d6]
+13  /home/barbiere/HPC_EPFL/Project 1/./cgsolver() [0x40406d]
+14  /home/barbiere/HPC_EPFL/Project 1/./cgsolver() [0x403861]
+15  /home/barbiere/HPC_EPFL/Project 1/./cgsolver() [0x402660]
+16  /lib64/libc.so.6(+0x44e50) [0x7f2ab4823e50]
+17  /lib64/libc.so.6(__libc_start_main+0x7c) [0x7f2ab4823efc]
+18  /home/barbiere/HPC_EPFL/Project 1/./cgsolver() [0x4023b5]
+=================================
+[jst049:127622] *** Process received signal ***
+[jst049:127622] Signal: Aborted (6)
+[jst049:127622] Signal code:  (-6)
+[jst049:127622] [ 0] /lib64/libc.so.6(+0x59db0)[0x7f2ab4838db0]
+[jst049:127622] [ 1] /lib64/libc.so.6(+0xa642c)[0x7f2ab488542c]
+[jst049:127622] [ 2] /lib64/libc.so.6(raise+0x16)[0x7f2ab4838d06]
+[jst049:127622] [ 3] /lib64/libc.so.6(abort+0xd3)[0x7f2ab480b7d3]
+[jst049:127622] [ 4] /ssoft/spack/syrah/v3/opt/spack/linux-rhel9-icelake/gcc-11.3.0/ucx-1.12.1-mcggqmcvjobtoc4p26hednzka6pjghgm/lib/libucs.so.0(+0x2ae37)[0x7f2ab41c8e37]
+[jst049:127622] [ 5] /ssoft/spack/syrah/v3/opt/spack/linux-rhel9-icelake/gcc-11.3.0/ucx-1.12.1-mcggqmcvjobtoc4p26hednzka6pjghgm/lib/libucs.so.0(ucs_log_default_handler+0xe25)[0x7f2ab41cdc05]
+[jst049:127622] [ 6] /ssoft/spack/syrah/v3/opt/spack/linux-rhel9-icelake/gcc-11.3.0/ucx-1.12.1-mcggqmcvjobtoc4p26hednzka6pjghgm/lib/libucs.so.0(ucs_log_dispatch+0xd3)[0x7f2ab41cdd83]
+[jst049:127622] [ 7] /ssoft/spack/syrah/v3/opt/spack/linux-rhel9-icelake/gcc-11.3.0/ucx-1.12.1-mcggqmcvjobtoc4p26hednzka6pjghgm/lib/ucx/libuct_ib.so.0(uct_ib_mlx5_completion_with_err+0x5e5)[0x7f2ab2d12145]
+[jst049:127622] [ 8] /ssoft/spack/syrah/v3/opt/spack/linux-rhel9-icelake/gcc-11.3.0/ucx-1.12.1-mcggqmcvjobtoc4p26hednzka6pjghgm/lib/ucx/libuct_ib.so.0(+0x37e02)[0x7f2ab2d24e02]
+[jst049:127622] [ 9] /ssoft/spack/syrah/v3/opt/spack/linux-rhel9-icelake/gcc-11.3.0/ucx-1.12.1-mcggqmcvjobtoc4p26hednzka6pjghgm/lib/libucp.so.0(ucp_worker_progress+0x5a)[0x7f2ab428fc1a]
+[jst049:127622] [10] /ssoft/spack/syrah/v3/opt/spack/linux-rhel9-icelake/gcc-11.3.0/openmpi-4.1.3-azmtin5fhibiyc5sezar7ptdnxmoclsl/lib/libopen-pal.so.40(opal_progress+0x2b)[0x7f2ab434145b]
+[jst049:127622] [11] /ssoft/spack/syrah/v3/opt/spack/linux-rhel9-icelake/gcc-11.3.0/openmpi-4.1.3-azmtin5fhibiyc5sezar7ptdnxmoclsl/lib/libmpi.so.40(ompi_request_default_wait+0x3d)[0x7f2ab4d89b5d]
+[jst049:127622] [12] /ssoft/spack/syrah/v3/opt/spack/linux-rhel9-icelake/gcc-11.3.0/openmpi-4.1.3-azmtin5fhibiyc5sezar7ptdnxmoclsl/lib/libmpi.so.40(ompi_coll_base_sendrecv_actual+0xac)[0x7f2ab4dee47c]
+[jst049:127622] [13] /ssoft/spack/syrah/v3/opt/spack/linux-rhel9-icelake/gcc-11.3.0/openmpi-4.1.3-azmtin5fhibiyc5sezar7ptdnxmoclsl/lib/libmpi.so.40(ompi_coll_base_allreduce_intra_redscat_allgather+0xa41)[0x7f2ab4df3681]
+[jst049:127622] [14] /ssoft/spack/syrah/v3/opt/spack/linux-rhel9-icelake/gcc-11.3.0/openmpi-4.1.3-azmtin5fhibiyc5sezar7ptdnxmoclsl/lib/libmpi.so.40(ompi_coll_tuned_allreduce_intra_dec_fixed+0x4a)[0x7f2ab4e0809a]
+[jst049:127622] [15] /ssoft/spack/syrah/v3/opt/spack/linux-rhel9-icelake/gcc-11.3.0/openmpi-4.1.3-azmtin5fhibiyc5sezar7ptdnxmoclsl/lib/libmpi.so.40(PMPI_Allreduce+0xd6)[0x7f2ab4d9f5d6]
+[jst049:127622] [16] /home/barbiere/HPC_EPFL/Project 1/./cgsolver[0x40406d]
+[jst049:127622] [17] /home/barbiere/HPC_EPFL/Project 1/./cgsolver[0x403861]
+[jst049:127622] [18] /home/barbiere/HPC_EPFL/Project 1/./cgsolver[0x402660]
+[jst049:127622] [19] /lib64/libc.so.6(+0x44e50)[0x7f2ab4823e50]
+[jst049:127622] [20] /lib64/libc.so.6(__libc_start_main+0x7c)[0x7f2ab4823efc]
+[jst049:127622] [21] /home/barbiere/HPC_EPFL/Project 1/./cgsolver[0x4023b5]
+[jst049:127622] *** End of error message ***
+srun: error: jst049: task 18: Aborted (core dumped)
+srun: Terminating StepId=33596565.5
+slurmstepd: error: *** STEP 33596565.5 ON jst049 CANCELLED AT 2025-04-07T15:36:59 ***
+srun: error: jst053: tasks 19-24: Terminated
+srun: error: jst049: tasks 0-17: Terminated
+srun: Force Terminated StepId=33596565.5
