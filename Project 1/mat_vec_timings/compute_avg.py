@@ -1,9 +1,12 @@
 import os
+import re
+import matplotlib.pyplot as plt
+
 # get the path to this file
 path = os.path.dirname(os.path.abspath(__file__))
+processor_counts = [1, 2, 3, 5, 8, 10, 15, 20, 30, 40, 50, 75, 100]
 
 def process_files():
-    processor_counts = [1, 2, 3, 5, 8, 10, 15, 20, 30, 40, 50, 75, 100]
 
     for count in processor_counts:
         filename = f"{path}/mat_vec_time_p{count}.txt"
@@ -38,5 +41,40 @@ def process_files():
         else:
             print(f"No valid time entries found in {filename} or file is empty.")
 
+def plot_times_vs_processes():
+    processes = []
+    times = []
+
+    for p in processor_counts:
+        file_name = f"{path}/mat_vec_time_p{p}.txt"
+        print(file_name)
+        try:
+            with open(file_name, 'r') as f:
+                first_line = f.readline()
+                time_match = re.search(r'Average over \d+: ([\d.]+) s', first_line)
+                if time_match:
+                    avg_time = float(time_match.group(1))
+                    processes.append(p)
+                    times.append(avg_time)
+        except FileNotFoundError:
+            print(f"Warning: {file_name} not found. Skipping.")
+
+    # Compute efficiency and speedup of mat_vec function
+    speed_up = [times[0] / t for t in times]
+    efficiency = [s / p for s, p in zip(speed_up, processes)]
+    
+    # Plot
+    plt.figure(figsize=(8, 5))
+    plt.plot(processes, speed_up, marker='o', label='Speedup')
+    plt.plot(processes, efficiency, marker='o', label='Efficiency')
+    plt.xlabel('Number of Processes')
+    plt.ylabel('Average Time (s)')
+    plt.title('Average Time of mat_vec funciton vs Number of Processes')
+    plt.grid(True)
+    plt.legend()
+    plt.tight_layout()
+    plt.show()
+
+
 if __name__ == "__main__":
-    process_files()
+    plot_times_vs_processes()
