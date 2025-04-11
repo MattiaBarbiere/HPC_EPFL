@@ -64,17 +64,16 @@ def plot_times_vs_processes():
     efficiency = [s / p for s, p in zip(speed_up, processes)]
     
     # Plot
-    plt.figure(figsize=(8, 5))
+    plt.figure(figsize=(8, 5), dpi=200)
     plt.plot(processes, speed_up, marker='o', label='Speedup')
     plt.plot(processes, efficiency, marker='o', label='Efficiency')
     plt.xlabel('Number of Processes')
     plt.ylabel('Average Time (s)')
-    plt.title('Average Time of mat_vec funciton vs Number of Processes')
+    plt.title('Speedup and efficiency of mat_vec funciton vs Number of Processes')
     plt.grid(True)
     plt.legend()
     plt.tight_layout()
-    plt.show()
-
+    plt.savefig(f"Project 1/images/mat_vec_speedup_efficiency.png")
 
 if __name__ == "__main__":
     plot_times_vs_processes()
