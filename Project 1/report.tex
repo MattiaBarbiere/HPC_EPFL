@@ -1,0 +1,122 @@
+\documentclass{article}
+\usepackage[letterpaper,top=2cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=1.75cm]{geometry}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{fancyhdr}
+\renewcommand{\footrulewidth}{1pt}
+\fancyfoot[L]{\leftmark}
+\fancyfoot[C]{\textbf{n° \thepage}} 
+\fancyfoot[R]{15.11.2024}
+\usepackage{colortbl}
+\usepackage{multirow}
+\usepackage{booktabs}
+\usepackage{hhline}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{float}
+\usepackage{listings}
+\usepackage{subcaption}
+\usepackage{appendix}
+\usepackage{pgfplotstable}
+\pgfplotsset{compat=1.18}
+
+\usepackage{siunitx}
+
+\usepackage{booktabs} % For better table formatting
+
+\usepackage{amsthm}
+\usepackage{amssymb}
+\usepackage{enumitem}
+
+
+%\usepackage[hidelinks]{hyperref}
+\usepackage{hyperref}
+
+
+\usepackage{cleveref}
+
+\usepackage{multirow}
+\usepackage{tabularx}
+
+
+% Customize lstlistins captions
+\newcommand{\codeexcerptname}{Fragment}
+\usepackage{caption}
+\DeclareCaptionFormat{mylistings}{#1#2#3}
+\captionsetup[lstlisting]{format=mylistings, labelsep=space} % Remove colon
+\renewcommand\lstlistingname{\codeexcerptname} % Custom name for lstlistings
+
+% Rename Cref link to code fragments
+\Crefname{listing}{\codeexcerptname}{\codeexcerptname s}
+
+% Usage: \codeListing{FIILE.py}{FIRSTLINE}{LASTLINE}{CAPTION}{LABEL}
+\newcommand{\codeListing}[5]{%
+    \lstinputlisting[
+      language=Python,
+      caption={\href{https://gitlab.epfl.ch/jfox/optimization-on-manifolds-project-1/-/blame/main/code/#1?ref_type=heads\#L#2}{(\texttt{\detokenize{#1}})}: #4},
+      firstline=#2,
+      lastline=#3,
+      firstnumber=#2,
+      label={#5}]{code/#1}%
+}
+
+\begin{document}
+
+\thispagestyle{empty}
+
+\begin{figure}
+\centering
+\includegraphics[width=0.5\textwidth]{Project 1/images/LOGO.png}
+\end{figure}
+\vspace{0.5cm}
+\begin{center}
+\textsc{ \Large MATH-454: Parallel and high-performance computing}
+\vspace{1.5cm}
+\hrule
+\vspace{0.5cm}
+{\huge \bfseries Series 5}
+\vspace{0.5cm}
+\hrule
+\vspace{1.5cm}
+
+
+\emph{\Large \centering Author:}\\
+\vspace{0.3cm}
+
+\large Mattia \textsc{\large Barbiere} (387974)\\
+
+~
+
+\vspace{0.5cm}
+
+
+\emph{\Large \centering Professor:}\\
+\vspace{0.3cm}
+\large Pablo  \textsc{\large Antolin}\\
+~
+
+\vspace{0.5cm}
+
+\large Spring Semester - 2025
+
+\end{center}
+
+\clearpage
+\pagenumbering{arabic} 
+
+\section{Assessing inefficiencies: Profiling}
+The first step to any parallelize is understanding the bottleneck in the code. After taking some time to understand the code I performed a sequential profiling with \verb|perf| on the unaltered code give in the exercise.\footnote{}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\linewidth]{Project 1/images/Sequential_no_optimizer.png}
+    \caption{Sequential profiling with perf on the code before parallelization.}
+    \label{fig:perf_before_para}
+\end{figure}
+
+
+
+\section{Conclusion and further considerations}
+In this report I focus on the parallelization of conjugate gradient method for solving linear systems. While the main focus of this project was on parallelizing the \verb|mat_vec| function there are further improvements that one might apply to squeeze out even more performance. The main improvement that comes to mind was the loading of the matrix onto all processors. This is indeed very wasteful when the matrix is large since every processor only uses a faction of the stored data. A remedy to this would be scattering the matrix with \verb|MPI_Scatter| from processor 0 to all the other processors so that each processor would have to store only the part of the matrix it actually uses. Moreover, one would go one step further and directly load the relevant part of the matrix to each processor, avoiding \verb|MPI_Scatter| entirely. These improvements would definitely help with memory efficiency, however the implementation of these approach were outside the scope of this exercise.
+
+\end{document}
