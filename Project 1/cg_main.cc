@@ -72,12 +72,12 @@ int main(int argc, char **argv)
   avg_time_solving /= size;
   avg_time_loading /= size;
 
+  // Total time for loading and solving
+  double total_time = t_loading + t_solving;
+
   if (rank == 0 && SHOW_TIME)
   {
-    std::cout << "p = " << size << " Loading time: " << t_loading << " [s]\n";
-    std::cout << "p = " << size << " Solving time: " << t_solving << " [s]\n";
-    std::cout << "p = " << size << " Average loading time: " << avg_time_loading << " [s]\n";
-    std::cout << "p = " << size << " Average solving time: " << avg_time_solving << " [s]\n";
+    std::cout << "p = " << size << " Time: " << t_loading << " [s]\n";
     std::cout << std::endl;
   }
   

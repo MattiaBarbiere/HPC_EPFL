@@ -2,14 +2,17 @@ import os
 import re
 import matplotlib.pyplot as plt
 
+path = os.path.dirname(os.path.abspath(__file__))
+
 # List of processor counts
 processor_counts = [1, 2, 4, 8, 10, 15, 20, 25, 30, 40, 50, 75, 100]
+alpha = 0.892760
 
 # Data will be organized as: {n: {p: time}}
 data = {}
 
 for p in processor_counts:
-    filename = f'./Project 1/SS_{p}.txt'
+    filename = f'{path}/SS_{p}.txt'
     if not os.path.isfile(filename):
         print("here")
         continue
@@ -35,8 +38,10 @@ for p in processor_counts:
 # Plotting: for each fixed problem size n, plot p vs time
 fig, ax = plt.subplots(figsize=(10, 6))
 
+values_n_to_avoid = [1000, 2000]
+
 for n in sorted(data):
-    if n == 2000:
+    if n in values_n_to_avoid:
         continue
     p_vals = sorted(data[n])
     t_vals = [data[n][p] for p in p_vals]
