@@ -13,10 +13,10 @@ module load gcc openmpi openblas
 # srun ./cgsolver lap2D_5pt_n200.mtx
 # srun ./cgsolver lap2D_5pt_n600.mtx
 srun ./cgsolver lap2D_5pt_n1000.mtx
-srun ./cgsolver lap2D_5pt_n1000.mtx
-srun ./cgsolver lap2D_5pt_n1000.mtx
-srun ./cgsolver lap2D_5pt_n1000.mtx
-srun ./cgsolver lap2D_5pt_n1000.mtx
+# srun ./cgsolver lap2D_5pt_n1000.mtx
+# srun ./cgsolver lap2D_5pt_n1000.mtx
+# srun ./cgsolver lap2D_5pt_n1000.mtx
+# srun ./cgsolver lap2D_5pt_n1000.mtx
 # srun ./cgsolver lap2D_5pt_n1000.mtx
 # srun ./cgsolver lap2D_5pt_n1000.mtx
 # srun ./cgsolver lap2D_5pt_n1000.mtx

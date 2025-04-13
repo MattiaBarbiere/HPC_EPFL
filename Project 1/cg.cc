@@ -1,8 +1,11 @@
 #include "cg.hh"
 #include <algorithm>
+#include <chrono>
 #include <cblas.h>
 #include <cmath>
 #include <iostream>
+
+using clk = std::chrono::high_resolution_clock;
 
 const double NEARZERO = 1.0e-14; // Small value to avoid division by zero
 const bool DEBUG = true;        // Debugging flag
@@ -12,11 +15,16 @@ Sparse version of the Conjugate Gradient (CG) solver
 */
 void CGSolverSparse::solve(std::vector<double> &x)
 {
+  // Start time to keep track of time spent by mat_vec
+  double total_time_mat_vec = 0.0;
 
   std::vector<double> r(m_n), p(m_n), Ap(m_n), tmp(m_n);
 
   // Compute initial residual: r = b - A * x
+  auto start_time = clk::now();
   m_A.mat_vec(x, Ap);
+  total_time_mat_vec += std::chrono::duration_cast<std::chrono::duration<double>>(clk::now() - start_time).count();
+  
   r = m_b;
   cblas_daxpy(m_n, -1., Ap.data(), 1, r.data(), 1);
 
@@ -31,7 +39,9 @@ void CGSolverSparse::solve(std::vector<double> &x)
   for (; k < m_n; ++k)
   {
     // Compute Ap = A * p
+    auto start_time = clk::now();
     m_A.mat_vec(p, Ap);
+    total_time_mat_vec += std::chrono::duration_cast<std::chrono::duration<double>>(clk::now() - start_time).count();
 
     // Compute step size: alpha = rsold / (p' * Ap)
     auto alpha = rsold / std::max(cblas_ddot(m_n, p.data(), 1, Ap.data(), 1), rsold * NEARZERO);
@@ -72,6 +82,7 @@ void CGSolverSparse::solve(std::vector<double> &x)
     auto nx = std::sqrt(cblas_ddot(m_n, x.data(), 1, x.data(), 1));
     std::cout << "\t[STEP " << k << "] residual = " << std::scientific << std::sqrt(rsold) << ", ||x|| = " << nx
               << ", ||Ax - b||/||b|| = " << res << std::endl;
+    std::cout << "\t[STEP " << k << "] mat_vec time = " << total_time_mat_vec << " [s]" << std::endl;
   }
   
 }

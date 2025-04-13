@@ -1,39 +1,41 @@
 import re
 import os
-path = os.path.dirname(os.path.abspath(__file__))
 
 # Path to your file
-file_path = f"{path}/tot_time_p1.txt"  # Replace with your actual file path
+path = os.path.dirname(os.path.abspath(__file__))
+file_path = f"{path}/tot_time_p1.txt"  # Replace with your actual filename
 
-# Regular expressions to extract times
-loading_pattern = re.compile(r'Average loading time:\s*([0-9.e+-]+)\s*\[s\]')
-solving_pattern = re.compile(r'Average solving time:\s*([0-9.e+-]+)\s*\[s\]')
+# Initialize variables
+mat_vec_time = None
+avg_loading_time = None
+avg_solving_time = None
 
-# Lists to store times
-loading_times = []
-solving_times = []
+# Patterns
+mat_vec_pattern = re.compile(r'mat_vec time = ([\d.e+-]+)')
+avg_loading_pattern = re.compile(r'Average loading time:\s*([\d.e+-]+)')
+avg_solving_pattern = re.compile(r'Average solving time:\s*([\d.e+-]+)')
 
-# Read file and extract times
+# Read file and extract data
 with open(file_path, 'r') as f:
     for line in f:
-        load_match = loading_pattern.search(line)
-        solve_match = solving_pattern.search(line)
+        if mat_vec_time is None:
+            match = mat_vec_pattern.search(line)
+            if match:
+                mat_vec_time = float(match.group(1))
+        if avg_loading_time is None:
+            match = avg_loading_pattern.search(line)
+            if match:
+                avg_loading_time = float(match.group(1))
+        if avg_solving_time is None:
+            match = avg_solving_pattern.search(line)
+            if match:
+                avg_solving_time = float(match.group(1))
 
-        if load_match:
-            loading_times.append(float(load_match.group(1)))
-        if solve_match:
-            solving_times.append(float(solve_match.group(1)))
+# Compute total average time
+total_avg_time = None
+if avg_loading_time is not None and avg_solving_time is not None:
+    total_avg_time = avg_loading_time + avg_solving_time
 
-# Calculate averages
-avg_loading = sum(loading_times) / len(loading_times) if loading_times else 0
-avg_solving = sum(solving_times) / len(solving_times) if solving_times else 0
-
-# Format output to append
-average_info = f" | Overall avg loading time: {avg_loading:.6f} s, avg solving time: {avg_solving:.6f} s"
-
-# Append to first line
-lines[0] = lines[0].rstrip('\n') + average_info + '\n'
-
-# Write back to file
-with open(file_path, 'w') as f:
-    f.writelines(lines)
+# Output the results
+print(f"mat_vec time: {mat_vec_time:.6f} s")
+print(f"Total average time: {total_avg_time:.6f} s")
