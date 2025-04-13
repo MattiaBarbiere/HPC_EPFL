@@ -1,4 +1,4 @@
-lap2D_5pt_n1000.mtx
+lap2D_5pt_n1000.mtx | Total time: 295.202144 s
 	[STEP 5638] residual = 1.007731e-10, ||x|| = 2.090356e+14, ||Ax - b||/||b|| = 3.803524e-10
 	[STEP 5638] mat_vec time = 2.565658e+02 [s]
 p = 1 Loading time: 6.402955e-01 [s]
