@@ -8,7 +8,7 @@
 using clk = std::chrono::high_resolution_clock;
 
 const double NEARZERO = 1.0e-14; // Small value to avoid division by zero
-const bool DEBUG = false;        // Debugging flag
+const bool DEBUG = true;        // Debugging flag
 
 /*
 Sparse version of the Conjugate Gradient (CG) solver

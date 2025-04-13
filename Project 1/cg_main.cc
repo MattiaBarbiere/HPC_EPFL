@@ -77,7 +77,7 @@ int main(int argc, char **argv)
 
   if (rank == 0 && SHOW_TIME)
   {
-    std::cout << "p = " << size << " Time: " << t_loading << " [s]\n";
+    std::cout << "p = " << size << " Time: " << total_time << " [s]\n";
     std::cout << std::endl;
   }
   

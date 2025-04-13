@@ -3,7 +3,7 @@ import os
 
 # Path to your file
 path = os.path.dirname(os.path.abspath(__file__))
-file_path = f"{path}/tot_time_p1.txt"  # Replace with your actual filename
+file_path = f"{path}/tot_time.txt"  # Replace with your actual filename
 
 # Initialize variables
 mat_vec_time = None
@@ -40,9 +40,9 @@ if mat_vec_time and avg_loading_time and avg_solving_time:
     alpha = mat_vec_time / total_avg_time
     result_line = f"Alpha = {alpha:.6f}\n"
 
-    # Append to file
-    with open(file_path, 'a') as f:
-        f.write(result_line)
+    # # Append to file
+    # with open(file_path, 'a') as f:
+    #     f.write(result_line)
 
     print("Appended to file:", result_line.strip())
 else:
