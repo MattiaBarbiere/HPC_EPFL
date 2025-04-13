@@ -6,7 +6,7 @@ path = os.path.dirname(os.path.abspath(__file__))
 
 # List of processor counts
 processor_counts = [1, 2, 4, 8, 10, 15, 20, 25, 30, 40, 50, 75, 100]
-alpha = 0.892760
+alpha = 0.750815
 
 # Data will be organized as: {n: {p: time}}
 data = {}
@@ -38,7 +38,7 @@ for p in processor_counts:
 # Plotting: for each fixed problem size n, plot p vs time
 fig, ax = plt.subplots(figsize=(10, 6))
 
-values_n_to_avoid = [1000, 2000]
+values_n_to_avoid = [2000]
 
 for n in sorted(data):
     if n in values_n_to_avoid:
