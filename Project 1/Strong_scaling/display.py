@@ -35,23 +35,70 @@ for p in processor_counts:
                 data[n] = {}
             data[n][p] = time
 
+# Compute empirircal speedup and efficiency
+speedup = {}
+efficiency = {}
+ideal_speedup = {}
+ideal_efficiency = {}
+
+for n in data:
+    if 1 not in data[n]:
+        continue
+    serial_time = data[n][1]
+    speedup[n] = {}
+    efficiency[n] = {}
+    ideal_speedup[n] = {}
+    ideal_efficiency[n] = {}
+    for p in data[n]:
+        speedup[n][p] = serial_time / data[n][p]
+        efficiency[n][p] = speedup[n][p] / p
+        ideal_speedup[n][p] = 1/((1 - alpha) + alpha / p)
+        ideal_efficiency[n][p] = ideal_speedup[n][p] / p
+
+
+
 # Plotting: for each fixed problem size n, plot p vs time
-fig, ax = plt.subplots(figsize=(10, 6))
+fig, ax = plt.subplots(2,1, figsize=(10, 6), dpi=100)
 
-values_n_to_avoid = [2000]
+# Note there is an outlier at N=2000 and p = 40 
+values_n_to_avoid = [200, 300, 2000]
 
-for n in sorted(data):
+for n in sorted(speedup):
     if n in values_n_to_avoid:
         continue
-    p_vals = sorted(data[n])
-    t_vals = [data[n][p] for p in p_vals]
-    plt.plot(p_vals, t_vals, marker='o', label=f'n = {n}')
+    p_vals = sorted(speedup[n])
 
-plt.xlabel('Number of Processors (p)')
-plt.ylabel('Time (s)')
-plt.title('Execution Time vs Number of Processors')
-plt.legend(title='Problem Size n')
-plt.grid(True)
+    # Plot the efficiency vs number of processors
+    y_vals = [efficiency[n][p] for p in p_vals]
+    ax[0].plot(p_vals, y_vals, marker='o', label=f'N = {n}')
+
+    # Plot the speedup vs number of processors
+    y_vals = [speedup[n][p] for p in p_vals]
+    ax[1].plot(p_vals, y_vals, marker='o', label=f'N = {n}')
+
+# Plot the ideal speedup vs number of processors only once
+for n in sorted(speedup):
+    if n in values_n_to_avoid:
+        continue
+    p_vals = sorted(speedup[n])
+    y_vals_ideal = [ideal_speedup[n][p] for p in p_vals]
+    ax[1].plot(p_vals, y_vals_ideal, marker='o', label=f'Ideal', linestyle='--')
+    y_vals_ideal = [ideal_efficiency[n][p] for p in p_vals]
+    ax[0].plot(p_vals, y_vals_ideal, marker='o', label=f'Ideal', linestyle='--')
+    break
+
+
+
+ax[0].set_ylabel('Efficiency')
+ax[0].set_title('Efficiency vs Number of Processors')
+ax[0].legend(title='Problem Size N')
+ax[0].grid(True)
+
+ax[1].set_ylabel('Speedup')
+ax[1].set_title('Speedup vs Number of Processors')
+ax[1].legend(title='Problem Size N')
+ax[1].grid(True)
+ax[1].set_xlabel('Number of Processors (p)')
 plt.tight_layout()
 plt.show()
 
