@@ -20,6 +20,7 @@
 \usepackage{pgfplotstable}
 \pgfplotsset{compat=1.18}
 
+
 \usepackage{siunitx}
 
 \usepackage{booktabs} % For better table formatting
@@ -103,20 +104,48 @@
 
 \clearpage
 \pagenumbering{arabic} 
+\newgeometry{bottom=1.5cm, top=1.5cm, left=1.5cm, right=1.5cm}
 
 \section{Assessing inefficiencies: Profiling}
-The first step to any parallelize is understanding the bottleneck in the code. After taking some time to understand the code I performed a sequential profiling with \verb|perf| on the unaltered code give in the exercise.\footnote{}
+The first step to any parallelize is understanding the bottleneck in the code. After taking some time to understand the code I performed a sequential profiling with \texttt{perf} on the unaltered code give in the exercise. Please note that throughout this report the code was compiled without any optimizer so that results are more evident.\\
+From \Cref{fig:perf_before_para} it is clear that the main bottleneck that we can control is the \texttt{mat\_vec} function that performs matrix vector multiplication on the spare matrix. Another function that we may want to improve is the \texttt{CGSolverSpare::solve}. This function implements the algorithm presented in the exercise. The problem, however, is that by simple inspection of said algorithm we understand that it is inherently sequential and thus cannot be parallelized. Just the fact that $p_{k+1}$ depends on $p_k$ means that we must first have calculated $p_k$ before performing the $k+1$ step.
 
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=\linewidth]{Project 1/images/Sequential_no_optimizer.png}
-    \caption{Sequential profiling with perf on the code before parallelization.}
+    \includegraphics[width=0.6\linewidth]{Project 1/images/Sequential_no_optimizer.png}
+    \caption{Sequential profiling with \texttt{perf} on the code before parallelization.}
     \label{fig:perf_before_para}
 \end{figure}
+
+\section{Dividing the work: MPI parallelization}
+After having found the candidate for parallelization the next step was implementing it using MPI. The crux of the \texttt{mat\_vec} function the the for loop that performs the multiplication and addition of the matrix and vector. The strategy I invoked to parallelize this function was to evenly split the non-zero indices of the matrix among the given processors. The processors would then compute the additions and multiplication regarding only their portion of the matrix and have zero values in the rest of the output vector. Finally to return the completed results I performed a \texttt{MPI\_Allreduce} with the \texttt{MPI\_SUM} operation. After checking that the paralelized result was consistant with the original one I timed how long the \texttt{mat\_vec} function took to compute as I varied the number of processors. The speedup and efficiency of the \texttt{mat\_vec} function are presented in \Cref{fig:speed_eff_mat_vec}.
+
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.6\linewidth]{Project 1/images/mat_vec_speedup_efficiency.png}
+    \caption{Average speedup and efficiency of the \texttt{mat\_vec} function when applied to \texttt{lap2D\_5pt\_n1000.mtx}.}
+    \label{fig:speed_eff_mat_vec}
+\end{figure}
+We clearly see that there is an initial speed up when we go from $1$ processor to $25$, however after this there is a evident plateau where the additional processors have no effect on the speed up. It is thus also understandable that the efficiency starts very close to one but eventually decays to $0$ as additional processors are of little help.
+
+\section{The bigger picture: Strong and weak scaling}
+The parallelization of the \texttt{mat\_vec} function is only one part of the code. We we look at the code in its entirety we get a very different picture. Firstly, let's get an idea about the computational complexity of the code. For a single iteration of the CG method most operations take $O(N)$ where $N$ is the size of the vector $b$, however the matrix vector product takes $O(N_{nz})$ where $N_{nz}$ is the number of non-zero entries of the matrix. Thus, for $k$ iterations, the time complexity is $O(k(N_{nz} + N))$. A similar argument would show that the memory scales as $O(N_{nz} + 4N)$ to store $b, x_k, r_k$ and $p_k$. AS previously discussed only the matrix vector product can be parallelized, hence for $p$ processors we have a time complexity of $O(k(\frac{N_{nz}}{p} + N))$ \\
+
+
+
+This is highly likely to be due to the fact that the code has become memory bound and thus additional processors will not help the speedup and actually may even hurt performance as the communication complexity increases as we increase the number of processors. 
 
 
 
 \section{Conclusion and further considerations}
-In this report I focus on the parallelization of conjugate gradient method for solving linear systems. While the main focus of this project was on parallelizing the \verb|mat_vec| function there are further improvements that one might apply to squeeze out even more performance. The main improvement that comes to mind was the loading of the matrix onto all processors. This is indeed very wasteful when the matrix is large since every processor only uses a faction of the stored data. A remedy to this would be scattering the matrix with \verb|MPI_Scatter| from processor 0 to all the other processors so that each processor would have to store only the part of the matrix it actually uses. Moreover, one would go one step further and directly load the relevant part of the matrix to each processor, avoiding \verb|MPI_Scatter| entirely. These improvements would definitely help with memory efficiency, however the implementation of these approach were outside the scope of this exercise.
+In this report I focused on the parallelization of conjugate gradient method for solving linear systems. I presented the results of the parallelization of the \verb|mat_vec| function and we saw how the full code performed under strong and scaling. While the main focus of this project was on parallelizing the \verb|mat_vec| function there are further improvements that one might apply to squeeze out even more performance. Since the code has become memory bound allocating only the necessary part of the matrix to each processor may help alleviate this problem and gain even more performance.  
+
+
+
+% The main improvement that comes to mind was the loading of the matrix onto all processors. This is indeed very wasteful when the matrix is large since every processor only uses a faction of the stored data. A remedy to this would be scattering the matrix with \verb|MPI_Scatter| from processor 0 to all the other processors so that each processor would have to store only the part of the matrix it actually uses. Moreover, one would go one step further and directly load the relevant part of the matrix to each processor, avoiding \verb|MPI_Scatter| entirely. 
+
+
+% These improvements would definitely help with memory efficiency, however the implementation of these approach were outside the scope of this exercise.
 
 \end{document}
