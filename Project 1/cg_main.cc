@@ -7,6 +7,9 @@ using clk = std::chrono::high_resolution_clock;
 using second = std::chrono::duration<double>;
 using time_point = std::chrono::time_point<clk>;
 
+// Flag to print time information
+const bool SHOW_TIME = true;
+
 /*
 Simple CG solver using a matrix in Matrix Market (MTX) format.
 */
@@ -29,6 +32,10 @@ int main(int argc, char **argv)
 
 
   CGSolverSparse sparse_solver;
+
+  // Begin timing for loading
+  auto start_time_loading = clk::now(); // Start timing
+
   sparse_solver.read_matrix(argv[1]); // Load the matrix from the file
   int n = sparse_solver.n();         // Number of rows
   //int m = sparse_solver.m();         // Number of columns
@@ -37,6 +44,13 @@ int main(int argc, char **argv)
   sparse_solver.init_source_term(h); // Initialize the source term
 
   std::vector<double> x_s(n, 0.);    // Initialize solution vector with zeros
+   // End timing for loading
+  second elapsed_loading = clk::now() - start_time_loading; // Compute elapsed time
+  auto t_loading = elapsed_loading.count(); // Get elapsed time in seconds
+
+
+
+
 
   if (rank == 0){
   std::cout << argv[1] << std::endl;
@@ -44,20 +58,30 @@ int main(int argc, char **argv)
   }
   
   auto t1 = clk::now();              // Start timing
+  
   sparse_solver.solve(x_s);          // Solve the system
   
   second elapsed = clk::now() - t1;  // Compute elapsed time
-  auto t = elapsed.count(); // Get elapsed time in seconds
+  auto t_solving = elapsed.count(); // Get elapsed time in seconds
 
   // Get the average time across all processes
-  double avg_time;
-  MPI_Reduce(&(t), &avg_time, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
-  avg_time /= size; // Average time across all processes
+  double avg_time_solving;
+  double avg_time_loading;
+  MPI_Reduce(&(t_solving), &avg_time_solving, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+  MPI_Reduce(&(t_loading), &avg_time_loading, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+  avg_time_solving /= size;
+  avg_time_loading /= size;
 
-  if (rank == 0){
-  std::cout << "p = " << size << " Time = " << avg_time << " [s]\n";
-  std::cout << std::endl;
-}
+  if (rank == 0 && SHOW_TIME)
+  {
+    std::cout << "p = " << size << " Loading time: " << t_loading << " [s]\n";
+    std::cout << "p = " << size << " Solving time: " << t_solving << " [s]\n";
+    std::cout << "p = " << size << " Average loading time: " << avg_time_loading << " [s]\n";
+    std::cout << "p = " << size << " Average solving time: " << avg_time_solving << " [s]\n";
+    std::cout << std::endl;
+  }
+  
+  
   MPI_Finalize(); // Finalize MPI
   return 0; // Exit successfully
 }

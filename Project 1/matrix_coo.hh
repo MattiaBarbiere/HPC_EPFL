@@ -8,6 +8,9 @@
 #ifndef __MATRIX_COO_H_
 #define __MATRIX_COO_H_
 
+// A flag to print time information
+const bool TIME_MAT_VEC = false;
+
 class MatrixCOO {
 public:
   MatrixCOO() = default; // Default constructor
@@ -22,6 +25,7 @@ public:
 
   // Perform matrix-vector multiplication: y = A * x
   void mat_vec(const std::vector<double> &x, std::vector<double> &y) {
+
     double t0 = MPI_Wtime();
 
     int rank, size;
@@ -66,7 +70,11 @@ public:
     }
     double t1 = MPI_Wtime();
     double dt = t1 - t0;
-    std::cout << "Rank " << rank << " time in mat_vec: " << dt << " s" << std::endl;
+
+    // Print the time taken for matrix-vector multiplication if the flag is set
+    if (TIME_MAT_VEC) {
+      std::cout << "Rank " << rank << " time in mat_vec: " << dt << " s" << std::endl;
+    }
     MPI_Allreduce(y_local.data(), y.data(), y.size(), MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 
 
