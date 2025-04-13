@@ -1,0 +1,3 @@
+Weak_scaling/matricies/weak_matrix_75.mtx
+p = 75 Time = 2197.74 [s]
+

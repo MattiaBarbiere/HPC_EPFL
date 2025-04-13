@@ -1,0 +1,3 @@
+Weak_scaling/matricies/weak_matrix_50.mtx
+P = 50 Time = 1282.87 [s]
+

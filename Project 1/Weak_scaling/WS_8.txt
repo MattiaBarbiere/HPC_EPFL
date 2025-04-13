@@ -1,0 +1,3 @@
+Weak_scaling/matricies/weak_matrix_8.mtx
+p = 8 Time = 29.3774 [s]
+

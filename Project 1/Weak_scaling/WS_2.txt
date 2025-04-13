@@ -1,0 +1,3 @@
+Weak_scaling/matricies/weak_matrix_2.mtx
+p = 2 Time = 2.0127 [s]
+

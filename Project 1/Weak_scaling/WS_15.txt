@@ -1,0 +1,3 @@
+Weak_scaling/matricies/weak_matrix_15.mtx
+p = 15 Time = 106.418 [s]
+

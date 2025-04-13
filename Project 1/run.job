@@ -3,17 +3,36 @@
 #SBATCH --account=math-454
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
-#SBATCH --output=tot_timings/tot_time.txt
-#SBATCH --time=05:00:00
+#SBATCH --output=Weak_scaling/tot_timings/tot_time.txt
+#SBATCH --time=48:00:00
 
 module purge
 module load gcc openmpi openblas
 
-# srun ./cgsolver lap2D_5pt_n100.mtx
+srun ./cgsolver Weak_scaling/matricies/weak_matrix_1.mtx
+srun ./cgsolver Weak_scaling/matricies/weak_matrix_2.mtx
+srun ./cgsolver Weak_scaling/matricies/weak_matrix_4.mtx
+srun ./cgsolver Weak_scaling/matricies/weak_matrix_8.mtx
+srun ./cgsolver Weak_scaling/matricies/weak_matrix_10.mtx
+srun ./cgsolver Weak_scaling/matricies/weak_matrix_15.mtx
+srun ./cgsolver Weak_scaling/matricies/weak_matrix_20.mtx
+srun ./cgsolver Weak_scaling/matricies/weak_matrix_30.mtx
+srun ./cgsolver Weak_scaling/matricies/weak_matrix_40.mtx
+srun ./cgsolver Weak_scaling/matricies/weak_matrix_50.mtx
+srun ./cgsolver Weak_scaling/matricies/weak_matrix_75.mtx
+srun ./cgsolver Weak_scaling/matricies/weak_matrix_100.mtx
+
+
+
+
+
+
+
+
 # srun ./cgsolver lap2D_5pt_n200.mtx
 # srun ./cgsolver lap2D_5pt_n300.mtx
 # srun ./cgsolver lap2D_5pt_n600.mtx
-srun ./cgsolver lap2D_5pt_n1000.mtx
+# srun ./cgsolver lap2D_5pt_n1000.mtx
 # srun ./cgsolver lap2D_5pt_n2000.mtx
 # perf record -F 4000 -m 512 -o perf.data --call-graph dwarf ./cgsolver lap2D_5pt_n300.mtx > perf_p1/perf_output_sequential_p1.txt 2>&1
 
