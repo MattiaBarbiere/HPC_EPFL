@@ -58,7 +58,7 @@ for n in data:
 
 
 # Plotting: for each fixed problem size n, plot p vs time
-fig, ax = plt.subplots(2,1, figsize=(10, 6), dpi=100)
+fig, ax = plt.subplots(2,1, figsize=(6, 6), dpi=100)
 
 # Note there is an outlier at N=2000 and p = 40 
 values_n_to_avoid = [200, 300, 2000]

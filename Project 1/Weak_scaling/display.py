@@ -78,7 +78,7 @@ for p in data_1.keys():
     efficiency[p] = speedup[p] / p
 
 # Plot everything
-fig, ax = plt.subplots(2, 1, figsize=(10, 6), dpi=100)
+fig, ax = plt.subplots(2, 1, figsize=(6, 6), dpi=100)
 
 ax[0].plot(processor_counts, efficiency.values(), marker='o', label='Empirical Efficiency')
 ax[0].plot(processor_counts, ideal_efficiency.values(), marker='o', label='Ideal Efficiency', linestyle='--', color="red")
