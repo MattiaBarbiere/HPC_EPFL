@@ -1,0 +1,60 @@
+Weak_scaling/matricies/weak_matrix_1.mtx
+	[STEP 377] residual = 1.035635e-10, ||x|| = 1.635417e+09, ||Ax - b||/||b|| = 1.040144e-13
+	[STEP 377] mat_vec time = 7.991285e-01 [s]
+p = 1 Time = 9.009718e-01 [s]
+
+Weak_scaling/matricies/weak_matrix_2.mtx
+	[STEP 767] residual = 1.043435e-10, ||x|| = 1.736174e+10, ||Ax - b||/||b|| = 5.589029e-13
+	[STEP 767] mat_vec time = 3.287207e+00 [s]
+p = 1 Time = 3.636579e+00 [s]
+
+Weak_scaling/matricies/weak_matrix_4.mtx
+	[STEP 1519] residual = 1.017935e-10, ||x|| = 1.886861e+11, ||Ax - b||/||b|| = 3.132252e-12
+	[STEP 1519] mat_vec time = 1.326800e+01 [s]
+p = 1 Time = 1.480601e+01 [s]
+
+Weak_scaling/matricies/weak_matrix_8.mtx
+	[STEP 2924] residual = 1.004768e-10, ||x|| = 2.060231e+12, ||Ax - b||/||b|| = 1.652436e-11
+	[STEP 2924] mat_vec time = 5.156784e+01 [s]
+p = 1 Time = 5.745367e+01 [s]
+
+Weak_scaling/matricies/weak_matrix_10.mtx
+	[STEP 3352] residual = 1.018536e-10, ||x|| = 4.438722e+12, ||Ax - b||/||b|| = 2.813118e-11
+	[STEP 3352] mat_vec time = 7.405787e+01 [s]
+p = 1 Time = 8.264039e+01 [s]
+
+Weak_scaling/matricies/weak_matrix_15.mtx
+	[STEP 4201] residual = 1.008015e-10, ||x|| = 1.778760e+13, ||Ax - b||/||b|| = 5.658504e-11
+	[STEP 4201] mat_vec time = 1.389515e+02 [s]
+p = 1 Time = 1.558651e+02 [s]
+
+Weak_scaling/matricies/weak_matrix_20.mtx
+	[STEP 5246] residual = 1.012985e-10, ||x|| = 4.722614e+13, ||Ax - b||/||b|| = 1.289699e-10
+	[STEP 5246] mat_vec time = 2.313366e+02 [s]
+p = 1 Time = 2.602904e+02 [s]
+
+Weak_scaling/matricies/weak_matrix_30.mtx
+	[STEP 7052] residual = 1.010298e-10, ||x|| = 1.830915e+14, ||Ax - b||/||b|| = 2.429049e-10
+	[STEP 7052] mat_vec time = 4.668478e+02 [s]
+p = 1 Time = 5.267057e+02 [s]
+
+Weak_scaling/matricies/weak_matrix_40.mtx
+	[STEP 8365] residual = 1.010202e-10, ||x|| = 4.667387e+14, ||Ax - b||/||b|| = 5.113937e-10
+	[STEP 8365] mat_vec time = 7.375034e+02 [s]
+p = 1 Time = 8.325196e+02 [s]
+
+Weak_scaling/matricies/weak_matrix_50.mtx
+	[STEP 9417] residual = 1.008648e-10, ||x|| = 9.418308e+14, ||Ax - b||/||b|| = 7.100888e-10
+	[STEP 9417] mat_vec time = 1.039595e+03 [s]
+p = 1 Time = 1.174277e+03 [s]
+
+Weak_scaling/matricies/weak_matrix_75.mtx
+	[STEP 11640] residual = 1.001102e-10, ||x|| = 3.110221e+15, ||Ax - b||/||b|| = 1.524418e-09
+	[STEP 11640] mat_vec time = 1.927094e+03 [s]
+p = 1 Time = 2.174648e+03 [s]
+
+Weak_scaling/matricies/weak_matrix_100.mtx
+	[STEP 17720] residual = 1.092125e-10, ||x|| = 6.679022e+15, ||Ax - b||/||b|| = 2.481321e-09
+	[STEP 17720] mat_vec time = 3.914339e+03 [s]
+p = 1 Time = 4.414497e+03 [s]
+
