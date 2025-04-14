@@ -103,4 +103,4 @@ plt.tight_layout()
 plt.show()
 
 # Save image under images
-fig.savefig('Project 1/images/execution_time_vs_processors.png')
+fig.savefig('Project 1/images/strong_scaling.png', dpi=fig.dpi, bbox_inches='tight')

@@ -10,7 +10,6 @@ input_path = os.path.join(path, file)
 mat_vec_pattern = re.compile(r'mat_vec\s*time\s*=\s*([\d.e+-]+)')
 avg_pattern = re.compile(r'p\s*=\s*1\s*Time\s*=\s*([\d.e+-]+)')
 
-print(input_path)
 with open(input_path, 'r') as f:
     lines = f.readlines()
 

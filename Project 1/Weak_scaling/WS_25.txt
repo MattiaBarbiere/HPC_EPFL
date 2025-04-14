@@ -1,3 +1,0 @@
-Weak_scaling/matricies/weak_matrix_25.mtx
-p = 25 Time = 356.307 [s]
-
