@@ -67,9 +67,9 @@ def plot_times_vs_processes():
     ideal_efficiency = [1] * len(processes)
     
     # Plot
-    plt.figure(figsize=(8, 5), dpi=200)
-    plt.plot([1, 2, 3, 4, 5, 6], [1, 2, 3, 4, 5, 6], linestyle='--', label='Ideal Speedup', linewidth=2.5)
-    plt.plot(processes, ideal_efficiency, linestyle='--', label='Ideal Efficiency', linewidth=2.5)
+    plt.figure(figsize=(6, 5), dpi=100)
+    plt.plot([1, 2, 3, 4, 5, 6], [1, 2, 3, 4, 5, 6], linestyle='--', label='Speedup = p', linewidth=2.5)
+    plt.plot(processes, ideal_efficiency, linestyle='--', label='Efficiency = 1', linewidth=2.5)
     plt.plot(processes, speed_up, marker='o', label='Speedup')
     plt.plot(processes, efficiency, marker='o', label='Efficiency')
     plt.xlabel('Number of Processes')
@@ -79,7 +79,7 @@ def plot_times_vs_processes():
     plt.legend()
     plt.tight_layout()
     plt.savefig(f"Project 1/images/mat_vec_speedup_efficiency.png")
-    # plt.show()
+    plt.show()
 
 if __name__ == "__main__":
     plot_times_vs_processes()
