@@ -2,7 +2,7 @@ import re
 import os
 
 path = os.path.dirname(os.path.abspath(__file__))
-file = 'tot_time.txt'  # Replace with your file name
+file = 'tot_time.txt'
 
 input_path = os.path.join(path, file)
 

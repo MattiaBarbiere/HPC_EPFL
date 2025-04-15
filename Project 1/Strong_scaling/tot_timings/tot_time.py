@@ -3,7 +3,7 @@ import os
 
 # Path to your file
 path = os.path.dirname(os.path.abspath(__file__))
-file_path = f"{path}/tot_time.txt"  # Replace with your actual filename
+file_path = f"{path}/tot_time.txt"
 
 # Initialize variables
 mat_vec_time = None
