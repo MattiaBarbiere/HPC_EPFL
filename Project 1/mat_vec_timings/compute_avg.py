@@ -73,7 +73,6 @@ def plot_times_vs_processes():
     plt.plot(processes, speed_up, marker='o', label='Speedup')
     plt.plot(processes, efficiency, marker='o', label='Efficiency')
     plt.xlabel('Number of Processes')
-    plt.ylabel('Average Time (s)')
     plt.title('Speedup and efficiency of mat_vec funciton vs Number of Processes')
     plt.grid(True)
     plt.legend()
