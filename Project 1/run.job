@@ -3,24 +3,23 @@
 #SBATCH --account=math-454
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
-#SBATCH --output=Weak_scaling/tot_timings/tot_time.txt
 #SBATCH --time=48:00:00
 
 module purge
 module load gcc openmpi openblas
 
 srun ./cgsolver Weak_scaling/matricies/weak_matrix_1.mtx
-srun ./cgsolver Weak_scaling/matricies/weak_matrix_2.mtx
-srun ./cgsolver Weak_scaling/matricies/weak_matrix_4.mtx
-srun ./cgsolver Weak_scaling/matricies/weak_matrix_8.mtx
-srun ./cgsolver Weak_scaling/matricies/weak_matrix_10.mtx
-srun ./cgsolver Weak_scaling/matricies/weak_matrix_15.mtx
-srun ./cgsolver Weak_scaling/matricies/weak_matrix_20.mtx
-srun ./cgsolver Weak_scaling/matricies/weak_matrix_30.mtx
-srun ./cgsolver Weak_scaling/matricies/weak_matrix_40.mtx
-srun ./cgsolver Weak_scaling/matricies/weak_matrix_50.mtx
-srun ./cgsolver Weak_scaling/matricies/weak_matrix_75.mtx
-srun ./cgsolver Weak_scaling/matricies/weak_matrix_100.mtx
+# srun ./cgsolver Weak_scaling/matricies/weak_matrix_2.mtx
+# srun ./cgsolver Weak_scaling/matricies/weak_matrix_4.mtx
+# srun ./cgsolver Weak_scaling/matricies/weak_matrix_8.mtx
+# srun ./cgsolver Weak_scaling/matricies/weak_matrix_10.mtx
+# srun ./cgsolver Weak_scaling/matricies/weak_matrix_15.mtx
+# srun ./cgsolver Weak_scaling/matricies/weak_matrix_20.mtx
+# srun ./cgsolver Weak_scaling/matricies/weak_matrix_30.mtx
+# srun ./cgsolver Weak_scaling/matricies/weak_matrix_40.mtx
+# srun ./cgsolver Weak_scaling/matricies/weak_matrix_50.mtx
+# srun ./cgsolver Weak_scaling/matricies/weak_matrix_75.mtx
+# srun ./cgsolver Weak_scaling/matricies/weak_matrix_100.mtx
 
 
 
