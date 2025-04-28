@@ -1,6 +1,7 @@
 #include "matrix.hh"
 #include "matrix_coo.hh"
 #include <iostream>
+#include <cuda_runtime.h>
 #include <string>
 
 void Matrix::read(const std::string & fn) {

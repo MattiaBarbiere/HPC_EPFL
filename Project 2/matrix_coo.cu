@@ -1,4 +1,5 @@
 #include "matrix_coo.hh"
+#include <cuda_runtime.h>
 extern "C" {
 #include "mmio.h"
 }

@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cblas.h>
+#include <cuda_runtime.h>
 #include <cmath>
 #include <iostream>
 
@@ -88,10 +89,10 @@ void CGSolver::solve(std::vector<double> & x) {
 
     // rsold = rsnew;
     rsold = rsnew;
-    if (DEBUG) {
-      std::cout << "\t[STEP " << k << "] residual = " << std::scientific
-                << std::sqrt(rsold) << "\r" << std::flush;
-    }
+    // if (DEBUG) {
+    //   std::cout << "\t[STEP " << k << "] residual = " << std::scientific
+    //             << std::sqrt(rsold) << "\r" << std::flush;
+    // }
   }
 
   if (DEBUG) {
