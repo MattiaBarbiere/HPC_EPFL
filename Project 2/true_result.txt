@@ -1,0 +1,3 @@
+Call CG dense on matrix size 10000 x 10000)
+	[STEP 488] residual = 1.098465e-10, ||x|| = 2.147364e+09, ||Ax - b||/||b|| = 1.305347e-12
+Time for CG (dense solver)  = 2.704070e+01 [s]
