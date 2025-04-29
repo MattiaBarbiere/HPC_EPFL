@@ -8,6 +8,57 @@
 
 const double NEARZERO = 1.0e-14;
 const bool DEBUG = true;
+const bool SHOW_RESULT = true;
+const bool RUN_WITH_CUDA = false;
+
+// A simple function that computes the id of the thread
+__device__
+int get_id() {
+  int id_in_block = threadIdx.y * blockDim.x + threadIdx.x;
+  int offset = blockIdx.y * gridDim.x + blockIdx.x;
+  return offset * blockDim.x * blockDim.y + id_in_block;
+}
+
+// The CBLAS functions parallelized with CUDA
+
+__device__ __host__ // I also add this function to host for debugging
+double cuda_ddot(int n, const double* x, int incx, const double* y, int incy) {
+  double result = 0.0;
+  for (int i = 0; i < n; ++i) {
+      result += x[i * incx] * y[i * incy];
+  }
+  return result;
+}
+
+__device__ __host__ // I also add this function to host for debugging
+void cuda_dgemv(int M, int N,
+              double alpha, const double* A, int lda,
+              const double* x, int incX,
+              double beta, double* y, int incY){
+  for (int i = 0; i < M; ++i) {
+    double sum = 0.0;
+    for (int j = 0; j < N; ++j) {
+      sum += A[i * lda + j] * x[j * incX];
+    }
+    y[i * incY] = alpha * sum + beta * y[i * incY];
+  }
+}
+
+__device__ __host__ // I also add this function to host for debugging
+void cuda_daxpy(int n, double alpha, const double* x, int incx, double* y, int incy) {
+  for (int i = 0; i < n; ++i) {
+      y[i * incy] += alpha * x[i * incx];
+  }
+}
+
+
+
+// The CUDA kernel
+__global__ 
+void cg_solve_kernel(std::vector<double> & x, int threads_per_block, int blocks_per_grid) {
+  int id = get_id();
+}
+
 
 /*
     cgsolver solves the linear equation A*x = b where A is
@@ -35,77 +86,90 @@ function x = conjgrad(A, b, x)
 end
 
 */
-void CGSolver::solve(std::vector<double> & x) {
-  std::vector<double> r(m_n);
-  std::vector<double> p(m_n);
-  std::vector<double> Ap(m_n);
-  std::vector<double> tmp(m_n);
+void CGSolver::solve(std::vector<double> & x, int threads_per_block, int blocks_per_grid) {
+  
+  if (RUN_WITH_CUDA) {
+    cg_solve_kernel<<<blocks_per_grid, threads_per_block>>>(x, threads_per_block, blocks_per_grid);
+  }
+  else
+  {
+    // This is the code give in the exercise
 
-  // r = b - A * x;
-  std::fill_n(Ap.begin(), Ap.size(), 0.);
-  cblas_dgemv(CblasRowMajor, CblasNoTrans, m_m, m_n, 1., m_A.data(), m_n,
-              x.data(), 1, 0., Ap.data(), 1);
 
-  r = m_b;
-  cblas_daxpy(m_n, -1., Ap.data(), 1, r.data(), 1);
+    std::vector<double> r(m_n);
+    std::vector<double> p(m_n);
+    std::vector<double> Ap(m_n);
+    std::vector<double> tmp(m_n);
 
-  // p = r;
-  p = r;
+    if (DEBUG){
+      std::cout << "Threads per block inside solve:" << threads_per_block  << std::endl;
+      std::cout << "Blocks per grid inside solve:" << blocks_per_grid  << std::endl;
+    }
 
-  // rsold = r' * r;
-  auto rsold = cblas_ddot(m_n, r.data(), 1, p.data(), 1);
-
-  // for i = 1:length(b)
-  int k = 0;
-  for (; k < m_n; ++k) {
-    // Ap = A * p;
+    // r = b - A * x;
     std::fill_n(Ap.begin(), Ap.size(), 0.);
     cblas_dgemv(CblasRowMajor, CblasNoTrans, m_m, m_n, 1., m_A.data(), m_n,
-                p.data(), 1, 0., Ap.data(), 1);
+                x.data(), 1, 0., Ap.data(), 1);
 
-    // alpha = rsold / (p' * Ap);
-    auto alpha = rsold / std::max(cblas_ddot(m_n, p.data(), 1, Ap.data(), 1),
-                                  rsold * NEARZERO);
+    r = m_b;
+    cblas_daxpy(m_n, -1., Ap.data(), 1, r.data(), 1);
 
-    // x = x + alpha * p;
-    cblas_daxpy(m_n, alpha, p.data(), 1, x.data(), 1);
+    // p = r;
+    p = r;
 
-    // r = r - alpha * Ap;
-    cblas_daxpy(m_n, -alpha, Ap.data(), 1, r.data(), 1);
+    // rsold = r' * r;
+    auto rsold = cblas_ddot(m_n, r.data(), 1, p.data(), 1);
 
-    // rsnew = r' * r;
-    auto rsnew = cblas_ddot(m_n, r.data(), 1, r.data(), 1);
 
-    // if sqrt(rsnew) < 1e-10
-    //   break;
-    if (std::sqrt(rsnew) < m_tolerance)
-      break; // Convergence test
+    // for i = 1:length(b)
+    int k = 0;
+    for (; k < m_n; ++k) {
+      // Ap = A * p;
+      std::fill_n(Ap.begin(), Ap.size(), 0.);
+      cblas_dgemv(CblasRowMajor, CblasNoTrans, m_m, m_n, 1., m_A.data(), m_n,
+                  p.data(), 1, 0., Ap.data(), 1);
 
-    auto beta = rsnew / rsold;
-    // p = r + (rsnew / rsold) * p;
-    tmp = r;
-    cblas_daxpy(m_n, beta, p.data(), 1, tmp.data(), 1);
-    p = tmp;
+      // alpha = rsold / (p' * Ap);
+      auto alpha = rsold / std::max(cblas_ddot(m_n, p.data(), 1, Ap.data(), 1),
+                                    rsold * NEARZERO);
 
-    // rsold = rsnew;
-    rsold = rsnew;
-    // if (DEBUG) {
-    //   std::cout << "\t[STEP " << k << "] residual = " << std::scientific
-    //             << std::sqrt(rsold) << "\r" << std::flush;
-    // }
-  }
+      // x = x + alpha * p;
+      cblas_daxpy(m_n, alpha, p.data(), 1, x.data(), 1);
 
-  if (DEBUG) {
-    std::fill_n(r.begin(), r.size(), 0.);
-    cblas_dgemv(CblasRowMajor, CblasNoTrans, m_m, m_n, 1., m_A.data(), m_n,
-                x.data(), 1, 0., r.data(), 1);
-    cblas_daxpy(m_n, -1., m_b.data(), 1, r.data(), 1);
-    auto res = std::sqrt(cblas_ddot(m_n, r.data(), 1, r.data(), 1)) /
-               std::sqrt(cblas_ddot(m_n, m_b.data(), 1, m_b.data(), 1));
-    auto nx = std::sqrt(cblas_ddot(m_n, x.data(), 1, x.data(), 1));
-    std::cout << "\t[STEP " << k << "] residual = " << std::scientific
-              << std::sqrt(rsold) << ", ||x|| = " << nx
-              << ", ||Ax - b||/||b|| = " << res << std::endl;
+      // r = r - alpha * Ap;
+      cblas_daxpy(m_n, -alpha, Ap.data(), 1, r.data(), 1);
+
+      // rsnew = r' * r;
+      auto rsnew = cblas_ddot(m_n, r.data(), 1, r.data(), 1);
+
+
+      // if sqrt(rsnew) < 1e-10
+      //   break;
+      if (std::sqrt(rsnew) < m_tolerance)
+        break; // Convergence test
+
+      auto beta = rsnew / rsold;
+      // p = r + (rsnew / rsold) * p;
+      tmp = r;
+      cblas_daxpy(m_n, beta, p.data(), 1, tmp.data(), 1);
+      p = tmp;
+
+      // rsold = rsnew;
+      rsold = rsnew;
+    }
+
+    if (SHOW_RESULT) {
+      std::fill_n(r.begin(), r.size(), 0.);
+      cblas_dgemv(CblasRowMajor, CblasNoTrans, m_m, m_n, 1., m_A.data(), m_n,
+                  x.data(), 1, 0., r.data(), 1);
+      cblas_daxpy(m_n, -1., m_b.data(), 1, r.data(), 1);
+      auto res = std::sqrt(cblas_ddot(m_n, r.data(), 1, r.data(), 1)) /
+                std::sqrt(cblas_ddot(m_n, m_b.data(), 1, m_b.data(), 1));
+      auto nx = std::sqrt(cblas_ddot(m_n, x.data(), 1, x.data(), 1));
+      std::cout << "\t[STEP " << k << "] residual = " << std::scientific
+                << std::sqrt(rsold) << ", ||x|| = " << nx
+                << ", ||Ax - b||/||b|| = " << res << std::endl;
+    }
   }
 }
 

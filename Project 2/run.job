@@ -5,8 +5,10 @@
 #SBATCH --gres=gpu:1
 #SBATCH --qos=math-454
 #SBATCH --account=math-454
+#SBATCH --array=1,2
+#SBATCH --output=slurm_%a.out
 
 module purge
 module load gcc cuda openblas
 
-srun ./cgsolver lap2D_5pt_n100.mtx 5
+srun ./cgsolver lap2D_5pt_n100.mtx $SLURM_ARRAY_TASK_ID

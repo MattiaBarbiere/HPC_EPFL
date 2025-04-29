@@ -7,10 +7,6 @@ using clk = std::chrono::high_resolution_clock;
 using second = std::chrono::duration<double>;
 using time_point = std::chrono::time_point<clk>;
 
-__global__ void test_kernel() {
-  printf("Hello from the kernel\n");
-}
-
 /*
 Implementation of a simple CG solver using matrix in the mtx format (Matrix
 market) Any matrix in that format can be used to test the code
@@ -24,6 +20,9 @@ int main(int argc, char ** argv) {
 
   CGSolver solver;
   solver.read_matrix(argv[1]);
+
+  // Print the matrix we are working with
+  std::cout << argv[1] << std::endl;
   
 
   int n = solver.n();
@@ -31,11 +30,10 @@ int main(int argc, char ** argv) {
   double h = 1. / n;
 
   int threads_per_block = std::stoi(argv[2]);
-  std::cout << threads_per_block  << std::endl;
   int blocks_per_grid = (10 + (threads_per_block - 1)) / threads_per_block;
-  std::cout << blocks_per_grid  << std::endl;
 
-  test_kernel<<<blocks_per_grid, threads_per_block>>>();
+  
+
 
   solver.init_source_term(h);
 
@@ -44,8 +42,13 @@ int main(int argc, char ** argv) {
 
   std::cout << "Call CG dense on matrix size " << m << " x " << n 
             << std::endl;
+
+  //Print some information about threads
+  std::cout << "Threads per block:" << threads_per_block  << std::endl;
+  std::cout << "Blocks per grid:" << blocks_per_grid  << std::endl;
+  
   auto t1 = clk::now();
-  solver.solve(x_d);
+  solver.solve(x_d, threads_per_block, blocks_per_grid);
   second elapsed = clk::now() - t1;
   std::cout << "Time for CG (dense solver)  = " << elapsed.count() << " [s]\n";
 
