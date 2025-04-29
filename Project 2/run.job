@@ -1,12 +1,12 @@
 #!/bin/bash
 #SBATCH --nodes=1
-#SBATCH --time=00:05:00
+#SBATCH --time=10:05:00
 #SBATCH --partition=gpu
 #SBATCH --gres=gpu:1
 #SBATCH --qos=math-454
 #SBATCH --account=math-454
 #SBATCH --array=1,2
-#SBATCH --output=slurm_%a.out
+
 
 module purge
 module load gcc cuda openblas

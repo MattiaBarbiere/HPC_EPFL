@@ -9,7 +9,6 @@
 const double NEARZERO = 1.0e-14;
 const bool DEBUG = true;
 const bool SHOW_RESULT = true;
-const bool RUN_WITH_CUDA = false;
 
 // A simple function that computes the id of the thread
 __device__
@@ -19,159 +18,196 @@ int get_id() {
   return offset * blockDim.x * blockDim.y + id_in_block;
 }
 
-// The CBLAS functions parallelized with CUDA
+// __global__ // I also add this function to host for debugging
+// double cuda_ddot(int n, const double* x, int incx, const double* y, int incy) {
+//   int id = get_id();
+//   if (id == 0) {
+//     double result = 0.0;
+//     for (int i = 0; i < n; ++i) {
+//         result += x[i * incx] * y[i * incy];
+//     }
+//     return result;
+//   }
+// }
 
-__device__ __host__ // I also add this function to host for debugging
-double cuda_ddot(int n, const double* x, int incx, const double* y, int incy) {
-  double result = 0.0;
-  for (int i = 0; i < n; ++i) {
-      result += x[i * incx] * y[i * incy];
+__global__
+void cuda_ddot(double* result, int n, const double* x, int incx, const double* y, int incy) {
+  int id = get_id();
+  if (id == 0) {
+    *result = 0.0;
+    for (int i = 0; i < n; ++i) {
+        *result += x[i * incx] * y[i * incy];
+    }
   }
-  return result;
 }
 
-__device__ __host__ // I also add this function to host for debugging
+__global__ // I also add this function to host for debugging
 void cuda_dgemv(int M, int N,
               double alpha, const double* A, int lda,
               const double* x, int incX,
               double beta, double* y, int incY){
-  for (int i = 0; i < M; ++i) {
-    double sum = 0.0;
-    for (int j = 0; j < N; ++j) {
-      sum += A[i * lda + j] * x[j * incX];
+  int id = get_id();
+  if (id == 0) {
+    printf("Only 0 is doing this");
+    for (int i = 0; i < M; ++i) {
+      double sum = 0.0;
+      for (int j = 0; j < N; ++j) {
+        sum += A[i * lda + j] * x[j * incX];
+      }
+      y[i * incY] = alpha * sum + beta * y[i * incY];
     }
-    y[i * incY] = alpha * sum + beta * y[i * incY];
   }
 }
 
-__device__ __host__ // I also add this function to host for debugging
+__global__ // I also add this function to host for debugging
 void cuda_daxpy(int n, double alpha, const double* x, int incx, double* y, int incy) {
-  for (int i = 0; i < n; ++i) {
+  int id = get_id();
+  if (id == 0) {
+    for (int i = 0; i < n; ++i) {
       y[i * incy] += alpha * x[i * incx];
+    }
   }
+  
 }
 
-
-
-// The CUDA kernel
-__global__ 
-void cg_solve_kernel(std::vector<double> & x, int threads_per_block, int blocks_per_grid) {
+__global__ void cg_kernel() {
   int id = get_id();
 }
 
 
-/*
-    cgsolver solves the linear equation A*x = b where A is
-    of size m x n
-
-Code based on MATLAB code (from wikipedia ;-)  ):
-
-function x = conjgrad(A, b, x)
-    r = b - A * x;
-    p = r;
-    rsold = r' * r;
-
-    for i = 1:length(b)
-        Ap = A * p;
-        alpha = rsold / (p' * Ap);
-        x = x + alpha * p;
-        r = r - alpha * Ap;
-        rsnew = r' * r;
-        if sqrt(rsnew) < 1e-10
-              break;
-        end
-        p = r + (rsnew / rsold) * p;
-        rsold = rsnew;
-    end
-end
-
-*/
-void CGSolver::solve(std::vector<double> & x, int threads_per_block, int blocks_per_grid) {
+void CGSolver::solve(std::vector<double>& x, int threads_per_block, int blocks_per_grid) {
   
-  if (RUN_WITH_CUDA) {
-    cg_solve_kernel<<<blocks_per_grid, threads_per_block>>>(x, threads_per_block, blocks_per_grid);
+  // Variables we will work with
+  double* r = new double[m_n];
+  double* p = new double[m_n];
+  double* Ap = new double[m_n];
+  double* tmp = new double[m_n];
+  double* rsold;
+  double* rsnew;
+  double* pAp;
+  
+  cudaMallocManaged(&r, m_n * sizeof(double));
+  cudaMallocManaged(&p, m_n * sizeof(double));
+  cudaMallocManaged(&Ap, m_n * sizeof(double));
+  cudaMallocManaged(&tmp, m_n * sizeof(double));
+  cudaMallocManaged(&rsold, sizeof(double));
+  cudaMallocManaged(&rsnew, sizeof(double));
+  cudaMallocManaged(&pAp, sizeof(double));
+
+  // Copies the constant data to the device
+  double* A_device;
+  double* b_device;
+  double* x_device;
+  cudaMalloc(&A_device, m_m * m_n * sizeof(double));
+  cudaMalloc(&b_device, m_n * sizeof(double));
+  cudaMalloc(&x_device, m_n * sizeof(double));
+  cudaMemcpy(A_device, m_A.data(), m_m * m_n * sizeof(double), cudaMemcpyHostToDevice);
+  cudaMemcpy(b_device, m_b.data(), m_n * sizeof(double), cudaMemcpyHostToDevice);
+  cudaMemcpy(x_device, x.data(), m_n * sizeof(double), cudaMemcpyHostToDevice);
+  cudaDeviceSynchronize();
+
+  // cg_kernel<<<blocks_per_grid, threads_per_block>>>();  // Preserved
+
+  // r = b - A * x
+  std::fill_n(Ap, m_n, 0.);
+  // cblas_dgemv(CblasRowMajor, CblasNoTrans, m_m, m_n, 1., m_A.data(), m_n,
+  //             x.data(), 1, 0., Ap, 1);
+  // cuda_dgemv(m_m, m_n, 1., m_A.data(), m_n, x.data(), 1, 0., Ap, 1);
+  cuda_dgemv<<<blocks_per_grid, threads_per_block>>>(m_m, m_n, 1., A_device, m_n, x_device, 1, 0., Ap, 1);
+  cudaDeviceSynchronize();
+
+  std::copy(m_b.data(), m_b.data() + m_n, r);
+  cuda_daxpy<<<blocks_per_grid, threads_per_block>>>(m_n, -1., Ap, 1, r, 1);
+  cudaDeviceSynchronize();
+
+  // p = r
+  std::copy(r, r + m_n, p);
+
+  // rsold = r' * r
+  cuda_ddot<<<blocks_per_grid, threads_per_block>>>(rsold, m_n, r, 1, p, 1);
+  cudaDeviceSynchronize();
+
+  int k = 0;
+  for (; k < m_n; ++k) {
+      if (DEBUG) {
+          std::cout << "\t[STEP " << k << std::endl;
+      }
+      // Ap = A * p
+      std::fill_n(Ap, m_n, 0.);
+      cuda_dgemv<<<blocks_per_grid, threads_per_block>>>(m_m, m_n, 1., A_device, m_n, p, 1, 0., Ap, 1);
+      cudaDeviceSynchronize();
+      // cblas_dgemv(CblasRowMajor, CblasNoTrans, m_m, m_n, 1., m_A.data(), m_n,
+      //             p, 1, 0., Ap, 1);
+
+      // alpha = rsold / (p' * Ap)
+      cuda_ddot<<<blocks_per_grid, threads_per_block>>>(pAp, m_n, p, 1, Ap, 1);
+      cudaDeviceSynchronize();
+
+      auto denom = std::max(*pAp, *rsold * NEARZERO);
+      auto alpha = *rsold / denom;
+
+
+      // auto denom = std::max(cblas_ddot(m_n, p, 1, Ap, 1), *rsold * NEARZERO);
+      // auto alpha = *rsold / denom;
+
+      // x = x + alpha * p
+      // cblas_daxpy(m_n, alpha, p, 1, x.data(), 1);
+      cuda_daxpy<<<blocks_per_grid, threads_per_block>>>(m_n, alpha, p, 1, x_device, 1);
+      cudaDeviceSynchronize();
+
+      // r = r - alpha * Ap
+      // cblas_daxpy(m_n, -alpha, Ap, 1, r, 1);
+      cuda_daxpy<<<blocks_per_grid, threads_per_block>>>(m_n, -alpha, Ap, 1, r, 1);
+      cudaDeviceSynchronize();
+
+      // rsnew = r' * r
+      cuda_ddot<<<blocks_per_grid, threads_per_block>>>(rsnew, m_n, r, 1, r, 1);
+      cudaDeviceSynchronize();
+
+      if (std::sqrt(*rsnew) < m_tolerance)
+          break;
+
+      auto beta = *rsnew / *rsold;
+
+      // tmp = r + beta * p
+      std::copy(r, r + m_n, tmp);
+      // cblas_daxpy(m_n, beta, p, 1, tmp, 1);
+      cuda_daxpy<<<blocks_per_grid, threads_per_block>>>(m_n, beta, p, 1, tmp, 1);
+      cudaDeviceSynchronize();
+      std::copy(tmp, tmp + m_n, p);
+
+      *rsold = *rsnew;
   }
-  else
-  {
-    // This is the code give in the exercise
+  // Copy x back to the cpu
+  cudaMemcpy(x.data(), x_device, m_n * sizeof(double), cudaMemcpyDeviceToHost);
+  cudaDeviceSynchronize();
 
-
-    std::vector<double> r(m_n);
-    std::vector<double> p(m_n);
-    std::vector<double> Ap(m_n);
-    std::vector<double> tmp(m_n);
-
-    if (DEBUG){
-      std::cout << "Threads per block inside solve:" << threads_per_block  << std::endl;
-      std::cout << "Blocks per grid inside solve:" << blocks_per_grid  << std::endl;
-    }
-
-    // r = b - A * x;
-    std::fill_n(Ap.begin(), Ap.size(), 0.);
-    cblas_dgemv(CblasRowMajor, CblasNoTrans, m_m, m_n, 1., m_A.data(), m_n,
-                x.data(), 1, 0., Ap.data(), 1);
-
-    r = m_b;
-    cblas_daxpy(m_n, -1., Ap.data(), 1, r.data(), 1);
-
-    // p = r;
-    p = r;
-
-    // rsold = r' * r;
-    auto rsold = cblas_ddot(m_n, r.data(), 1, p.data(), 1);
-
-
-    // for i = 1:length(b)
-    int k = 0;
-    for (; k < m_n; ++k) {
-      // Ap = A * p;
-      std::fill_n(Ap.begin(), Ap.size(), 0.);
+  if (SHOW_RESULT) {
+      std::fill_n(r, m_n, 0.);
       cblas_dgemv(CblasRowMajor, CblasNoTrans, m_m, m_n, 1., m_A.data(), m_n,
-                  p.data(), 1, 0., Ap.data(), 1);
-
-      // alpha = rsold / (p' * Ap);
-      auto alpha = rsold / std::max(cblas_ddot(m_n, p.data(), 1, Ap.data(), 1),
-                                    rsold * NEARZERO);
-
-      // x = x + alpha * p;
-      cblas_daxpy(m_n, alpha, p.data(), 1, x.data(), 1);
-
-      // r = r - alpha * Ap;
-      cblas_daxpy(m_n, -alpha, Ap.data(), 1, r.data(), 1);
-
-      // rsnew = r' * r;
-      auto rsnew = cblas_ddot(m_n, r.data(), 1, r.data(), 1);
-
-
-      // if sqrt(rsnew) < 1e-10
-      //   break;
-      if (std::sqrt(rsnew) < m_tolerance)
-        break; // Convergence test
-
-      auto beta = rsnew / rsold;
-      // p = r + (rsnew / rsold) * p;
-      tmp = r;
-      cblas_daxpy(m_n, beta, p.data(), 1, tmp.data(), 1);
-      p = tmp;
-
-      // rsold = rsnew;
-      rsold = rsnew;
-    }
-
-    if (SHOW_RESULT) {
-      std::fill_n(r.begin(), r.size(), 0.);
-      cblas_dgemv(CblasRowMajor, CblasNoTrans, m_m, m_n, 1., m_A.data(), m_n,
-                  x.data(), 1, 0., r.data(), 1);
-      cblas_daxpy(m_n, -1., m_b.data(), 1, r.data(), 1);
-      auto res = std::sqrt(cblas_ddot(m_n, r.data(), 1, r.data(), 1)) /
-                std::sqrt(cblas_ddot(m_n, m_b.data(), 1, m_b.data(), 1));
+                  x.data(), 1, 0., r, 1);
+      cblas_daxpy(m_n, -1., m_b.data(), 1, r, 1);
+      auto res = std::sqrt(cblas_ddot(m_n, r, 1, r, 1)) /
+                 std::sqrt(cblas_ddot(m_n, m_b.data(), 1, m_b.data(), 1));
       auto nx = std::sqrt(cblas_ddot(m_n, x.data(), 1, x.data(), 1));
       std::cout << "\t[STEP " << k << "] residual = " << std::scientific
-                << std::sqrt(rsold) << ", ||x|| = " << nx
+                << std::sqrt(*rsold) << ", ||x|| = " << nx
                 << ", ||Ax - b||/||b|| = " << res << std::endl;
-    }
   }
+
+  // Clean up
+  cudaFree(r);
+  cudaFree(p);
+  cudaFree(Ap);
+  cudaFree(tmp);
+  cudaFree(A_device);
+  cudaFree(b_device);
+  cudaFree(x_device);
+  cudaFree(rsold);
+  cudaFree(rsnew);
+  cudaFree(pAp);
 }
+
 
 void CGSolver::read_matrix(const std::string & filename) {
   m_A.read(filename);
