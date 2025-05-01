@@ -30,7 +30,7 @@ int main(int argc, char ** argv) {
   double h = 1. / n;
 
   int threads_per_block = std::stoi(argv[2]);
-  int blocks_per_grid = (10 + (threads_per_block - 1)) / threads_per_block;
+  int blocks_per_grid = (m + (threads_per_block - 1)) / threads_per_block;
 
   
 
