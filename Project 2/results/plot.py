@@ -7,15 +7,21 @@ import numpy as np
 threads_list = []
 time_per_iter_list = []
 
+# Define the path
+path = os.path.dirname(os.path.abspath(__file__))
+
+# Constants
+SHOW_PLOT = False
+
 # Read all relevant files
-for filename in os.listdir('.'):
+for filename in os.listdir(path):
     if filename.startswith("times_") and filename.endswith(".txt"):
         match = re.search(r'times_(\d+)\.txt', filename)
         if not match:
             continue
         threads = int(match.group(1))
 
-        with open(filename, 'r') as f:
+        with open(os.path.join(path, filename), 'r') as f:
             content = f.read()
 
             # Extract time
@@ -42,5 +48,6 @@ plt.xlabel('Threads')
 plt.ylabel('Time per iteration (s)')
 plt.title('CG Solver: Time per Iteration vs Threads')
 plt.grid(True, which='both', linestyle='--')
-plt.savefig('cg_time_per_iteration.png')
-plt.show()
+plt.savefig(path + '/time_per_iteration.png')
+if SHOW_PLOT:
+    plt.show()
