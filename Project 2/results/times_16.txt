@@ -1,0 +1,50 @@
+lap2D_5pt_n100.mtx
+Call CG dense on matrix size 10000 x 10000
+Threads per block:16
+Blocks per grid:625
+==1572813== NVPROF is profiling process 1572813, command: ./cgsolver lap2D_5pt_n100.mtx 16
+
+
+[STEP 488] residual = 1.087711e-10, ||x|| = 2.147364e+09, ||Ax - b||/||b|| = 1.325027e-12
+
+ 
+
+Time for CG (dense solver)  = 3.953055e+00 [s]
+
+
+==1572813== Profiling application: ./cgsolver lap2D_5pt_n100.mtx 16
+==1572813== Profiling result:
+            Type  Time(%)      Time     Calls       Avg       Min       Max  Name
+ GPU activities:   54.98%  1.49399s       490  3.0490ms  2.6299ms  3.9829ms  cuda_dgemv(int, int, double, double const *, int, double const *, int, double, double*, int)
+                   32.34%  878.84ms       979  897.69us  735.39us  1.2231ms  cuda_ddot(double*, int, double const *, int, double const *, int)
+                    6.58%  178.72ms      1467  121.83us  3.6160us  485.05us  cuda_daxpy(int, double, double const *, int, double*, int)
+                    6.10%  165.70ms         3  55.234ms  8.8960us  165.68ms  [CUDA memcpy HtoD]
+                    0.00%  7.1360us         1  7.1360us  7.1360us  7.1360us  [CUDA memcpy DtoH]
+      API calls:   89.02%  2.61040s      1467  1.7794ms  13.160us  15.881ms  cudaDeviceSynchronize
+                    5.66%  166.07ms         4  41.517ms  32.081us  165.87ms  cudaMemcpy
+                    4.68%  137.29ms         7  19.613ms  16.418us  137.16ms  cudaMallocManaged
+                    0.60%  17.477ms      2936  5.9520us  3.4560us  486.19us  cudaLaunchKernel
+                    0.03%  816.56us        10  81.655us  6.3410us  478.07us  cudaFree
+                    0.01%  233.89us         3  77.961us  3.7770us  163.37us  cudaMalloc
+                    0.00%  115.10us       101  1.1390us     111ns  49.414us  cuDeviceGetAttribute
+                    0.00%  12.524us         1  12.524us  12.524us  12.524us  cuDeviceGetPCIBusId
+                    0.00%  8.1550us         1  8.1550us  8.1550us  8.1550us  cuDeviceGetName
+                    0.00%  1.0590us         3     353ns     163ns     726ns  cuDeviceGetCount
+                    0.00%     714ns         2     357ns     143ns     571ns  cuDeviceGet
+                    0.00%     411ns         1     411ns     411ns     411ns  cuDeviceTotalMem
+                    0.00%     299ns         1     299ns     299ns     299ns  cuModuleGetLoadingMode
+                    0.00%     188ns         1     188ns     188ns     188ns  cuDeviceGetUuid
+
+==1572813== Unified Memory profiling result:
+Device "Tesla V100-PCIE-32GB (0)"
+   Count  Avg Size  Min Size  Max Size  Total Size  Total Time  Name
+   13756  23.175KB  4.0000KB  236.00KB  311.3320MB  56.47065ms  Host To Device
+   23113  13.801KB  4.0000KB  240.00KB  311.5117MB  49.03216ms  Device To Host
+    8160         -         -         -           -  455.1684ms  Gpu page fault groups
+      13         -         -         -           -  5.168471ms  Page throttles
+   14635  4.0000KB  4.0000KB  4.0000KB  57.16797MB           -  Memory thrashes
+      14  4.0000KB  4.0000KB  4.0000KB  56.00000KB           -  Remote mapping from device
+Total CPU Page faults: 17759
+Total CPU thrashes: 14635
+Total CPU throttles: 266
+Total remote mappings to CPU: 14

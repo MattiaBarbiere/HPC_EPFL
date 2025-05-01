@@ -5,7 +5,7 @@
 #SBATCH --gres=gpu:1
 #SBATCH --qos=math-454
 #SBATCH --account=math-454
-#SBATCH --array=256
+#SBATCH --array=0
 #SBATCH --output=results/times_%a.txt
 
 
@@ -13,4 +13,6 @@ module purge
 module load gcc cuda openblas
 
 # 1,2,4,8,16,32,64,128,256,512,1024
-srun nvprof ./cgsolver lap2D_5pt_n100.mtx $SLURM_ARRAY_TASK_ID
+# Run the code
+# srun nvprof ./cgsolver lap2D_5pt_n100.mtx $SLURM_ARRAY_TASK_ID
+python results/plot.py

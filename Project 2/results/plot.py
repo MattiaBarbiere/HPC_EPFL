@@ -48,6 +48,8 @@ plt.xlabel('Threads')
 plt.ylabel('Time per iteration (s)')
 plt.title('CG Solver: Time per Iteration vs Threads')
 plt.grid(True, which='both', linestyle='--')
+xticks = [2 ** i for i in range(0, 11)]
+plt.xticks(xticks, xticks)
 plt.savefig(path + '/time_per_iteration.png')
 if SHOW_PLOT:
     plt.show()
