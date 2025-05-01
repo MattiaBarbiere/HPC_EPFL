@@ -7,7 +7,7 @@
 #include <iostream>
 
 const double NEARZERO = 1.0e-14;
-const bool DEBUG = true;
+const bool DEBUG = false;
 const bool SHOW_RESULT = true;
 
 // A simple function that computes the id of the thread
@@ -209,12 +209,14 @@ void CGSolver::solve(std::vector<double>& x, int threads_per_block, int blocks_p
       cblas_dgemv(CblasRowMajor, CblasNoTrans, m_m, m_n, 1., m_A.data(), m_n,
                   x.data(), 1, 0., r, 1);
       cblas_daxpy(m_n, -1., m_b.data(), 1, r, 1);
+      std::cout << "\n" << std::endl;
       auto res = std::sqrt(cblas_ddot(m_n, r, 1, r, 1)) /
                  std::sqrt(cblas_ddot(m_n, m_b.data(), 1, m_b.data(), 1));
       auto nx = std::sqrt(cblas_ddot(m_n, x.data(), 1, x.data(), 1));
-      std::cout << "\t[STEP " << k << "] residual = " << std::scientific
+      std::cout << "[STEP " << k << "] residual = " << std::scientific
                 << std::sqrt(*rsold) << ", ||x|| = " << nx
                 << ", ||Ax - b||/||b|| = " << res << std::endl;
+      std::cout << "\n \n" << std::endl;
   }
 
   // Clean up

@@ -32,9 +32,6 @@ int main(int argc, char ** argv) {
   int threads_per_block = std::stoi(argv[2]);
   int blocks_per_grid = (m + (threads_per_block - 1)) / threads_per_block;
 
-  
-
-
   solver.init_source_term(h);
 
   std::vector<double> x_d(n);
@@ -51,6 +48,7 @@ int main(int argc, char ** argv) {
   solver.solve(x_d, threads_per_block, blocks_per_grid);
   second elapsed = clk::now() - t1;
   std::cout << "Time for CG (dense solver)  = " << elapsed.count() << " [s]\n";
+  std::cout << "\n" << std::endl;
 
   return 0;
 }
