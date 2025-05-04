@@ -18,23 +18,13 @@ int get_id() {
   return offset * blockDim.x * blockDim.y + id_in_block;
 }
 
+// A function that computes the row id of the thread
 __device__ 
 int get_row_id() {
   return blockIdx.x * blockDim.x + threadIdx.x;
 }
 
-// __global__ // I also add this function to host for debugging
-// double cuda_ddot(int n, const double* x, int incx, const double* y, int incy) {
-//   int id = get_id();
-//   if (id == 0) {
-//     double result = 0.0;
-//     for (int i = 0; i < n; ++i) {
-//         result += x[i * incx] * y[i * incy];
-//     }
-//     return result;
-//   }
-// }
-
+// A cuda kernel that computes the dot product of two vectors
 __global__
 void cuda_ddot(double* result, int n, const double* x, int incx, const double* y, int incy) {
   int id = get_id();
@@ -46,24 +36,7 @@ void cuda_ddot(double* result, int n, const double* x, int incx, const double* y
   }
 }
 
-// __global__ // I also add this function to host for debugging
-// void cuda_dgemv(int M, int N,
-//               double alpha, const double* A, int lda,
-//               const double* x, int incX,
-//               double beta, double* y, int incY){
-//   int id = get_id();
-//   if (id == 0) {
-//     printf("Only 0 is doing this");
-//     for (int i = 0; i < M; ++i) {
-//       double sum = 0.0;
-//       for (int j = 0; j < N; ++j) {
-//         sum += A[i * lda + j] * x[j * incX];
-//       }
-//       y[i * incY] = alpha * sum + beta * y[i * incY];
-//     }
-//   }
-// }
-
+// A cuda kernel that computes the matrix-vector product
 __global__
 void cuda_dgemv(int m_m, int m_n,
                 double alpha, const double* A, int leadingDim,
@@ -79,6 +52,7 @@ void cuda_dgemv(int m_m, int m_n,
     }
 }
 
+// A cuda kernel that computes the axpy operation
 __global__ // I also add this function to host for debugging
 void cuda_daxpy(int n, double alpha, const double* x, int incx, double* y, int incy) {
   int id = get_id();
@@ -87,9 +61,23 @@ void cuda_daxpy(int n, double alpha, const double* x, int incx, double* y, int i
   }
 }
 
-// __global__ void cg_kernel() {
-//   int id = get_id();
-// }
+// A cuda kernel that copies a vector on the GPU memory
+__global__
+void cuda_copy(double* dst, const double* src, int n) {
+    int row = get_row_id();
+    if (row < n){
+      dst[row] = src[row];
+    }
+}
+
+// A cuda kernel that fills a vector with a given value
+__global__
+void cuda_fill(double* vec, double val, int n) {
+    int row = get_row_id();
+    if (row < n) {
+      vec[row] = val;
+    }
+}
 
 
 void CGSolver::solve(std::vector<double>& x, int threads_per_block, int blocks_per_grid) {
@@ -123,22 +111,18 @@ void CGSolver::solve(std::vector<double>& x, int threads_per_block, int blocks_p
   cudaMemcpy(x_device, x.data(), m_n * sizeof(double), cudaMemcpyHostToDevice);
   cudaDeviceSynchronize();
 
-  // cg_kernel<<<blocks_per_grid, threads_per_block>>>();  // Preserved
-
   // r = b - A * x
-  std::fill_n(Ap, m_n, 0.);
-  // cblas_dgemv(CblasRowMajor, CblasNoTrans, m_m, m_n, 1., m_A.data(), m_n,
-  //             x.data(), 1, 0., Ap, 1);
-  // cuda_dgemv(m_m, m_n, 1., m_A.data(), m_n, x.data(), 1, 0., Ap, 1);
+  cuda_fill<<<blocks_per_grid, threads_per_block>>>(Ap, 0., m_n);
   cuda_dgemv<<<blocks_per_grid, threads_per_block>>>(m_m, m_n, 1., A_device, m_n, x_device, 1, 0., Ap, 1);
-  // cudaDeviceSynchronize();
 
-  std::copy(m_b.data(), m_b.data() + m_n, r);
+  // std::copy(m_b.data(), m_b.data() + m_n, r);
+  cuda_copy<<<blocks_per_grid, threads_per_block>>>(r, b_device, m_n);
   cuda_daxpy<<<blocks_per_grid, threads_per_block>>>(m_n, -1., Ap, 1, r, 1);
-  // cudaDeviceSynchronize();
 
   // p = r
-  std::copy(r, r + m_n, p);
+  // std::copy(r, r + m_n, p);
+  cuda_copy<<<blocks_per_grid, threads_per_block>>>(p, r, m_n);
+  
 
   // rsold = r' * r
   cuda_ddot<<<blocks_per_grid, threads_per_block>>>(rsold, m_n, r, 1, p, 1);
@@ -146,41 +130,24 @@ void CGSolver::solve(std::vector<double>& x, int threads_per_block, int blocks_p
 
   int k = 0;
   for (; k < m_n; ++k) {
-      // if (k == 5){
-      //     // Stop the code
-      //     std::cout << "Stopping the code" << std::endl;
-      //     break;
-      // }
       if (DEBUG) {
-          std::cout << "\t[STEP " << k << std::endl;
+          std::cout << "\tSTEP " << k << std::endl;
       }
       // Ap = A * p
-      std::fill_n(Ap, m_n, 0.);
+      // std::fill_n(Ap, m_n, 0.);
+      cuda_fill<<<blocks_per_grid, threads_per_block>>>(Ap, 0., m_n);
       cuda_dgemv<<<blocks_per_grid, threads_per_block>>>(m_m, m_n, 1., A_device, m_n, p, 1, 0., Ap, 1);
-      // cudaDeviceSynchronize();
-      // cblas_dgemv(CblasRowMajor, CblasNoTrans, m_m, m_n, 1., m_A.data(), m_n,
-      //             p, 1, 0., Ap, 1);
-
-      // alpha = rsold / (p' * Ap)
       cuda_ddot<<<blocks_per_grid, threads_per_block>>>(pAp, m_n, p, 1, Ap, 1);
       cudaDeviceSynchronize();
 
       auto denom = std::max(*pAp, *rsold * NEARZERO);
       auto alpha = *rsold / denom;
 
-
-      // auto denom = std::max(cblas_ddot(m_n, p, 1, Ap, 1), *rsold * NEARZERO);
-      // auto alpha = *rsold / denom;
-
       // x = x + alpha * p
-      // cblas_daxpy(m_n, alpha, p, 1, x.data(), 1);
       cuda_daxpy<<<blocks_per_grid, threads_per_block>>>(m_n, alpha, p, 1, x_device, 1);
-      // cudaDeviceSynchronize();
 
       // r = r - alpha * Ap
-      // cblas_daxpy(m_n, -alpha, Ap, 1, r, 1);
       cuda_daxpy<<<blocks_per_grid, threads_per_block>>>(m_n, -alpha, Ap, 1, r, 1);
-      // cudaDeviceSynchronize();
 
       // rsnew = r' * r
       cuda_ddot<<<blocks_per_grid, threads_per_block>>>(rsnew, m_n, r, 1, r, 1);
@@ -192,17 +159,15 @@ void CGSolver::solve(std::vector<double>& x, int threads_per_block, int blocks_p
       auto beta = *rsnew / *rsold;
 
       // tmp = r + beta * p
-      std::copy(r, r + m_n, tmp);
-      // cblas_daxpy(m_n, beta, p, 1, tmp, 1);
+      cuda_copy<<<blocks_per_grid, threads_per_block>>>(tmp, r, m_n);
       cuda_daxpy<<<blocks_per_grid, threads_per_block>>>(m_n, beta, p, 1, tmp, 1);
+      cuda_copy<<<blocks_per_grid, threads_per_block>>>(p, tmp, m_n);
       cudaDeviceSynchronize();
-      std::copy(tmp, tmp + m_n, p);
 
       *rsold = *rsnew;
   }
   // Copy x back to the cpu
   cudaMemcpy(x.data(), x_device, m_n * sizeof(double), cudaMemcpyDeviceToHost);
-  // cudaDeviceSynchronize();
 
   if (SHOW_RESULT) {
       std::fill_n(r, m_n, 0.);
