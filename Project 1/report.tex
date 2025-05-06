@@ -13,7 +13,10 @@
 \usepackage{hhline}
 \usepackage{amsmath}
 \usepackage{amsfonts}
+\usepackage{graphicx}
+\usepackage{subcaption}
 \usepackage{float}
+\usepackage{array}
 \usepackage{listings}
 \usepackage{subcaption}
 \usepackage{appendix}
@@ -107,39 +110,75 @@
 \newgeometry{bottom=1.5cm, top=1.5cm, left=1.5cm, right=1.5cm}
 
 \section{Assessing inefficiencies: Profiling}
-The first step to any parallelize is understanding the bottleneck in the code. After taking some time to understand the code I performed a sequential profiling with \texttt{perf} on the unaltered code give in the exercise. Please note that throughout this report the code was compiled without any optimizer so that results are more evident.\\
-From \Cref{fig:perf_before_para} it is clear that the main bottleneck that we can control is the \texttt{mat\_vec} function that performs matrix vector multiplication on the spare matrix. Another function that we may want to improve is the \texttt{CGSolverSpare::solve}. This function implements the algorithm presented in the exercise. The problem, however, is that by simple inspection of said algorithm we understand that it is inherently sequential and thus cannot be parallelized. Just the fact that $p_{k+1}$ depends on $p_k$ means that we must first have calculated $p_k$ before performing the $k+1$ step.
+The first step to any parallelization is understanding the bottleneck in the code. After taking some time to understand the code I performed a sequential profiling with \texttt{perf} on the unaltered code. Please note that throughout this report the code was compiled without any optimizer so that results are more evident.\\
+From \Cref{fig:perf_before_para} it is clear that the main bottleneck that we can control is the \texttt{mat\_vec} function that performs matrix vector multiplication on the sparse matrix. By simple inspection the \texttt{CGSolverSpare::solve} function, that implements the conjugate method, is inherently sequential and thus cannot be parallelized.
+
+
 
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=0.6\linewidth]{Project 1/images/Sequential_no_optimizer.png}
+    \begin{subfigure}[b]{0.45\textwidth}
+    \centering
+    \vspace{-10cm}
+    \raisebox{2cm}{ % Adjust this value to center vertically
+            \includegraphics[width=\linewidth]{Project 1/images/Sequential_no_optimizer.png}
+        }
     \caption{Sequential profiling with \texttt{perf} on the code before parallelization.}
     \label{fig:perf_before_para}
+    \vfill
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+    \includegraphics[width=0.7\linewidth]{Project 1/images/mat_vec_speedup_efficiency.png}
+    \caption{Average speedup and efficiency of the \texttt{mat\_vec} function when applied to \texttt{lap2D\_5pt\_n1000.mtx} as a function of the processor count.}
+    \label{fig:speed_eff_mat_vec}
+    \end{subfigure}
+    \caption{}
+    \label{fig:combined}
 \end{figure}
 
 \section{Dividing the work: MPI parallelization}
-After having found the candidate for parallelization the next step was implementing it using MPI. The crux of the \texttt{mat\_vec} function the the for loop that performs the multiplication and addition of the matrix and vector. The strategy I invoked to parallelize this function was to evenly split the non-zero indices of the matrix among the given processors. The processors would then compute the additions and multiplication regarding only their portion of the matrix and have zero values in the rest of the output vector. Finally to return the completed results I performed a \texttt{MPI\_Allreduce} with the \texttt{MPI\_SUM} operation. After checking that the paralelized result was consistant with the original one I timed how long the \texttt{mat\_vec} function took to compute as I varied the number of processors. The speedup and efficiency of the \texttt{mat\_vec} function are presented in \Cref{fig:speed_eff_mat_vec}.
+After having found the candidate for parallelization the next step was the implementation using MPI. The crux of the \texttt{mat\_vec} function is the \texttt{for} loop that performs the multiplication and addition of the matrix and vector. The strategy I invoked to parallelize this function was to evenly split the non-zero indices of the matrix among the given processors. The processors would then compute the additions and multiplication only on their portion of the matrix and have zero everywhere else. Lastly I performed a \texttt{MPI\_Allreduce} with the \texttt{MPI\_SUM} operation to combine all the results. Next I timed how long the \texttt{mat\_vec} function took to compute as I varied the number of processors. The speedup and efficiency of the \texttt{mat\_vec} function are presented in \Cref{fig:speed_eff_mat_vec}.
 
+We clearly see that there is an initial speedup when we go from $1$ processor to $25$, however after this there is a evident plateau where the additional processors have no effect on the speed up. For the same reason the efficiency starts very close to one but eventually decays to $0$ as additional processors are of little help. This is the first indication that the code might not scale that well and in fact the same pattern emerges from weak and strong scaling.
+
+\section{The bigger picture: Strong and weak scaling}
+The parallelization of the \texttt{mat\_vec} function is only one part of the code. We need to look at the code in its entirety. To estimate the parallelizable code in Amdahl’s law I measured the proportion of time that the \texttt{mat\_vec} function was running compared to the total time of the whole code and I got $\alpha \approx 0.75$. Hence, according to Amdahl’s law, the ideal speedup should be $S(p) = \frac{1}{0.25 + \frac{0.75}{p}}$ and so should tend towards 4 as the number of processors $p$ goes towards infinity. Unfortunately, this is far from what happens in practice. In Figure \ref{fig:ss} we see that the empirical speedup starts close to the ideal value but then deviates very early with only a slight gain for the first few processors. In fact as the number of processes increases we actually get a slower performance as the speedup drops below 1. This is likely attributed to the memory and communication bottlenecks. With more processors there is more data to move around and moreover having more processors does not improve the speed of memory read and write.
+Next to perform weak scaling and apply Gustafson’s law I needed to construct matrices of the correct size so that the work per processors is constant. I started from the \texttt{lap2D\_5pt\_n2000.mtx} and extracted the top left portion of various sizes. In the end I ended up with the amount of non-zero entries per process at about $k = 119780$. I then timed the code with $p$ processors keeping non-zero entries per processor constant and compared it to the performance of a single processor on the same matrix. The ratio gave me the values of $\alpha(N)$ show in Table \ref{tab:thin_table_13_columns}. Gustafson’s law then tells us that the speedup should be $1+ (p-1)\alpha(N)$ which is plotted in red on Figure \ref{fig:ws}. Similarly to before both the speedup and the efficiency start close to the ideal but also deviate quickly. We see the same pattern that there is an effective speed up in the code only for low values of processor counts. As soon as the number of processor goes above 20 the extra processors only add memory and communication complexity without any added benefit in speed. The reason behind this is again that the problem becomes memory bound and adding additional processors will not help, and actually ends up hurting the performance because of the additional complexity in communication. 
 
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=0.6\linewidth]{Project 1/images/mat_vec_speedup_efficiency.png}
-    \caption{Average speedup and efficiency of the \texttt{mat\_vec} function when applied to \texttt{lap2D\_5pt\_n1000.mtx}.}
-    \label{fig:speed_eff_mat_vec}
+    \includegraphics[width=0.6\linewidth]{Project 1/images/strong_scaling.png}
+    \caption{Efficiency and speedup after strong scaling  and the ideal efficiency and speedup according to Amdahl’s law.}
+    \label{fig:ss}
 \end{figure}
-We clearly see that there is an initial speed up when we go from $1$ processor to $25$, however after this there is a evident plateau where the additional processors have no effect on the speed up. It is thus also understandable that the efficiency starts very close to one but eventually decays to $0$ as additional processors are of little help.
 
-\section{The bigger picture: Strong and weak scaling}
-The parallelization of the \texttt{mat\_vec} function is only one part of the code. We we look at the code in its entirety we get a very different picture. Firstly, let's get an idea about the computational complexity of the code. For a single iteration of the CG method most operations take $O(N)$ where $N$ is the size of the vector $b$, however the matrix vector product takes $O(N_{nz})$ where $N_{nz}$ is the number of non-zero entries of the matrix. Thus, for $k$ iterations, the time complexity is $O(k(N_{nz} + N))$. A similar argument would show that the memory scales as $O(N_{nz} + 4N)$ to store $b, x_k, r_k$ and $p_k$. AS previously discussed only the matrix vector product can be parallelized, hence for $p$ processors we have a time complexity of $O(k(\frac{N_{nz}}{p} + N))$ \\
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.6\linewidth]{Project 1/images/weak_scaling.png}
+    \caption{Efficiency and speedup after weak scaling and the ideal efficiency and speedup according to Gustafson’s law.}
+    \label{fig:ws}
+\end{figure}
 
-
-
-This is highly likely to be due to the fact that the code has become memory bound and thus additional processors will not help the speedup and actually may even hurt performance as the communication complexity increases as we increase the number of processors. 
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{|>{\centering\arraybackslash}p{1cm}|>{\centering\arraybackslash}p{0.7cm}|>{\centering\arraybackslash}p{0.7cm}|>{\centering\arraybackslash}p{0.7cm}|>{\centering\arraybackslash}p{0.7cm}|>{\centering\arraybackslash}p{0.7cm}|>{\centering\arraybackslash}p{0.7cm}|>{\centering\arraybackslash}p{0.7cm}|>{\centering\arraybackslash}p{0.7cm}|>{\centering\arraybackslash}p{0.7cm}|>{\centering\arraybackslash}p{0.7cm}|>{\centering\arraybackslash}p{0.7cm}|>{\centering\arraybackslash}p{0.7cm}|}
+        \hline
+        $N$ & $k$ & $2k$ & $4k$ & $8k$ & $10k$ & $15k$ & $20k$ & $30k$ & $40k$ & $50k$ & $75k$ & $100k$ \\
+        \hline
+        $\alpha(N) \%$ & 88.69 & 90.39 & 89.61 & 89.75 & 89.61 & 89.14 & 88.87 & 88.63 & 88.58 & 88.53 & 88.61 & 88.67 \\
+        \hline
+    \end{tabular}
+    \caption{Estimated value of the parallelization proportion of the code for weak scaling. The amount of non-zero entries per processor was taken to be $k = 119780$. }
+    \label{tab:thin_table_13_columns}
+\end{table}
 
 
 
 \section{Conclusion and further considerations}
-In this report I focused on the parallelization of conjugate gradient method for solving linear systems. I presented the results of the parallelization of the \verb|mat_vec| function and we saw how the full code performed under strong and scaling. While the main focus of this project was on parallelizing the \verb|mat_vec| function there are further improvements that one might apply to squeeze out even more performance. Since the code has become memory bound allocating only the necessary part of the matrix to each processor may help alleviate this problem and gain even more performance.  
+This report focuses on parallelizing the conjugate gradient method for solving linear systems, with an emphasis on the \verb|mat_vec| function. I evaluated its performance under both strong and weak scaling. Although the main effort was on parallelizing \verb|mat_vec|, further optimizations are possible. As the code is now memory-bound, allocating only the relevant matrix segments to each processor could enhance performance further.
+% In this report I focused on the parallelization of conjugate gradient method for solving linear systems. I presented the results of the parallelization of the \verb|mat_vec| function and we saw how the full code performed under strong and weak scaling. While the main focus of this project was on parallelizing the \verb|mat_vec| function there are further improvements that one might apply to squeeze out even more performance. Since the code has become memory bound allocating only the necessary part of the matrix to each processor may help alleviate this problem and gain even more performance.  
 
 
 
@@ -149,3 +188,8 @@ In this report I focused on the parallelization of conjugate gradient method for
 % These improvements would definitely help with memory efficiency, however the implementation of these approach were outside the scope of this exercise.
 
 \end{document}
+
+
+
+
+Firstly, let's get an idea about the computational complexity of the code. For a single iteration of the CG method most operations take $O(N)$ where $N$ is the size of the vector $b$, however the matrix vector product takes $O(N_{nz})$ where $N_{nz}$ is the number of non-zero entries of the matrix. Thus, for $k$ iterations, the time complexity is $O(k(N_{nz} + N))$. A similar argument would show that the memory scales as $O(N_{nz} + 4N)$ to store $b, x_k, r_k$ and $p_k$. AS previously discussed only the matrix vector product can be parallelized, hence for $p$ processors we have a time complexity of $O(k(\frac{N_{nz}}{p} + N))$
