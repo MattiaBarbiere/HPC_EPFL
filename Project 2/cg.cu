@@ -9,7 +9,6 @@
 const double NEARZERO = 1.0e-14;
 const bool DEBUG = false;
 const bool SHOW_RESULT = true;
-const bool USE_ENHANCED_DGEMV = true;
 
 // A simple function that computes the id of the thread
 __device__
@@ -27,12 +26,12 @@ int get_row_id() {
 
 // A cuda kernel that computes the dot product of two vectors
 __global__
-void cuda_ddot(double* result, int n, const double* x, int incx, const double* y, int incy) {
+void cuda_ddot(double* result, int n, const double* x, const double* y) {
   int id = get_id();
   if (id == 0) {
     *result = 0.0;
     for (int i = 0; i < n; ++i) {
-        *result += x[i * incx] * y[i * incy];
+        *result += x[i] * y[i];
     }
   }
 }
@@ -53,114 +52,12 @@ void cuda_dgemv(int m_m, int m_n,
     }
 }
 
-// An enhanced version of the cuda_daxpy function
-#define TILE_WIDTH 64
-
-__global__ void cuda_dgemv_enhanced(
-  int m, int n,
-  double alpha, const double* __restrict__ A, int lda,
-  const double* __restrict__ x,
-  double beta, double* __restrict__ y) {
-
-  __shared__ double ds_x[TILE_WIDTH];
-
-  int row = blockIdx.x * blockDim.x + threadIdx.x;
-  if (row >= m) return;
-
-  double result = 0.0;
-
-  for (int t = 0; t < (n + TILE_WIDTH - 1) / TILE_WIDTH; ++t) {
-      int tx = threadIdx.x;
-      int col = t * TILE_WIDTH + tx;
-
-      // Each thread cooperatively loads part of x into shared memory
-      if (col < n && tx < TILE_WIDTH) {
-          ds_x[tx] = x[col];
-      }
-      __syncthreads();
-
-      // Perform the matrix-vector multiplication for this tile
-      int tile_cols = min(TILE_WIDTH, n - t * TILE_WIDTH);
-      for (int j = 0; j < tile_cols; ++j) {
-          result += A[row * lda + t * TILE_WIDTH + j] * ds_x[j];
-      }
-      __syncthreads();
-  }
-
-  y[row] = alpha * result + beta * y[row];
-}
-
-// __global__ void cuda_dgemm_shmem(int n, 
-//   double alpha, 
-//   const double *A, 
-//   const double *B,
-//   double beta, 
-//   double *C) {
-//   int row = get_row_id();
-//   int col = blockDim.x * blockIdx.x + threadIdx.x;
-
-//   int aBegin = n * blockDim.x * block_row;
-//   int aEnd = aBegin + n-1;
-//   int bBegin = blockDim.x * block_col;
-//   int bStep = n * blockDim.x;
-//   double Csub = 0;
-
-//   for (int a=aBegin, b=bBegin, istep=0;
-//   a <= aEnd; a+= blockDim.x, b+=bStep, ++istep){
-
-//   __shared__ double As[blockDim.x][blockDim.x];
-//   __shared__ double Bs[blockDim.x][blockDim.x];
-
-//   if ((istep*blockDim.x+thread_col < n) && (block_row*blockDim.x+ thread_row < n))
-//     As[thread_row][thread_col] = A[a + n * thread_row + thread_col];
-//   else
-//     As[thread_row][thread_col] = 0;
-
-//   if ((block_col*blockDim.x+thread_col < n) && (istep*blockDim.x + thread_row < n))
-//     Bs[thread_row][thread_col] = B[b + n * thread_row + thread_col];
-//   else
-//     Bs[thread_row][thread_col] = 0;
-
-//   __syncthreads();
-
-//   // calculate the cell
-//   for (int k = 0; k < blockDim.x; ++k)
-//     Csub += As[thread_row][k] * Bs[k][thread_col];
-
-//   __syncthreads();
-//   }
-
-//   // Write the block sub-matrix to global memory;
-//   // each thread writes one element
-//   int c = n * blovkDim.x * block_row + blockDim.x * block_col;
-//   if ((block_col*blockDim.x+thread_col < n) && (block_row*blockDim.x+ thread_row < n))
-//     C[c + n * thread_row + thread_col] = alpha * Csub + beta * C[c +n * thread_row + thread_col;
-
-// }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 // A cuda kernel that computes the axpy operation
 __global__ // I also add this function to host for debugging
-void cuda_daxpy(int n, double alpha, const double* x, int incx, double* y, int incy) {
+void cuda_daxpy(int n, double alpha, const double* x, double* y) {
   int id = get_id();
   if (id < n) {
-    y[id * incy] += alpha * x[id * incx];
+    y[id] += alpha * x[id];
   }
 }
 
@@ -202,7 +99,7 @@ void CGSolver::solve(std::vector<double>& x, int threads_per_block, int blocks_p
   cudaMallocManaged(&rsnew, sizeof(double));
   cudaMallocManaged(&pAp, sizeof(double));
 
-  // Copies the constant data to the device
+  // Copy data to the device
   double* A_device;
   double* b_device;
   double* x_device;
@@ -215,57 +112,19 @@ void CGSolver::solve(std::vector<double>& x, int threads_per_block, int blocks_p
   cudaDeviceSynchronize();
 
 
-
-
-  int block_x = (int)sqrt(threads_per_block);
-  int block_y = threads_per_block / block_x;
-  
-  // Ensure block_x and block_y are valid and within the limits
-  while (block_x * block_y != threads_per_block) {
-      block_x--;
-      block_y = threads_per_block / block_x;
-      if (block_x <= 0) {
-          std::cerr << "Error: Invalid threads_per_block configuration." << std::endl;
-          return; // Exit the function if configuration is invalid
-      }
-  }
-  
-  // Ensure block dimensions do not exceed hardware limits
-  if (block_x > 1024 || block_y > 1024) {
-      std::cerr << "Error: Block dimensions exceed hardware limits." << std::endl;
-      return;
-  }
-  
-  dim3 blockDim(block_x, block_y);
-  dim3 gridDim((m_m + block_x - 1) / block_x, (m_n + block_y - 1) / block_y);
-  size_t shared_mem_size = block_y * sizeof(double);  // assuming one thread accesses one element of x
-  // print the block and grid dimensions
-  std::cout << "Block dimensions for dgemv: (" << block_x << ", " << block_y << ")" << std::endl;
-  std::cout << "Grid dimensions for dgemv: (" << gridDim.x << ", " << gridDim.y << ")" << std::endl;
-  std::cout << "Shared memory size for dgemv: " << shared_mem_size << " bytes" << std::endl;
-
-
   // r = b - A * x
   cuda_fill<<<blocks_per_grid, threads_per_block>>>(Ap, 0., m_n);
-  if (USE_ENHANCED_DGEMV) {
-      cuda_dgemv_enhanced<<<blocks_per_grid, threads_per_block, threads_per_block * sizeof(double)>>>(m_m, m_n, 1., A_device, m_n, x_device, 0., Ap);
-  } else {
-      cuda_dgemv<<<blocks_per_grid, threads_per_block>>>(m_m, m_n, 1., A_device, m_n, x_device, 0., Ap);
-  }
-  // cuda_dgemv<<<blocks_per_grid, threads_per_block>>>(m_m, m_n, 1., A_device, m_n, x_device, 1, 0., Ap, 1);
+  cuda_dgemv<<<blocks_per_grid, threads_per_block>>>(m_m, m_n, 1., A_device, m_n, x_device, 0., Ap);
 
-  // std::copy(m_b.data(), m_b.data() + m_n, r);
+  // Copy the data using cuda_copy
   cuda_copy<<<blocks_per_grid, threads_per_block>>>(r, b_device, m_n);
-  cuda_daxpy<<<blocks_per_grid, threads_per_block>>>(m_n, -1., Ap, 1, r, 1);
+  cuda_daxpy<<<blocks_per_grid, threads_per_block>>>(m_n, -1., Ap, r);
 
   // p = r
-  // std::copy(r, r + m_n, p);
   cuda_copy<<<blocks_per_grid, threads_per_block>>>(p, r, m_n);
   
-
   // rsold = r' * r
-  cuda_ddot<<<blocks_per_grid, threads_per_block>>>(rsold, m_n, r, 1, p, 1);
-  // cudaDeviceSynchronize();
+  cuda_ddot<<<blocks_per_grid, threads_per_block>>>(rsold, m_n, r, p);
 
   int k = 0;
   for (; k < m_n; ++k) {
@@ -273,28 +132,26 @@ void CGSolver::solve(std::vector<double>& x, int threads_per_block, int blocks_p
           std::cout << "\tSTEP " << k << std::endl;
       }
       // Ap = A * p
-      // std::fill_n(Ap, m_n, 0.);
       cuda_fill<<<blocks_per_grid, threads_per_block>>>(Ap, 0., m_n);
-      if (USE_ENHANCED_DGEMV) {
-          cuda_dgemv_enhanced<<<blocks_per_grid, threads_per_block, threads_per_block * sizeof(double)>>>(m_m, m_n, 1., A_device, m_n, p, 0., Ap);
-      } else {
-          cuda_dgemv<<<blocks_per_grid, threads_per_block>>>(m_m, m_n, 1., A_device, m_n, p, 0., Ap);
-      }
-      // cuda_dgemv<<<blocks_per_grid, threads_per_block>>>(m_m, m_n, 1., A_device, m_n, p, 1, 0., Ap, 1);
-      cuda_ddot<<<blocks_per_grid, threads_per_block>>>(pAp, m_n, p, 1, Ap, 1);
+
+      // Use the cuda_dgemv function to compute Ap = A * p
+      cuda_dgemv<<<blocks_per_grid, threads_per_block>>>(m_m, m_n, 1., A_device, m_n, p, 0., Ap);
+
+      // Compute the dot product p' * Ap
+      cuda_ddot<<<blocks_per_grid, threads_per_block>>>(pAp, m_n, p, Ap);
       cudaDeviceSynchronize();
 
       auto denom = std::max(*pAp, *rsold * NEARZERO);
       auto alpha = *rsold / denom;
 
       // x = x + alpha * p
-      cuda_daxpy<<<blocks_per_grid, threads_per_block>>>(m_n, alpha, p, 1, x_device, 1);
+      cuda_daxpy<<<blocks_per_grid, threads_per_block>>>(m_n, alpha, p, x_device);
 
       // r = r - alpha * Ap
-      cuda_daxpy<<<blocks_per_grid, threads_per_block>>>(m_n, -alpha, Ap, 1, r, 1);
+      cuda_daxpy<<<blocks_per_grid, threads_per_block>>>(m_n, -alpha, Ap, r);
 
       // rsnew = r' * r
-      cuda_ddot<<<blocks_per_grid, threads_per_block>>>(rsnew, m_n, r, 1, r, 1);
+      cuda_ddot<<<blocks_per_grid, threads_per_block>>>(rsnew, m_n, r, r);
       cudaDeviceSynchronize();
 
       if (std::sqrt(*rsnew) < m_tolerance)
@@ -304,7 +161,7 @@ void CGSolver::solve(std::vector<double>& x, int threads_per_block, int blocks_p
 
       // tmp = r + beta * p
       cuda_copy<<<blocks_per_grid, threads_per_block>>>(tmp, r, m_n);
-      cuda_daxpy<<<blocks_per_grid, threads_per_block>>>(m_n, beta, p, 1, tmp, 1);
+      cuda_daxpy<<<blocks_per_grid, threads_per_block>>>(m_n, beta, p, tmp);
       cuda_copy<<<blocks_per_grid, threads_per_block>>>(p, tmp, m_n);
       cudaDeviceSynchronize();
 
@@ -328,7 +185,7 @@ void CGSolver::solve(std::vector<double>& x, int threads_per_block, int blocks_p
       std::cout << "\n \n" << std::endl;
   }
 
-  // Clean up
+  // Free the gpu memory
   cudaFree(r);
   cudaFree(p);
   cudaFree(Ap);

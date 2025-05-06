@@ -2,47 +2,48 @@ lap2D_5pt_n100.mtx
 Call CG dense on matrix size 10000 x 10000
 Threads per block:16
 Blocks per grid:625
-==4157453== NVPROF is profiling process 4157453, command: ./cgsolver lap2D_5pt_n100.mtx 16
+==142948== NVPROF is profiling process 142948, command: ./cgsolver lap2D_5pt_n100.mtx 16
 
 
 [STEP 488] residual = 1.087711e-10, ||x|| = 2.147364e+09, ||Ax - b||/||b|| = 1.325027e-12
 
  
 
-Time for CG (dense solver)  = 2.777612e+00 [s]
+Time for CG (dense solver)  = 2.800258e+00 [s]
 
 
-==4157453== Profiling application: ./cgsolver lap2D_5pt_n100.mtx 16
-==4157453== Profiling result:
+==142948== Profiling application: ./cgsolver lap2D_5pt_n100.mtx 16
+==142948== Profiling result:
             Type  Time(%)      Time     Calls       Avg       Min       Max  Name
- GPU activities:   53.03%  1.28029s       490  2.6128ms  2.5719ms  2.6600ms  cuda_dgemv(int, int, double, double const *, int, double const *, int, double, double*, int)
-                   39.02%  942.08ms       979  962.29us  743.71us  1.1534ms  cuda_ddot(double*, int, double const *, int, double const *, int)
-                    6.92%  167.04ms         3  55.681ms  9.1200us  167.02ms  [CUDA memcpy HtoD]
-                    0.72%  17.453ms       978  17.845us  3.3600us  180.06us  cuda_copy(double*, double const *, int)
-                    0.24%  5.7388ms      1467  3.9110us  3.4550us  5.2480us  cuda_daxpy(int, double, double const *, int, double*, int)
-                    0.08%  1.8879ms       490  3.8520us  3.2310us  284.51us  cuda_fill(double*, double, int)
-                    0.00%  7.8720us         1  7.8720us  7.8720us  7.8720us  [CUDA memcpy DtoH]
-      API calls:   86.68%  2.24651s      1467  1.5314ms  13.534us  10.498ms  cudaDeviceSynchronize
-                    6.46%  167.41ms         4  41.852ms  31.283us  167.21ms  cudaMemcpy
-                    5.34%  138.49ms         7  19.785ms  3.4570us  138.46ms  cudaMallocManaged
-                    1.47%  38.045ms      4404  8.6380us  2.9280us  19.403ms  cudaLaunchKernel
-                    0.03%  818.73us        10  81.873us  5.1210us  475.44us  cudaFree
-                    0.01%  217.97us         3  72.656us  3.8360us  146.98us  cudaMalloc
-                    0.00%  125.57us       101  1.2430us     108ns  55.523us  cuDeviceGetAttribute
-                    0.00%  7.8050us         1  7.8050us  7.8050us  7.8050us  cuDeviceGetName
-                    0.00%  6.2120us         1  6.2120us  6.2120us  6.2120us  cuDeviceGetPCIBusId
-                    0.00%     830ns         3     276ns     123ns     562ns  cuDeviceGetCount
-                    0.00%     579ns         1     579ns     579ns     579ns  cuDeviceTotalMem
-                    0.00%     456ns         2     228ns     123ns     333ns  cuDeviceGet
-                    0.00%     235ns         1     235ns     235ns     235ns  cuDeviceGetUuid
-                    0.00%     217ns         1     217ns     217ns     217ns  cuModuleGetLoadingMode
+ GPU activities:   52.48%  1.27001s       490  2.5919ms  2.5327ms  2.6727ms  cuda_dgemv(int, int, double, double const *, int, double const *, double, double*)
+                   38.90%  941.35ms       979  961.54us  726.97us  1.1645ms  cuda_ddot(double*, int, double const *, double const *)
+                    6.94%  168.05ms         3  56.016ms  9.1840us  168.03ms  [CUDA memcpy HtoD]
+                    1.36%  32.832ms       978  33.570us  3.3600us  277.44us  cuda_copy(double*, double const *, int)
+                    0.24%  5.9161ms      1467  4.0320us  3.3910us  11.008us  cuda_daxpy(int, double, double const *, double*)
+                    0.08%  1.9040ms       490  3.8850us  3.2310us  308.03us  cuda_fill(double*, double, int)
+                    0.00%  7.8400us         1  7.8400us  7.8400us  7.8400us  [CUDA memcpy DtoH]
+      API calls:   86.50%  2.25444s      1467  1.5368ms  13.866us  12.373ms  cudaDeviceSynchronize
+                    6.46%  168.42ms         4  42.105ms  31.702us  168.21ms  cudaMemcpy
+                    5.30%  138.13ms         7  19.732ms  16.255us  137.99ms  cudaMallocManaged
+                    1.67%  43.462ms      4404  9.8680us  3.2300us  20.272ms  cudaLaunchKernel
+                    0.03%  890.28us        10  89.027us  6.1410us  469.09us  cudaFree
+                    0.03%  821.70us         3  273.90us  4.0790us  489.92us  cudaMalloc
+                    0.00%  115.24us       101  1.1410us     108ns  48.494us  cuDeviceGetAttribute
+                    0.00%  8.2360us         1  8.2360us  8.2360us  8.2360us  cuDeviceGetName
+                    0.00%  5.3000us         1  5.3000us  5.3000us  5.3000us  cuDeviceGetPCIBusId
+                    0.00%     935ns         3     311ns     135ns     628ns  cuDeviceGetCount
+                    0.00%     583ns         1     583ns     583ns     583ns  cuDeviceTotalMem
+                    0.00%     577ns         2     288ns     128ns     449ns  cuDeviceGet
+                    0.00%     280ns         1     280ns     280ns     280ns  cuModuleGetLoadingMode
+                    0.00%     195ns         1     195ns     195ns     195ns  cuDeviceGetUuid
 
-==4157453== Unified Memory profiling result:
+==142948== Unified Memory profiling result:
 Device "Tesla V100-PCIE-32GB (0)"
    Count  Avg Size  Min Size  Max Size  Total Size  Total Time  Name
-    1472  4.1436KB  4.0000KB  56.000KB  5.957031MB  3.557537ms  Host To Device
-    1478  4.2158KB  4.0000KB  60.000KB  6.085938MB  2.118972ms  Device To Host
-    1468         -         -         -           -  144.4641ms  Gpu page fault groups
-     502  4.0000KB  4.0000KB  4.0000KB  1.960938MB           -  Memory thrashes
-Total CPU Page faults: 1468
-Total CPU thrashes: 502
+    1472  4.1436KB  4.0000KB  56.000KB  5.957031MB  3.372578ms  Host To Device
+    1478  4.2158KB  4.0000KB  60.000KB  6.085938MB  2.118251ms  Device To Host
+    1468         -         -         -           -  181.4042ms  Gpu page fault groups
+     501  4.0000KB  4.0000KB  4.0000KB  1.957031MB           -  Memory thrashes
+Total CPU Page faults: 1469
+Total CPU thrashes: 501
+Total CPU throttles: 1
