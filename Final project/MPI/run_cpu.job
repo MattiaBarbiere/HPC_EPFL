@@ -1,0 +1,20 @@
+#!/bin/bash
+#SBATCH --qos=math-454
+#SBATCH --account=math-454
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --time=48:00:00
+
+module purge
+module load gcc hdf5
+
+srun ./swe
+
+
+# srun ./cgsolver lap2D_5pt_n200.mtx
+# srun ./cgsolver lap2D_5pt_n300.mtx
+# srun ./cgsolver lap2D_5pt_n600.mtx
+# srun ./cgsolver lap2D_5pt_n1000.mtx
+# srun ./cgsolver lap2D_5pt_n2000.mtx
+# perf record -F 4000 -m 512 -o perf.data --call-graph dwarf ./cgsolver lap2D_5pt_n300.mtx > perf_p1/perf_output_sequential_p1.txt 2>&1
+
