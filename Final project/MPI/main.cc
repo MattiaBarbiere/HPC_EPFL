@@ -14,7 +14,7 @@ main()
   const std::size_t nx = 1000; // Number of cells per direction.
   const std::size_t ny = 1000; // Number of cells per direction.
   const std::size_t output_n = 10;
-  const std::string output_fname = "water_drops";
+  const std::string output_fname = "output_files/water_drops";
   const bool full_log = false;
 
   SWESolver solver(test_case_id, nx, ny);
