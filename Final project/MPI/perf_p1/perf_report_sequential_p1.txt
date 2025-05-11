@@ -1,0 +1,987 @@
+# To display the perf.data header info, please use --header/--header-only options.
+#
+#
+# Total Lost Samples: 0
+#
+# Samples: 464K of event 'cycles:u'
+# Event count (approx.): 380711508107
+#
+# Children      Self  Command  Shared Object         Symbol                                                                                                        
+# ........  ........  .......  ....................  ..............................................................................................................
+#
+    99.91%     0.00%  swe      libc.so.6             [.] __libc_start_call_main
+            |
+            ---__libc_start_call_main
+               main
+               |          
+                --99.89%--SWESolver::solve
+                          |          
+                          |--23.89%--SWESolver::compute_time_step
+                          |          
+                           --0.71%--SWESolver::update_bcs
+
+    99.91%     0.00%  swe      swe                   [.] main
+            |
+            ---main
+               |          
+                --99.89%--SWESolver::solve
+                          |          
+                          |--23.89%--SWESolver::compute_time_step
+                          |          
+                           --0.71%--SWESolver::update_bcs
+
+    99.90%     0.00%  swe      libc.so.6             [.] __libc_start_main_alias_2 (inlined)
+            |
+            ---__libc_start_main_alias_2 (inlined)
+               __libc_start_call_main
+               main
+               |          
+                --99.89%--SWESolver::solve
+                          |          
+                          |--23.89%--SWESolver::compute_time_step
+                          |          
+                           --0.71%--SWESolver::update_bcs
+
+    99.90%    75.07%  swe      swe                   [.] SWESolver::solve
+            |          
+            |--75.05%--_start
+            |          __libc_start_main_alias_2 (inlined)
+            |          __libc_start_call_main
+            |          main
+            |          SWESolver::solve
+            |          
+             --24.84%--SWESolver::solve
+                       |          
+                       |--23.89%--SWESolver::compute_time_step
+                       |          
+                        --0.71%--SWESolver::update_bcs
+
+    99.90%     0.00%  swe      swe                   [.] _start
+            |
+            ---_start
+               __libc_start_main_alias_2 (inlined)
+               __libc_start_call_main
+               main
+               |          
+                --99.89%--SWESolver::solve
+                          |          
+                          |--23.89%--SWESolver::compute_time_step
+                          |          
+                           --0.71%--SWESolver::update_bcs
+
+    23.90%    23.90%  swe      swe                   [.] SWESolver::compute_time_step
+            |          
+             --23.89%--_start
+                       __libc_start_main_alias_2 (inlined)
+                       __libc_start_call_main
+                       main
+                       |          
+                        --23.89%--SWESolver::solve
+                                  SWESolver::compute_time_step
+
+     0.71%     0.71%  swe      swe                   [.] SWESolver::update_bcs
+            |          
+             --0.71%--_start
+                       __libc_start_main_alias_2 (inlined)
+                       __libc_start_call_main
+                       main
+                       |          
+                        --0.71%--SWESolver::solve
+                                  SWESolver::update_bcs
+
+     0.20%     0.00%  swe      swe                   [.] XDMFWriter::add_h
+     0.11%     0.00%  swe      swe                   [.] XDMFWriter::write_array_to_hdf5
+     0.08%     0.00%  swe      swe                   [.] XDMFWriter::write_root_xdmf
+     0.07%     0.00%  swe      libhdf5.so.200.2.0    [.] H5Fcreate
+     0.07%     0.00%  swe      libhdf5.so.200.2.0    [.] H5VL_file_create
+     0.07%     0.00%  swe      libhdf5.so.200.2.0    [.] H5F_open
+     0.07%     0.00%  swe      libhdf5.so.200.2.0    [.] H5VL__file_create
+     0.07%     0.00%  swe      libhdf5.so.200.2.0    [.] H5VL__native_file_create
+     0.04%     0.00%  swe      libhdf5.so.200.2.0    [.] H5F__new
+     0.04%     0.01%  swe      libc.so.6             [.] __vfprintf_internal
+     0.04%     0.00%  swe      libstdc++.so.6.0.29   [.] std::ostream::_M_insert<double>
+     0.03%     0.00%  swe      libstdc++.so.6.0.29   [.] std::num_put<char, std::ostreambuf_iterator<char, std::char_traits<char> > >::put (inlined)
+     0.03%     0.00%  swe      libstdc++.so.6.0.29   [.] std::num_put<char, std::ostreambuf_iterator<char, std::char_traits<char> > >::_M_insert_float<double>
+     0.03%     0.01%  swe      libstdc++.so.6.0.29   [.] std::__ostream_insert<char, std::char_traits<char> >
+     0.03%     0.00%  swe      libhdf5.so.200.2.0    [.] H5AC_create
+     0.03%     0.03%  swe      libc.so.6             [.] __memset_evex_erms
+     0.03%     0.00%  swe      libhdf5.so.200.2.0    [.] H5C_create
+     0.03%     0.00%  swe      libhdf5.so.200.2.0    [.] H5FL_reg_calloc
+     0.03%     0.00%  swe      libstdc++.so.6.0.29   [.] std::__convert_from_v
+     0.03%     0.00%  swe      libc.so.6             [.] __printf_fp_l (inlined)
+     0.03%     0.00%  swe      libc.so.6             [.] __vsnprintf_internal
+     0.02%     0.00%  swe      libhdf5.so.200.2.0    [.] H5I_dec_app_ref
+     0.02%     0.00%  swe      libhdf5.so.200.2.0    [.] H5I_dec_ref
+     0.02%     0.00%  swe      [unknown]             [.] 0xffffffffb2800cb0
+     0.02%     0.02%  swe      libc.so.6             [.] __GI___printf_fp_l
+     0.02%     0.00%  swe      libhdf5.so.200.2.0    [.] H5Fclose
+     0.02%     0.00%  swe      libhdf5.so.200.2.0    [.] H5F__close_cb
+     0.02%     0.00%  swe      libhdf5.so.200.2.0    [.] H5VL_file_close
+     0.02%     0.00%  swe      libhdf5.so.200.2.0    [.] H5VL__native_file_close
+     0.02%     0.00%  swe      libhdf5.so.200.2.0    [.] H5F__dest
+     0.02%     0.00%  swe      libhdf5.so.200.2.0    [.] H5F__close
+     0.02%     0.00%  swe      libhdf5.so.200.2.0    [.] H5F_try_close
+     0.02%     0.00%  swe      libhdf5.so.200.2.0    [.] H5VL__file_close
+     0.02%     0.00%  swe      libstdc++.so.6.0.29   [.] std::__ostream_write<char, std::char_traits<char> > (inlined)
+     0.02%     0.00%  swe      libstdc++.so.6.0.29   [.] std::basic_streambuf<char, std::char_traits<char> >::sputn (inlined)
+     0.01%     0.00%  swe      swe                   [.] SWESolver::SWESolver
+     0.01%     0.00%  swe      libc.so.6             [.] __printf (inlined)
+     0.01%     0.01%  swe      libhdf5.so.200.2.0    [.] H5SL_search
+     0.01%     0.01%  swe      libstdc++.so.6.0.29   [.] std::basic_streambuf<char, std::char_traits<char> >::xsputn
+     0.01%     0.00%  swe      swe                   [.] SWESolver::init_gaussian
+     0.01%     0.00%  swe      libstdc++.so.6.0.29   [.] std::ostream::_M_insert<unsigned long>
+     0.01%     0.00%  swe      libhdf5.so.200.2.0    [.] H5Dcreate2
+     0.01%     0.00%  swe      libhdf5.so.200.2.0    [.] H5VL_dataset_create
+     0.01%     0.00%  swe      libhdf5.so.200.2.0    [.] H5VL__dataset_create
+     0.01%     0.00%  swe      libhdf5.so.200.2.0    [.] H5VL__native_dataset_create
+     0.01%     0.00%  swe      libhdf5.so.200.2.0    [.] H5L__create_real (inlined)
+     0.01%     0.00%  swe      libhdf5.so.200.2.0    [.] H5D__create_named
+     0.01%     0.00%  swe      libhdf5.so.200.2.0    [.] H5L_link_object
+     0.01%     0.00%  swe      libhdf5.so.200.2.0    [.] H5L__create_real (inlined)
+     0.01%     0.00%  swe      libhdf5.so.200.2.0    [.] H5P__do_prop (inlined)
+     0.01%     0.00%  swe      libhdf5.so.200.2.0    [.] H5G_traverse
+     0.01%     0.00%  swe      libhdf5.so.200.2.0    [.] H5G__traverse_real
+     0.01%     0.00%  swe      libm.so.6             [.] exp
+     0.01%     0.00%  swe      libstdc++.so.6.0.29   [.] std::num_put<char, std::ostreambuf_iterator<char, std::char_traits<char> > >::put (inlined)
+     0.01%     0.01%  swe      libstdc++.so.6.0.29   [.] std::basic_filebuf<char, std::char_traits<char> >::xsputn
+     0.01%     0.00%  swe      libstdc++.so.6.0.29   [.] std::num_put<char, std::ostreambuf_iterator<char, std::char_traits<char> > >::_M_insert_int<unsigned long>
+     0.01%     0.00%  swe      libhdf5.so.200.2.0    [.] H5G_mkroot
+     0.01%     0.00%  swe      swe                   [.] XDMFWriter::XDMFWriter
+     0.01%     0.00%  swe      [unknown]             [.] 0x00000000000003e6
+     0.01%     0.01%  swe      libc.so.6             [.] __memmove_evex_unaligned_erms
+     0.01%     0.00%  swe      libc.so.6             [.] __memcpy_evex_unaligned_erms (inlined)
+     0.01%     0.00%  swe      swe                   [.] XDMFWriter::write_mesh_hdf5
+     0.01%     0.00%  swe      libhdf5.so.200.2.0    [.] H5L__link_cb
+     0.01%     0.00%  swe      libhdf5.so.200.2.0    [.] H5P_get
+     0.01%     0.00%  swe      libhdf5.so.200.2.0    [.] H5P__do_prop (inlined)
+     0.01%     0.01%  swe      libstdc++.so.6.0.29   [.] std::ostream::sentry::sentry
+     0.01%     0.01%  swe      [unknown]             [k] 0xffffffffb2800fb7
+     0.01%     0.00%  swe      libhdf5.so.200.2.0    [.] H5Dclose
+     0.01%     0.00%  swe      libhdf5.so.200.2.0    [.] H5C__flush_single_entry
+     0.01%     0.00%  swe      libhdf5.so.200.2.0    [.] H5Dwrite
+     0.01%     0.00%  swe      libhdf5.so.200.2.0    [.] H5P_copy_plist
+     0.01%     0.01%  swe      libhdf5.so.200.2.0    [.] H5_hash_string
+     0.01%     0.00%  swe      libhdf5.so.200.2.0    [.] H5C_flush_cache
+     0.01%     0.00%  swe      libhdf5.so.200.2.0    [.] H5VL_dataset_write
+     0.01%     0.00%  swe      libhdf5.so.200.2.0    [.] H5D__write
+     0.01%     0.00%  swe      libhdf5.so.200.2.0    [.] H5VL__dataset_write
+     0.01%     0.00%  swe      libhdf5.so.200.2.0    [.] H5VL__native_dataset_write
+     0.01%     0.00%  swe      libhdf5.so.200.2.0    [.] H5I_dec_app_ref_always_close
+     0.01%     0.00%  swe      libhdf5.so.200.2.0    [.] H5C__flush_ring (inlined)
+     0.01%     0.00%  swe      libhdf5.so.200.2.0    [.] H5G__obj_create
+     0.01%     0.00%  swe      libhdf5.so.200.2.0    [.] H5O__dset_create (inlined)
+     0.01%     0.00%  swe      libc.so.6             [.] hack_digit
+     0.01%     0.00%  swe      libhdf5.so.200.2.0    [.] H5O_obj_create
+     0.01%     0.00%  swe      libhdf5.so.200.2.0    [.] H5D__create
+     0.01%     0.00%  swe      libhdf5.so.200.2.0    [.] H5F__flush_phase2 (inlined)
+     0.01%     0.00%  swe      libhdf5.so.200.2.0    [.] H5F__flush_phase2 (inlined)
+     0.01%     0.00%  swe      libstdc++.so.6.0.29   [.] std::char_traits<char>::copy (inlined)
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5P_close
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5FL_reg_malloc
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5SL_insert
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5SL__insert_common
+     0.00%     0.00%  swe      swe                   [.] XDMFWriter::create_cells
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5D__close_cb
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5VL_dataset_close
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5VL__native_dataset_close
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5D_close
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5VL__dataset_close
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5AC_flush
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5F_flush_tagged_metadata
+     0.00%     0.00%  swe      libc.so.6             [.] __strcmp_avx2
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] __dynamic_cast
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5G__obj_create_real
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5C_flush_tagged_entries
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5AC_flush_tagged_metadata
+     0.00%     0.00%  swe      [unknown]             [.] 0x00000000000003e7
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5D__contig_write
+     0.00%     0.00%  swe      libc.so.6             [.] __mpn_mul_1
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] std::basic_ios<char, std::char_traits<char> >::init
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5F__flush_phase1 (inlined)
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5G__stab_create
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5F__flush_phase1 (inlined)
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] std::__int_to_char<char, unsigned long>
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5C__flush_marked_entries
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5D__update_oh_info (inlined)
+     0.00%     0.00%  swe      swe                   [.] SWESolver::init_dx_dy
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5P_peek
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5D__select_io
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5D__select_write
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] std::ostream::flush
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] 0x00000000000a9134
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] 0x00007f8319ad4134
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5FD_open
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] __cxxabiv1::__vmi_class_type_info::__do_dyncast
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] std::__write<char> (inlined)
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] std::ostreambuf_iterator<char, std::char_traits<char> >::_M_put (inlined)
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] std::basic_streambuf<char, std::char_traits<char> >::sputn (inlined)
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] std::use_facet<std::ctype<char> >
+     0.00%     0.00%  swe      libc.so.6             [.] __strchrnul_evex
+     0.00%     0.00%  swe      swe                   [.] XDMFWriter::create_vertices
+     0.00%     0.00%  swe      [unknown]             [.] 0xffffffffb2800ab0
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5I__find_id
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5P__do_prop (inlined)
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] std::basic_ios<char, std::char_traits<char> >::_M_cache_locale
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5MF__aggr_reset
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5MF_free_aggrs
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] std::basic_streambuf<char, std::char_traits<char> >::pubsync (inlined)
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] std::type_info::operator== (inlined)
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] std::__codecvt_abstract_base<char, char, __mbstate_t>::always_noconv (inlined)
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5SL_remove
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5O__msg_append_real
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5FL_blk_malloc
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5G_obj_insert
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] std::basic_filebuf<char, std::char_traits<char> >::open
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5O_msg_append_oh
+     0.00%     0.00%  swe      swe                   [.] std::vector<double, std::allocator<double> >::operator=
+     0.00%     0.00%  swe      libc.so.6             [.] __GI__IO_fflush (inlined)
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5FL__blk_find_list
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5F__super_init
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5G__stab_create_components
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5SL__new_node (inlined)
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5AC_dest
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5C_dest
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5FL_blk_free
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5FL_fac_malloc
+     0.00%     0.00%  swe      swe                   [.] std::vector<double, std::allocator<double> >::_M_fill_insert
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5G__stab_insert
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5MF_xfree
+     0.00%     0.00%  swe      swe                   [.] printf@plt
+     0.00%     0.00%  swe      libc.so.6             [.] __GI___libc_malloc (inlined)
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5C__flush_invalidate_cache (inlined)
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5C__flush_invalidate_ring (inlined)
+     0.00%     0.00%  swe      [unknown]             [.] 0x0000000000000005
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5F__accum_write
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5PB_write
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5G__stab_insert_real
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5C_insert_entry
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] std::has_facet<std::ctype<char> >
+     0.00%     0.00%  swe      swe                   [.] std::__ostream_insert<char, std::char_traits<char> >@plt
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5B__insert_helper
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5B_insert
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5C__generate_image
+     0.00%     0.00%  swe      [unknown]             [.] 0xffffffffb2800190
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5C_set_slist_enabled
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5AC_insert_entry
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5VL_set_vol_wrapper
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5F_block_write
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] std::ostream::sentry::~sentry (inlined)
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5FL_seq_free
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] std::codecvt<char, char, __mbstate_t>::do_always_noconv
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5G_name_free
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5I_object
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5G__node_init
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5SL_create
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5O_create
+     0.00%     0.00%  swe      libc.so.6             [.] __libc_alloca_cutoff
+     0.00%     0.00%  swe      libc.so.6             [.] __GI___libc_alloca_cutoff (inlined)
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5MF_alloc
+     0.00%     0.00%  swe      libc.so.6             [.] __free (inlined)
+     0.00%     0.00%  swe      libc.so.6             [.] _IO_fflush
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5O__msg_alloc
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] std::__use_cache<std::__numpunct_cache<char> >::operator()
+     0.00%     0.00%  swe      libc.so.6             [.] _int_malloc
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] std::basic_filebuf<char, std::char_traits<char> >::close
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5O__cache_serialize (inlined)
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5FD__sec2_open
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5CX_push
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5G__obj_get_linfo
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5B_shared_new
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5O__free
+     0.00%     0.00%  swe      libm.so.6             [.] 0x000000000006b5eb
+     0.00%     0.00%  swe      libm.so.6             [.] 0x00007f83199b15eb
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5SL_item
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5MF_aggr_vfd_alloc
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5MF__aggr_alloc
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5F__alloc
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5FD_alloc
+     0.00%     0.00%  swe      libc.so.6             [.] __GI__IO_file_xsputn (inlined)
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] operator new
+     0.00%     0.00%  swe      libc.so.6             [.] new_do_write
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5O_msg_flush
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5O__chunk_serialize
+     0.00%     0.00%  swe      [unknown]             [.] 0xffffffffb2800d50
+     0.00%     0.00%  swe      libc.so.6             [.] printf
+     0.00%     0.00%  swe      [unknown]             [.] 0xffffffffb2800170
+     0.00%     0.00%  swe      libm.so.6             [.] 0x000000000006b58c
+     0.00%     0.00%  swe      libm.so.6             [.] 0x00007f83199b158c
+     0.00%     0.00%  swe      [unknown]             [.] 0xffffffffb2800180
+     0.00%     0.00%  swe      [unknown]             [.] 0x00000000000f423f
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5FD_get_class
+     0.00%     0.00%  swe      libc.so.6             [.] __memset_evex_unaligned_erms
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5S_append
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5O__cache_free_icr (inlined)
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5G__obj_lookup
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5O_msg_exists
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5O_msg_create
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5MF_try_shrink
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5D__alloc_storage
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5O__dtype_shared_encode (inlined)
+     0.00%     0.00%  swe      libc.so.6             [.] __mpn_lshift
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] std::basic_filebuf<char, std::char_traits<char> >::_M_allocate_internal_buffer
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] std::__basic_file<char>::open
+     0.00%     0.00%  swe      libc.so.6             [.] __fopen_internal
+     0.00%     0.00%  swe      libc.so.6             [.] __GI__IO_file_fopen (inlined)
+     0.00%     0.00%  swe      libc.so.6             [.] __GI__IO_file_open (inlined)
+     0.00%     0.00%  swe      libm.so.6             [.] 0x000000000006b5a4
+     0.00%     0.00%  swe      libm.so.6             [.] 0x00007f83199b15a4
+     0.00%     0.00%  swe      libc.so.6             [.] __GI__IO_file_sync (inlined)
+     0.00%     0.00%  swe      libc.so.6             [.] __GI__IO_do_write (inlined)
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] std::ios_base::_M_init
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] std::__check_facet<std::codecvt<char, char, __mbstate_t> > (inlined)
+     0.00%     0.00%  swe      libc.so.6             [.] __GI___libc_cleanup_push_defer
+     0.00%     0.00%  swe      libc.so.6             [.] __libc_cleanup_push_defer (inlined)
+     0.00%     0.00%  swe      libm.so.6             [.] 0x000000000006b5e6
+     0.00%     0.00%  swe      libm.so.6             [.] 0x00007f83199b15e6
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] std::__basic_file<char>::xsputn_2
+     0.00%     0.00%  swe      libc.so.6             [.] malloc
+     0.00%     0.00%  swe      swe                   [.] 0x00000000004094dd
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] 0x00000000000a9034
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] 0x00007f8319ad4034
+     0.00%     0.00%  swe      libc.so.6             [.] __strlen_evex
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] std::__basic_file<char>::close
+     0.00%     0.00%  swe      libc.so.6             [.] _IO_new_fclose (inlined)
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5open
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5I_register
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5O_apply_ohdr
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5FD_close
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5RS_decr
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5AC_tag
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5HL_create
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5G_loc_copy
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5_build_extpath
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5I__remove_common
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5G__node_create (inlined)
+     0.00%     0.00%  swe      libm.so.6             [.] 0x000000000006b5c6
+     0.00%     0.00%  swe      libm.so.6             [.] 0x00007f83199b15c6
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5O__copy_mesg (inlined)
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5O_create_ohdr
+     0.00%     0.00%  swe      [unknown]             [.] 0x0b00000000000007
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5B_create
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5F_eoa_dirty
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5P__do_prop_cb1 (inlined)
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5P__do_prop_cb1 (inlined)
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5I_dec_app_ref@plt
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5Screate_simple
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5F_get_eoa
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5AC_prep_for_file_flush
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5FL_reg_free
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5E_clear_stack
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5G__node_insert
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5FO_top_decr
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5MF__close_delete_fstype
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5MF_close
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5MF__close_aggrfs (inlined)
+     0.00%     0.00%  swe      swe                   [.] exp@plt
+     0.00%     0.00%  swe      libc.so.6             [.] _int_free
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5MF__start_fstype
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5MF__create_fstype (inlined)
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5CX_get_vol_wrap_ctx
+     0.00%     0.00%  swe      libc.so.6             [.] __mpn_extract_double
+     0.00%     0.00%  swe      libc.so.6             [.] __GI___libc_write
+     0.00%     0.00%  swe      libc.so.6             [.] __GI___write (inlined)
+     0.00%     0.00%  swe      libc.so.6             [.] __GI___libc_open
+     0.00%     0.00%  swe      libc.so.6             [.] __libc_open64 (inlined)
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] std::basic_filebuf<char, std::char_traits<char> >::basic_filebuf
+     0.00%     0.00%  swe      libc.so.6             [.] _IO_new_file_write (inlined)
+     0.00%     0.00%  swe      [unknown]             [.] 0x000000000000004b
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] std::char_traits<char>::find (inlined)
+     0.00%     0.00%  swe      [unknown]             [.] 0x0000000000000001
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5C_validate_resize_config
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5AC_validate_config
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5C__iter_tagged_entries_real
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5FL__malloc
+     0.00%     0.00%  swe      libc.so.6             [.] _IO_str_init_static_internal
+     0.00%     0.00%  swe      libc.so.6             [.] _IO_setb
+     0.00%     0.00%  swe      libc.so.6             [.] __GI__IO_setb (inlined)
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5FD__sec2_close
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5VL_register_using_vol_id
+     0.00%     0.00%  swe      libm.so.6             [.] 0x000000000006b5cf
+     0.00%     0.00%  swe      libm.so.6             [.] 0x00007f83199b15cf
+     0.00%     0.00%  swe      libc.so.6             [.] cfree@GLIBC_2.2.5
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5I_iterate@plt
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5D_flush_all
+     0.00%     0.00%  swe      [unknown]             [.] 0x0b00000000000004
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] 0x00000000000a77e4
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] 0x00007f8319ad27e4
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5F__check_if_using_file_locks (inlined)
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5FD_get_eoa
+     0.00%     0.00%  swe      [unknown]             [.] 0x0b00000000000006
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5RS_create
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5O_protect
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5G_loc_real
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5O_close
+     0.00%     0.00%  swe      libm.so.6             [.] 0x000000000006b573
+     0.00%     0.00%  swe      libm.so.6             [.] 0x00007f83199b1573
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5D__typeinfo_init (inlined)
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5D__typeinfo_init (inlined)
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5D__contig_writevv_sieve_cb
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5D__contig_writevv (inlined)
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5VM_opvv
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5CX_push@plt
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5SL_close
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5MF__sect_simple_can_shrink
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5P__ocrt_pipeline_copy.lto_priv.0
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5P__ocrt_pipeline_copy (inlined)
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5C_unpin_entry
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5AC_unpin_entry
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5D__layout_oh_create
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5AC_protect
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5D__init_space (inlined)
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5G_name_set
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5G_build_fullpath_refstr_str
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5G__build_fullpath (inlined)
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5T__free
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5VL_introspect_opt_query
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5G_node_close
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5MF__close_fstype
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5FS_close
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5F_super_dirty
+     0.00%     0.00%  swe      libm.so.6             [.] 0x000000000006b53e
+     0.00%     0.00%  swe      libm.so.6             [.] 0x00007f83199b153e
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5O__alloc
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5FD_get_eof
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5S__extent_release
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5O__dtype_encode_helper.lto_priv.0
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5O__dtype_encode (inlined)
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5O__dtype_encode_helper (inlined)
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5F__accum_adjust
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5SL__release_common (inlined)
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] operator delete
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5CX_pop
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5FS_create
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5FS__new
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5F__cache_superblock_free_icr (inlined)
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5SL__close_common (inlined)
+     0.00%     0.00%  swe      ld-linux-x86-64.so.2  [.] _dl_relocate_object
+     0.00%     0.00%  swe      ld-linux-x86-64.so.2  [.] _dl_start
+     0.00%     0.00%  swe      ld-linux-x86-64.so.2  [.] .annobin__dl_help.end (inlined)
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5D__new
+     0.00%     0.00%  swe      ld-linux-x86-64.so.2  [.] _dl_start_final (inlined)
+     0.00%     0.00%  swe      ld-linux-x86-64.so.2  [.] _dl_sysdep_start
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5MM_xfree
+     0.00%     0.00%  swe      libc.so.6             [.] __GI_fwrite (inlined)
+     0.00%     0.00%  swe      ld-linux-x86-64.so.2  [.] dl_main
+     0.00%     0.00%  swe      [unknown]             [.] 0x0000000000000028
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] std::__basic_file<char>::__basic_file
+     0.00%     0.00%  swe      libc.so.6             [.] malloc_consolidate
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5HL__cache_prefix_free_icr (inlined)
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5HL__prfx_dest
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_append
+     0.00%     0.00%  swe      swe                   [.] 0x000000000040917f
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] std::basic_filebuf<char, std::char_traits<char> >::close()::__close_sentry::~__close_sentry (inlined)
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] std::basic_filebuf<char, std::char_traits<char> >::_M_destroy_internal_buffer
+     0.00%     0.00%  swe      libc.so.6             [.] __memchr_evex
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5C__mark_tagged_entries_cb
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5C__mark_tagged_entries (inlined)
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5C__iter_tagged_entries
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] std::locale::locale
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] std::locale::_S_initialize
+     0.00%     0.00%  swe      libc.so.6             [.] _IO_no_init
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5F__cache_superblock_image_len.lto_priv.0
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5F__cache_superblock_image_len (inlined)
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] __gnu_cxx::stdio_sync_filebuf<char, std::char_traits<char> >::xsputn
+     0.00%     0.00%  swe      [unknown]             [.] 0x000000000000004a
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5AC_validate_cache_image_config
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5FD__sec2_write
+     0.00%     0.00%  swe      swe                   [.] 0x0000000000409737
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] std::ios_base::width (inlined)
+     0.00%     0.00%  swe      libc.so.6             [.] _IO_new_file_close_it (inlined)
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] 0x00000000000a81f4
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] 0x00007f8319ad31f4
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5S__extent_copy_real
+     0.00%     0.00%  swe      [unknown]             [.] 0x0000000000000017
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5S_select_iter_release
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5O__msg_free_mesg
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5O_msg_free_real
+     0.00%     0.00%  swe      swe                   [.] 0x000000000040981f
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5VL_register
+     0.00%     0.00%  swe      [unknown]             [k] 0xffffffffb2800158
+     0.00%     0.00%  swe      libc.so.6             [.] __GI___writev
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5S_set_version
+     0.00%     0.00%  swe      [unknown]             [.] 0xffffffffb28001a8
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5_init_library
+     0.00%     0.00%  swe      libc.so.6             [.] fclose@@GLIBC_2.2.5
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] memset@plt
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5T__path_find_real (inlined)
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5WB_wrap
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5D__use_minimized_dset_headers (inlined)
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5FL_seq_malloc
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] std::ostream::sentry::~sentry (inlined)
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5G_loc_real@plt
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5P__dup_prop
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5P_isa_class
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5FD_flush
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5MM_strdup
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5C__unpin_entry_real
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5HL_unprotect
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5C__unpin_entry_from_client (inlined)
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5G_name_copy
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5G__cache_node_image_len.lto_priv.0
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5G__cache_node_image_len (inlined)
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5F__accum_reset
+     0.00%     0.00%  swe      [unknown]             [.] 0x0000000000000002
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5FL_blk_free@plt
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5FL_fac_free
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5P__get_cb
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] 0x00007f8319f5e02e
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5F__build_actual_name
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5AC_mark_entry_dirty
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5O__layout_copy (inlined)
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5FS__sect_merge
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5C_protect
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5O_msg_write_oh
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5AC_cork
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5F_shared_block_write
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5AC_pin_protected_entry
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5AC_unprotect
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5SL_next
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5CX_set_apl
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] malloc@plt
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5FS__sinfo_dest
+     0.00%     0.00%  swe      libm.so.6             [.] 0x000000000006b557
+     0.00%     0.00%  swe      libm.so.6             [.] 0x00007f83199b1557
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5Sclose
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5G__name_init
+     0.00%     0.00%  swe      [unknown]             [.] 0x0000000000000032
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5O__dtype_shared_encode.lto_priv.0
+     0.00%     0.00%  swe      ld-linux-x86-64.so.2  [.] elf_dynamic_do_Rela (inlined)
+     0.00%     0.00%  swe      ld-linux-x86-64.so.2  [.] elf_machine_rela (inlined)
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5S_select_copy
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5S_copy
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] 0x00000000000a6a74
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] 0x00007f8319ad1a74
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5FO_top_incr
+     0.00%     0.00%  swe      [unknown]             [.] 0x000000000000005f
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5SL__close_common (inlined)
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5UC_decr
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5B_shared_free
+     0.00%     0.00%  swe      [unknown]             [.] 0x000000000000000f
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5G__ent_reset
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5G__ent_convert
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5FD_truncate
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] 0x00007f831a02c47f
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5O_touch_oh
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5AC_prep_for_file_close
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5G_root_loc
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5AC_unsettle_ring
+     0.00%     0.00%  swe      [unknown]             [.] 0x0000000000000577
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5CX__pop_common (inlined)
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5S_close
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5F__cache_superblock_free_icr.lto_priv.0
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5HL__dec_rc@plt
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5P__free_prop
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5I_inc_ref
+     0.00%     0.00%  swe      libm.so.6             [.] 0x000000000006b5b7
+     0.00%     0.00%  swe      libm.so.6             [.] 0x00007f83199b15b7
+     0.00%     0.00%  swe      ld-linux-x86-64.so.2  [.] _dl_lookup_symbol_x
+     0.00%     0.00%  swe      swe                   [.] H5Dclose@plt
+     0.00%     0.00%  swe      libc.so.6             [.] __uselocale
+     0.00%     0.00%  swe      libc.so.6             [.] __GI___uselocale (inlined)
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] 0x00007f831a01f27f
+     0.00%     0.00%  swe      [unknown]             [.] 0x3936313539302e2f
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] std::__num_base::_S_format_float
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5CX_get_tag
+     0.00%     0.00%  swe      libc.so.6             [.] 0x000000000002c3c4
+     0.00%     0.00%  swe      libc.so.6             [.] 0x00007f831974a3c4
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] std::locale::id::_M_id
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] std::has_facet<std::num_put<char, std::ostreambuf_iterator<char, std::char_traits<char> > > >
+     0.00%     0.00%  swe      [unknown]             [.] 0x3934393236312e2f
+     0.00%     0.00%  swe      libc.so.6             [.] _IO_fwrite
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5O_dec_rc_by_loc@plt
+     0.00%     0.00%  swe      [unknown]             [.] 0x3d237159f53d1c8f
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5FD_get_maxaddr
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] 0x00000000000a9130
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] 0x00007f8319ad4130
+     0.00%     0.00%  swe      [unknown]             [.] 0x306f1151d210d260
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] 0x00000000000a9154
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] 0x00007f8319ad4154
+     0.00%     0.00%  swe      [unknown]             [.] 0x0b00000000000082
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5O_fill_reset_dyn
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5P_exist_plist
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] 0x00000000000a6554
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] 0x00007f8319ad1554
+     0.00%     0.00%  swe      [unknown]             [.] 0xffffffffb28001a0
+     0.00%     0.00%  swe      libc.so.6             [.] _IO_unsave_markers
+     0.00%     0.00%  swe      libc.so.6             [.] __GI__IO_unsave_markers (inlined)
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5_hash_string@plt
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] 0x00000000000a82f4
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] std::basic_filebuf<char, std::char_traits<char> >::is_open (inlined)
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] 0x00007f8319ad32f4
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5FD_get_feature_flags
+     0.00%     0.00%  swe      swe                   [.] 0x000000000040989f
+     0.00%     0.00%  swe      [unknown]             [.] 0x3433343136352e2f
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5CX_set_vol_wrap_ctx
+     0.00%     0.00%  swe      swe                   [.] 0x0000000000409937
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5FD_lock@plt
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] 0x00000000000a7794
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] 0x00007f8319ad2794
+     0.00%     0.00%  swe      swe                   [.] 0x0000000000409527
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] 0x00000000000a5ea4
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] 0x00007f8319ad0ea4
+     0.00%     0.00%  swe      libc.so.6             [.] 0x000000000002c484
+     0.00%     0.00%  swe      libc.so.6             [.] 0x00007f831974a484
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] 0x00000000000a65e4
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] 0x00007f8319ad15e4
+     0.00%     0.00%  swe      swe                   [.] 0x0000000000409514
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] std::has_facet<std::num_get<char, std::istreambuf_iterator<char, std::char_traits<char> > > >
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] std::locale::operator=
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5FD_get_fs_type_map@plt
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] 0x00000000000a5ab4
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] 0x00007f8319ad0ab4
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5check_version
+     0.00%     0.00%  swe      [unknown]             [.] 0x000000000000007a
+     0.00%     0.00%  swe      libc.so.6             [.] __printf_fp
+     0.00%     0.00%  swe      libc.so.6             [.] ___printf_fp (inlined)
+     0.00%     0.00%  swe      libc.so.6             [.] 0x000000000002c4c4
+     0.00%     0.00%  swe      libc.so.6             [.] 0x00007f831974a4c4
+     0.00%     0.00%  swe      libc.so.6             [.] __mpn_mul
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5F__sfile_search
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] 0x00000000000a8b10
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] 0x00007f8319ad3b10
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_create
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] std::ctype<char>::widen (inlined)
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] std::ctype<char>::do_widen (inlined)
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] 0x00000000000a8c24
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] 0x00007f8319ad3c24
+     0.00%     0.00%  swe      libc.so.6             [.] 0x000000000002c604
+     0.00%     0.00%  swe      libc.so.6             [.] 0x00007f831974a604
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] std::__basic_file<char>::fd
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_mutate
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_dispose (inlined)
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::_M_destroy (inlined)
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] std::allocator_traits<std::allocator<char> >::deallocate (inlined)
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] __gnu_cxx::new_allocator<char>::deallocate (inlined)
+     0.00%     0.00%  swe      libc.so.6             [.] _IO_link_in
+     0.00%     0.00%  swe      libc.so.6             [.] __GI__IO_link_in (inlined)
+     0.00%     0.00%  swe      [unknown]             [.] 0x000000000000002d
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5P__do_prop.part.0
+     0.00%     0.00%  swe      libc.so.6             [.] unlink_chunk.constprop.0
+     0.00%     0.00%  swe      libc.so.6             [.] _IO_file_xsputn@@GLIBC_2.2.5
+     0.00%     0.00%  swe      libc.so.6             [.] __tens+0x17
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] 0x00000000000a5994
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] 0x00007f8319ad0994
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] std::basic_ios<char, std::char_traits<char> >::tie (inlined)
+     0.00%     0.00%  swe      [unknown]             [.] 0x3837383239322e2f
+     0.00%     0.00%  swe      [unknown]             [.] 0x000000000000000d
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5S_close@plt
+     0.00%     0.00%  swe      libm.so.6             [.] 0x000000000006b5d8
+     0.00%     0.00%  swe      libm.so.6             [.] 0x00007f83199b15d8
+     0.00%     0.00%  swe      [unknown]             [.] 0x00000000672a2e24
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] 0x00000000000a5ab0
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] 0x00007f8319ad0ab0
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] 0x00000000000a7f14
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] 0x00007f8319ad2f14
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5FO_mark
+     0.00%     0.00%  swe      [unknown]             [.] 0x3933353632312e2f
+     0.00%     0.00%  swe      [unknown]             [.] 0xffffffffffffffff
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5SM_try_share
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5F_get_intent@plt
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] 0x00000000000a7350
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] 0x00007f8319ad2350
+     0.00%     0.00%  swe      libc.so.6             [.] _IO_file_write@@GLIBC_2.2.5
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] 0x00000000000a7c70
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] 0x00007f8319ad2c70
+     0.00%     0.00%  swe      swe                   [.] 0x00000000004097ef
+     0.00%     0.00%  swe      [unknown]             [.] 0x0000000000000041
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5O__msg_reset_real (inlined)
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5O__dtype_reset (inlined)
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5F__super_init@plt
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5D_close@plt
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5MF_settle_raw_data_fsm
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] std::basic_filebuf<char, std::char_traits<char> >::overflow
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] __gnu_cxx::stdio_sync_filebuf<char, std::char_traits<char> >::sync
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5P_init
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5P__init_package
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5P_create_id
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5P__create (inlined)
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5O_MSG_LINFO+0x9f
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5C__flush_single_entry@plt
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5T_patch_vlen_file@plt
+     0.00%     0.00%  swe      [unknown]             [.] 0x3ebb844c1822cc45
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::reserve
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5HL__cache_prefix_serialize (inlined)
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5O_pin
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5L__create_real.part.0
+     0.00%     0.00%  swe      libc.so.6             [.] pthread_once@GLIBC_2.2.5
+     0.00%     0.00%  swe      libc.so.6             [.] __GI___pthread_once (inlined)
+     0.00%     0.00%  swe      libm.so.6             [.] 0x000000000006b5dd
+     0.00%     0.00%  swe      libm.so.6             [.] 0x00007f83199b15dd
+     0.00%     0.00%  swe      libc.so.6             [.] _IO_default_xsputn
+     0.00%     0.00%  swe      libc.so.6             [.] __GI__IO_default_xsputn (inlined)
+     0.00%     0.00%  swe      libc.so.6             [.] _IO_2_1_stderr_+0xdf
+     0.00%     0.00%  swe      [unknown]             [.] 0x3432393335342e2f
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5F_decr_nopen_objs@plt
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] std::operator& (inlined)
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5G_root_loc@plt
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5O__sdspace_copy.lto_priv.0
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5O__sdspace_copy (inlined)
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5O_open
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5O__layout_reset.lto_priv.0
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5O_MSG_GINFO+0x9f
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5O__layout_reset (inlined)
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5FD_close@plt
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5C_set_cache_image_config@plt
+     0.00%     0.00%  swe      libc.so.6             [.] __close
+     0.00%     0.00%  swe      libc.so.6             [.] __libc_close (inlined)
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5FL_reg_calloc@plt
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5O__link_oh
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5O_link
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5P_class_isa@plt
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5UC_decr@plt
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5T__path_find_real.lto_priv.0
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5T_path_find
+     0.00%     0.00%  swe      [unknown]             [.] 0x0b00000000000003
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5T_copy
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5T_close_real
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5O__dtype_free (inlined)
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5AC_tag@plt
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5F__sfile_search@plt
+     0.00%     0.00%  swe      libc.so.6             [.] __GI__IO_un_link.part.0
+     0.00%     0.00%  swe      libc.so.6             [.] _IO_file_close_it@@GLIBC_2.2.5
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5HL__new
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5CX_get_dset_min_ohdr_flag
+     0.00%     0.00%  swe      [unknown]             [.] 0x00000000000007ff
+     0.00%     0.00%  swe      [unknown]             [.] 0x9fffffffffffffff
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5T_detect_class
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5RS_dup
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] std::num_put<char, std::ostreambuf_iterator<char, std::char_traits<char> > >::do_put
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5O__fill_reset.lto_priv.0
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5O_MSG_EFL+0x9f
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5O__fill_reset (inlined)
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5T__initiate_copy
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5FL_reg_malloc@plt
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5F_sizeof_size
+     0.00%     0.00%  swe      libm.so.6             [.] 0x000000000000f364
+     0.00%     0.00%  swe      libm.so.6             [.] 0x00007f8319955364
+     0.00%     0.00%  swe      libc.so.6             [.] __strncpy_evex
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5VL__conn_dec_rc.lto_priv.0
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5VL__conn_dec_rc (inlined)
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5CX_get_dxpl
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5F__accum_flush
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5FD_write
+     0.00%     0.00%  swe      libc.so.6             [.] __calloc (inlined)
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5P_is_fill_value_defined
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5F_eoa_dirty@plt
+     0.00%     0.00%  swe      [unknown]             [.] 0x0b000000000000dd
+     0.00%     0.00%  swe      libc.so.6             [.] __GI___getcwd
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5C_stats__reset
+     0.00%     0.00%  swe      [unknown]             [.] 0x00000000003fffff
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5AC_mark_entry_dirty@plt
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5MM_xfree@plt
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5CX_get_dset_min_ohdr_flag@plt
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5SL_create@plt
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5CX_set_dcpl@plt
+     0.00%     0.00%  swe      swe                   [.] std::basic_filebuf<char, std::char_traits<char> >::close@plt
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] 0x00007f8319ce577f
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5AC_set_cache_auto_resize_config@plt
+     0.00%     0.00%  swe      libc.so.6             [.] __GI___fstatat64
+     0.00%     0.00%  swe      libc.so.6             [.] __fstatat (inlined)
+     0.00%     0.00%  swe      [unknown]             [.] 0xffffffffb2800000
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5T__conv_ulong_float
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5VL_init_phase2
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5T_init
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5T__init_package
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5T__register_int
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5T__register
+     0.00%     0.00%  swe      [unknown]             [.] 0x3fb3d5b9d2e9cefb
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5O_MSG_FILL+0x9f
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5G__node_init@plt
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5FD_driver_query
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5I_object_verify
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5C_get_num_objs_corked
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5SL_search@plt
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5F_get_nmounts@plt
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5CX_pop@plt
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5F_Kvalue
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5VM_log2_gen (inlined)
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5MF__aggr_can_shrink_eoa
+     0.00%     0.00%  swe      [unknown]             [.] 0x0000000000000006
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5SL__release_common.lto_priv.0
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5O__mtime_new_encode.lto_priv.0
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5O__mtime_new_encode (inlined)
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5SL__new_node.lto_priv.0
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5FO_insert
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5O__dset_create.lto_priv.0
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5O_msg_copy
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5P__access_class
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5O__layout_copy.lto_priv.0
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5C__tag_entry
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5I_object_verify@plt
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] 0x00000000000a7dd4
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] 0x00007f8319ad2dd4
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5P__cmp_class@plt
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5P_class_isa
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5VL_wrap_object@plt
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5VL_file_optional
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5VL__file_optional
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5VL__native_file_optional
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5F__post_open
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5VL_create_object_using_vol_id
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5VL__new_vol_obj
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5VL__wrap_obj (inlined)
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5FO_top_create@plt
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5O__fill_new_shared_size.lto_priv.0
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5O__fill_new_shared_size (inlined)
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5F_grp_btree_shared
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5G__stab_lookup
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5B_find
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5FO_create
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5D__flush_sieve_buf@plt
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5D__flush_real
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5D__contig_flush (inlined)
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5G__ent_copy
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5O_msg_reset
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5P__ocrt_pipeline_close (inlined)
+     0.00%     0.00%  swe      [unknown]             [.] 0x0000000000000014
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5T_get_size
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5D__contig_construct (inlined)
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5VM_log2_gen (inlined)
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5FD__alloc_real
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5O_msg_exists_oh@plt
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5C__pin_entry_from_client.constprop.0
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5HL_protect
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5C_unprotect
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5O__cache_image_len.lto_priv.0
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5O__cache_image_len (inlined)
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5FD__alloc_real@plt
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5D__contig_alloc
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5MF__sect_new
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5B_create@plt
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5FD__extend.lto_priv.0
+     0.00%     0.00%  swe      [unknown]             [.] 0x00000000007a11ff
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5FD__extend (inlined)
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5O__cache_serialize.lto_priv.0
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5O__sdspace_shared_size.lto_priv.0
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5O__sdspace_shared_size (inlined)
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5HL__dirty
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5FL_seq_calloc
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5CX__push_common (inlined)
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5C__prep_image_for_file_close
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5C_prep_for_file_close
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5FD_get_class@plt
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5D__cache_dataspace_info.part.0.lto_priv.0
+     0.00%     0.00%  swe      [unknown]             [.] 0x0300000000000037
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5G_oloc@plt
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5O_msg_exists_oh
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5B__cache_image_len
+     0.00%     0.00%  swe      [unknown]             [.] 0x0400000000000093
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5C_stats__reset@plt
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5F_decr_nopen_objs
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5T_get_class
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5C_mark_entry_dirty@plt
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5D__layout_set_version
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5C_get_num_objs_corked@plt
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5FO_delete
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5O__chunk_unprotect
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5S_create_simple
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5FD_get_eoa@plt
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5O__chunk_protect
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5O_link@plt
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5MF_init_merge_flags
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5O__dec_rc
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5F__accum_free
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5CX_set_vol_connector_prop
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5FL_blk_calloc
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5O_loc_copy
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5CX_get_encoding
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5VL_set_vol_wrapper@plt
+     0.00%     0.00%  swe      [unknown]             [.] 0x05000000000000d1
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5C__tag_entry@plt
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] std::__write<char> (inlined)
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] std::ostreambuf_iterator<char, std::char_traits<char> >::_M_put (inlined)
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] std::basic_streambuf<char, std::char_traits<char> >::sputn (inlined)
+     0.00%     0.00%  swe      [unknown]             [.] 0x0000000100000000
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5CX_get_nlinks
+     0.00%     0.00%  swe      libc.so.6             [.] __strrchr_evex
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5S_select_release
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5D__mark
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5D__layout_oh_write
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5Z_xform_noop
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5S_select_iter_release@plt
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5MM_malloc
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5O__msg_write_real
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5F__super_free
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5S_has_extent
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5O__cache_notify.lto_priv.0
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5O__cache_notify (inlined)
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5AC_cork@plt
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5VL__introspect_opt_query
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5D__ioinfo_init
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5G_ent_encode@plt
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5G__cache_node_serialize (inlined)
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5G__ent_encode_vec
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] 0x00000000000a5654
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] std::ios_base::~ios_base
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] 0x00007f8319ad0654
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5RS__xstrdup (inlined)
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5FS__sect_link
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5MF__add_sect
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5FS_sect_add
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5FS__sect_link_size (inlined)
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5VM_log2_gen (inlined)
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5FS__hdr_dest
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5FS__decr
+     0.00%     0.00%  swe      [unknown]             [.] 0x0100000000000211
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5S_get_simple_extent_dims
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5D__contig_io_init.lto_priv.0
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5D__contig_io_init (inlined)
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5MM_malloc@plt
+     0.00%     0.00%  swe      [unknown]             [.] 0x05000000000001ad
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5O__stab_encode.lto_priv.0
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5O__stab_encode (inlined)
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5PB_flush@plt
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5O__fill_copy.lto_priv.0
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5O__fill_copy (inlined)
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5O__mtime_new_size.lto_priv.0
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5O__mtime_new_size (inlined)
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] 0x00000000000a6a70
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] 0x00007f8319ad1a70
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5F__mount_count_ids_recurse
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5S__all_iter_get_seq_list
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5S_select_iter_get_seq_list
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5T_path_noop
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5CX_set_lcpl@plt
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5P__add_prop
+     0.00%     0.00%  swe      [unknown]             [.] 0x3bc3867d7309a8fb
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5FL_blk_realloc
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5O__layout_encode.lto_priv.0
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5O__layout_encode (inlined)
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5CX_get_intermediate_group
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5P__dapl_vds_file_pref_close
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5F__mount_count_ids
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5MF__close_shrink_eoa
+     0.00%     0.00%  swe      libc.so.6             [.] __strcspn_sse42
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5G__component
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5T_detect_class@plt
+     0.00%     0.00%  swe      [unknown]             [.] 0x37f7c9cab126c204
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5O__sdspace_shared_encode.lto_priv.0
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5O__sdspace_shared_encode (inlined)
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5B__cache_serialize
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5FL_arr_free
+     0.00%     0.00%  swe      ld-linux-x86-64.so.2  [.] do_lookup_x
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5VL_reset_vol_wrapper
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5HL__dec_rc
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5HL__dest
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5SL_destroy
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5SL__close_common (inlined)
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5P__free_prop_cb
+     0.00%     0.00%  swe      swe                   [.] XDMFWriter::write_topography_hdf5
+     0.00%     0.00%  swe      libhdf5.so.200.2.0    [.] H5FS__sinfo_unlock
+     0.00%     0.00%  swe      libstdc++.so.6.0.29   [.] 0x00000000000a6e90
+     0.00%     0.00%  swe      ld-linux-x86-64.so.2  [.] dl_new_hash (inlined)
+     0.00%     0.00%  swe      ld-linux-x86-64.so.2  [.] open_verify.constprop.0
+     0.00%     0.00%  swe      ld-linux-x86-64.so.2  [.] _dl_map_object_deps
+     0.00%     0.00%  swe      ld-linux-x86-64.so.2  [.] _dl_catch_exception
+     0.00%     0.00%  swe      ld-linux-x86-64.so.2  [.] openaux
+     0.00%     0.00%  swe      ld-linux-x86-64.so.2  [.] _dl_map_object
+     0.00%     0.00%  swe      ld-linux-x86-64.so.2  [.] open_path
+     0.00%     0.00%  swe      ld-linux-x86-64.so.2  [.] open_verify (inlined)
+     0.00%     0.00%  swe      ld-linux-x86-64.so.2  [.] __GI___tunables_init
+     0.00%     0.00%  swe      ld-linux-x86-64.so.2  [.] get_next_env (inlined)
+     0.00%     0.00%  swe      ld-linux-x86-64.so.2  [.] _start
+
+
+#
+# (Tip: Save output of perf stat using: perf stat record <target workload>)
+#

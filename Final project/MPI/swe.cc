@@ -1,6 +1,6 @@
 #include "swe.hh"
 #include "xdmf_writer.hh"
-
+#include <mpi.h>
 #include <iostream>
 #include <cstddef>
 #include <vector>
@@ -349,6 +349,35 @@ SWESolver::solve(const double Tend, const bool full_log, const std::size_t outpu
   std::cout << "Finished solving SWE." << std::endl;
 }
 
+// The function to be parallelized
+// double
+// SWESolver::compute_time_step(const std::vector<double> &h,
+//                              const std::vector<double> &hu,
+//                              const std::vector<double> &hv,
+//                              const double T,
+//                              const double Tend) const
+// {
+//   double max_nu_sqr = 0.0;
+//   double au{0.0};
+//   double av{0.0};
+//   for (std::size_t j = 1; j < ny_ - 1; ++j)
+//   {
+//     for (std::size_t i = 1; i < nx_ - 1; ++i)
+//     {
+//       au = std::max(au, std::fabs(at(hu, i, j)));
+//       av = std::max(av, std::fabs(at(hv, i, j)));
+//       const double nu_u = (at(hu, i, j)) / at(h, i, j) + sqrt(g * at(h, i, j));
+//       const double nu_v = std::fabs(at(hv, i, j)) / at(h, i, j) + sqrt(g * at(h, i, j));
+//       max_nu_sqr = std::max(max_nu_sqr, nu_u * nu_u + nu_v * nu_v);
+//     }
+//   }
+
+//   const double dx = size_x_ / nx_;
+//   const double dy = size_y_ / ny_;
+//   double dt = std::min(dx, dy) / (sqrt(2.0 * max_nu_sqr));
+//   return std::min(dt, Tend - T);
+// }
+
 double
 SWESolver::compute_time_step(const std::vector<double> &h,
                              const std::vector<double> &hu,
@@ -356,6 +385,25 @@ SWESolver::compute_time_step(const std::vector<double> &h,
                              const double T,
                              const double Tend) const
 {
+
+  // Compute the numbers of rows each process should get
+    int rank, size;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+
+    int total_entries = nx_ * ny_;
+    size_t entries_per_pro = total_entries / size;
+    size_t remainder = total_entries % size;
+
+    // Each rank gets rows_per_pro, and the first 'remainder' ranks get one more
+    size_t start = rank * entries_per_pro + std::min(static_cast<size_t>(rank), remainder);
+    size_t end = start + entries_per_pro + (static_cast<size_t>(rank) < remainder ? 1 : 0);
+
+    // Test that the above logic is correct by printing the start and end rows for each rank
+    // print the size
+    std::cout << "Rank " << rank << " of " << size << std::endl;
+    std::cout << "Rank " << rank << ": start = " << start << ", end = " << end << std::endl;
+    
   double max_nu_sqr = 0.0;
   double au{0.0};
   double av{0.0};
@@ -365,7 +413,7 @@ SWESolver::compute_time_step(const std::vector<double> &h,
     {
       au = std::max(au, std::fabs(at(hu, i, j)));
       av = std::max(av, std::fabs(at(hv, i, j)));
-      const double nu_u = std::fabs(at(hu, i, j)) / at(h, i, j) + sqrt(g * at(h, i, j));
+      const double nu_u = (at(hu, i, j)) / at(h, i, j) + sqrt(g * at(h, i, j));
       const double nu_v = std::fabs(at(hv, i, j)) / at(h, i, j) + sqrt(g * at(h, i, j));
       max_nu_sqr = std::max(max_nu_sqr, nu_u * nu_u + nu_v * nu_v);
     }
