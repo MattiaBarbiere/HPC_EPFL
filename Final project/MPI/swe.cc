@@ -12,6 +12,8 @@
 #include <cmath>
 #include <memory>
 
+bool DEBUG = false;
+
 namespace
 {
 
@@ -286,8 +288,11 @@ SWESolver::init_dx_dy()
 void
 SWESolver::solve(const double Tend, const bool full_log, const std::size_t output_n, const std::string &fname_prefix)
 {
+  int rank_int, size_int;
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank_int);
+  MPI_Comm_size(MPI_COMM_WORLD, &size_int);
   std::shared_ptr<XDMFWriter> writer;
-  if (output_n > 0)
+  if (output_n > 0 && rank_int == 0)
   {
     writer = std::make_shared<XDMFWriter>(fname_prefix, this->nx_, this->ny_, this->size_x_, this->size_y_, this->z_);
     writer->add_h(h0_, 0.0);
@@ -303,7 +308,9 @@ SWESolver::solve(const double Tend, const bool full_log, const std::size_t outpu
   std::vector<double> &hu0 = hu0_;
   std::vector<double> &hv0 = hv0_;
 
-  std::cout << "Solving SWE..." << std::endl;
+  if (rank_int == 0){
+    std::cout << "Solving SWE..." << std::endl;
+  }
 
   std::size_t nt = 1;
   while (T < Tend)
@@ -312,14 +319,17 @@ SWESolver::solve(const double Tend, const bool full_log, const std::size_t outpu
 
     const double T1 = T + dt;
 
-    printf("Computing T: %2.4f hr  (dt = %.2e s) -- %3.3f%%", T1, dt * 3600, 100 * T1 / Tend);
+    if (rank_int == 0){
+      printf("Computing T: %2.4f hr  (dt = %.2e s) -- %3.3f%%", T1, dt * 3600, 100 * T1 / Tend);
     std::cout << (full_log ? "\n" : "\r") << std::flush;
+    }
+    
 
     this->update_bcs(h0, hu0, hv0, h, hu, hv);
 
     this->solve_step(dt, h0, hu0, hv0, h, hu, hv);
 
-    if (output_n > 0 && nt % output_n == 0)
+    if (output_n > 0 && nt % output_n == 0 && rank_int == 0)
     {
       writer->add_h(h, T1);
     }
@@ -341,12 +351,15 @@ SWESolver::solve(const double Tend, const bool full_log, const std::size_t outpu
     hv1_ = hv0;
   }
 
-  if (output_n > 0)
+  if (output_n > 0 && rank_int == 0)
   {
     writer->add_h(h1_, T);
   }
 
-  std::cout << "Finished solving SWE." << std::endl;
+  if (rank_int == 0){
+    std::cout << "Finished solving SWE." << std::endl;
+  }
+  
 }
 
 // The function to be parallelized
@@ -387,37 +400,58 @@ SWESolver::compute_time_step(const std::vector<double> &h,
 {
 
   // Compute the numbers of rows each process should get
-    int rank, size;
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    MPI_Comm_size(MPI_COMM_WORLD, &size);
+  int rank_int, size_int;
+  MPI_Comm_rank(MPI_COMM_WORLD, &rank_int);
+  MPI_Comm_size(MPI_COMM_WORLD, &size_int);
+  std::size_t rank = static_cast<std::size_t>(rank_int);
+  std::size_t size = static_cast<std::size_t>(size_int);
 
-    int total_entries = nx_ * ny_;
-    size_t entries_per_pro = total_entries / size;
-    size_t remainder = total_entries % size;
+  std::size_t width = nx_ - 2;
+  std::size_t height = ny_ - 2;
 
-    // Each rank gets rows_per_pro, and the first 'remainder' ranks get one more
-    size_t start = rank * entries_per_pro + std::min(static_cast<size_t>(rank), remainder);
-    size_t end = start + entries_per_pro + (static_cast<size_t>(rank) < remainder ? 1 : 0);
+  int total_entries = width * height;
+  size_t entries_per_pro = total_entries / size;
+  size_t remainder = total_entries % size;
 
-    // Test that the above logic is correct by printing the start and end rows for each rank
-    // print the size
+  // Each rank gets rows_per_pro, and the first 'remainder' ranks get one more
+  size_t start = rank * entries_per_pro + std::min(rank, remainder);
+  size_t end = start + entries_per_pro + (rank < remainder ? 1 : 0);
+
+  // Test that the above logic is correct by printing the start and end rows for each rank
+  // print the size
+  if (DEBUG)
+  {
     std::cout << "Rank " << rank << " of " << size << std::endl;
     std::cout << "Rank " << rank << ": start = " << start << ", end = " << end << std::endl;
+  }
     
   double max_nu_sqr = 0.0;
   double au{0.0};
   double av{0.0};
-  for (std::size_t j = 1; j < ny_ - 1; ++j)
-  {
-    for (std::size_t i = 1; i < nx_ - 1; ++i)
-    {
-      au = std::max(au, std::fabs(at(hu, i, j)));
-      av = std::max(av, std::fabs(at(hv, i, j)));
+
+  // Init the local variables
+  double au_local = 0.0;
+  double av_local = 0.0;
+  double max_nu_sqr_local = 0.0;
+  for (std::size_t index = start; index < end; ++index) {
+      std::size_t j = index / width + 1;
+      std::size_t i = index % width + 1;
+
+      // Compute the local values
+      au_local = std::max(au_local, std::fabs(at(hu, i, j)));
+      av_local = std::max(av_local, std::fabs(at(hv, i, j)));
       const double nu_u = (at(hu, i, j)) / at(h, i, j) + sqrt(g * at(h, i, j));
       const double nu_v = std::fabs(at(hv, i, j)) / at(h, i, j) + sqrt(g * at(h, i, j));
-      max_nu_sqr = std::max(max_nu_sqr, nu_u * nu_u + nu_v * nu_v);
-    }
+      max_nu_sqr_local = std::max(max_nu_sqr_local, nu_u * nu_u + nu_v * nu_v);
+
+      
   }
+
+  // Perform an allreduce operation for au_local, av_local, and max_nu_sqr_local using MPI_MAX
+  MPI_Allreduce(&au_local, &au, 1, MPI_DOUBLE, MPI_MAX, MPI_COMM_WORLD);
+  MPI_Allreduce(&av_local, &av, 1, MPI_DOUBLE, MPI_MAX, MPI_COMM_WORLD);
+  MPI_Allreduce(&max_nu_sqr_local, &max_nu_sqr, 1, MPI_DOUBLE, MPI_MAX, MPI_COMM_WORLD);
+  
 
   const double dx = size_x_ / nx_;
   const double dy = size_y_ / ny_;
@@ -437,7 +471,7 @@ SWESolver::compute_kernel(const std::size_t i,
                           std::vector<double> &hv) const
 {
   const double dx = size_x_ / nx_;
-  const double dy = size_x_ / ny_;
+  const double dy = size_y_ / ny_;
   const double C1x = 0.5 * dt / dx;
   const double C1y = 0.5 * dt / dy;
   const double C2 = dt * g;
