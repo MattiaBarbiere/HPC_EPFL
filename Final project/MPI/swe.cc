@@ -319,7 +319,7 @@ SWESolver::solve(const double Tend, const bool full_log, const std::size_t outpu
 
     const double T1 = T + dt;
 
-    if (rank_int == 0){
+    if (DEBUG && rank_int == 0){
       printf("Computing T: %2.4f hr  (dt = %.2e s) -- %3.3f%%", T1, dt * 3600, 100 * T1 / Tend);
     std::cout << (full_log ? "\n" : "\r") << std::flush;
     }
@@ -426,20 +426,20 @@ SWESolver::compute_time_step(const std::vector<double> &h,
   }
     
   double max_nu_sqr = 0.0;
-  double au{0.0};
-  double av{0.0};
+  // double au{0.0};
+  // double av{0.0};
 
   // Init the local variables
-  double au_local = 0.0;
-  double av_local = 0.0;
+  // double au_local = 0.0;
+  // double av_local = 0.0;
   double max_nu_sqr_local = 0.0;
   for (std::size_t index = start; index < end; ++index) {
       std::size_t j = index / width + 1;
       std::size_t i = index % width + 1;
 
       // Compute the local values
-      au_local = std::max(au_local, std::fabs(at(hu, i, j)));
-      av_local = std::max(av_local, std::fabs(at(hv, i, j)));
+      // au_local = std::max(au_local, std::fabs(at(hu, i, j)));
+      // av_local = std::max(av_local, std::fabs(at(hv, i, j)));
       const double nu_u = (at(hu, i, j)) / at(h, i, j) + sqrt(g * at(h, i, j));
       const double nu_v = std::fabs(at(hv, i, j)) / at(h, i, j) + sqrt(g * at(h, i, j));
       max_nu_sqr_local = std::max(max_nu_sqr_local, nu_u * nu_u + nu_v * nu_v);
@@ -448,8 +448,8 @@ SWESolver::compute_time_step(const std::vector<double> &h,
   }
 
   // Perform an allreduce operation for au_local, av_local, and max_nu_sqr_local using MPI_MAX
-  MPI_Allreduce(&au_local, &au, 1, MPI_DOUBLE, MPI_MAX, MPI_COMM_WORLD);
-  MPI_Allreduce(&av_local, &av, 1, MPI_DOUBLE, MPI_MAX, MPI_COMM_WORLD);
+  // MPI_Allreduce(&au_local, &au, 1, MPI_DOUBLE, MPI_MAX, MPI_COMM_WORLD);
+  // MPI_Allreduce(&av_local, &av, 1, MPI_DOUBLE, MPI_MAX, MPI_COMM_WORLD);
   MPI_Allreduce(&max_nu_sqr_local, &max_nu_sqr, 1, MPI_DOUBLE, MPI_MAX, MPI_COMM_WORLD);
   
 

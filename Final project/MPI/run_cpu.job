@@ -2,14 +2,15 @@
 #SBATCH --qos=math-454
 #SBATCH --account=math-454
 #SBATCH --nodes=1
-#SBATCH --ntasks=50
 #SBATCH --time=48:00:00
+#SBATCH --ntasks=1
+#SBATCH --output=SS/SS_1.out
 
 module purge
 module load gcc hdf5 openmpi
 
 # <test_case_id> <nx> <ny> <output_n>
-srun ./swe 1 1000 1000 10
+srun ./swe 1 1000 1000 0
 
 
 # srun ./cgsolver lap2D_5pt_n200.mtx
