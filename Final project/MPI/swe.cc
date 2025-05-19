@@ -319,7 +319,7 @@ SWESolver::solve(const double Tend, const bool full_log, const std::size_t outpu
 
     const double T1 = T + dt;
 
-    if (DEBUG && rank_int == 0){
+    if (rank_int == 0){
       printf("Computing T: %2.4f hr  (dt = %.2e s) -- %3.3f%%", T1, dt * 3600, 100 * T1 / Tend);
     std::cout << (full_log ? "\n" : "\r") << std::flush;
     }
