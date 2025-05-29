@@ -1,6 +1,7 @@
 #include <cstddef>
 #include <vector>
 #include <string>
+#include <mpi.h>
 
 class SWESolver
 {
@@ -20,7 +21,7 @@ public:
    * @param nx  Number of cells along the x direction.
    * @param ny  Number of cells along the y direction.
    */
-  SWESolver(const int test_case_id, const std::size_t nx, const std::size_t ny);
+  SWESolver(const int test_case_id, const std::size_t nx, const std::size_t ny, MPI_Comm comm);
 
   /**
    * @brief Constructor for the SWESolver class.
@@ -67,7 +68,7 @@ private:
    * The water height is initialized with two separated Gaussian peaks.
    * The initial water velocity is set to zero and the topography is set to zero.
    */
-  void init_gaussian();
+  void local_init_gaussian();
 
   /**
    * @brief Initializes the initial conditions and topography using
@@ -101,12 +102,33 @@ private:
   std::vector<double> zdx_;
   std::vector<double> zdy_;
 
+  // MPI communicator
+  MPI_Comm cart_comm_;
+
+  // Rank and size of each process
+  int rank_, size_;
+
+  // Dimensions of the local grid and coordinates
+  int dims_[2], coords_[2];
+
+  // Neighbors
+  int nbr_west_, nbr_east_, nbr_south_, nbr_north_;
+
+  // Local values of grid size and offsets
+  std::size_t local_nx_, local_ny_;
+  std::size_t offset_x_, offset_y_;
+
   /**
    * @brief Accessor for 2D vector elements.
    */
   inline double &at(std::vector<double> &vec, const std::size_t i, const std::size_t j) const
   {
     return vec[j * nx_ + i];
+  }
+
+  inline double &at(std::vector<double> &vec, const std::size_t i, const std::size_t j, std::size_t step) const
+  {
+    return vec[j * step + i];
   }
 
   /**

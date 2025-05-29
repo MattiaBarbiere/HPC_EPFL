@@ -10,7 +10,7 @@ module purge
 module load gcc hdf5 openmpi
 
 # <test_case_id> <nx> <ny> <output_n>
-# srun ./swe 1 1000 1000 0
+srun ./swe 1 1000 1000 0
 
 
 # srun ./cgsolver lap2D_5pt_n200.mtx
@@ -18,5 +18,5 @@ module load gcc hdf5 openmpi
 # srun ./cgsolver lap2D_5pt_n600.mtx
 # srun ./cgsolver lap2D_5pt_n1000.mtx
 # srun ./cgsolver lap2D_5pt_n2000.mtx
-perf record -F 4000 -m 512 -o perf.data --call-graph dwarf ./swe 1 1000 1000 0 >> perf_p1/perf_output_first_parallel_p1.txt 2>&1
+# perf record -F 4000 -m 512 -o perf.data --call-graph dwarf ./swe 1 1000 1000 0 >> perf_p1/perf_output_first_parallel_p1.txt 2>&1
 # perf report -g

@@ -42,14 +42,13 @@ int main(int argc, char* argv[])
     // Variable to store elapsed time
     double elapsed_time_seconds = 0.0;
 
-  // Uncomment the option you want to run.
 
   if (test_case_id == 1) {
     // Option 1 - Solving simple problem: water drops in a box
     const std::string output_fname = "output_files/water_drops";
     const bool full_log = false;
 
-    SWESolver solver(test_case_id, nx, ny);
+    SWESolver solver(test_case_id, nx, ny, MPI_COMM_WORLD);
     // Time the solver
     auto start_time = std::chrono::high_resolution_clock::now();
     solver.solve(Tend, full_log, output_n, output_fname);
@@ -63,7 +62,7 @@ int main(int argc, char* argv[])
     const std::string output_fname = "output_files/analytical_tsunami";
     const bool full_log = false;
 
-    SWESolver solver(test_case_id, nx, ny);
+    SWESolver solver(test_case_id, nx, ny, MPI_COMM_WORLD);
     auto start_time = std::chrono::high_resolution_clock::now();
     solver.solve(Tend, full_log, output_n, output_fname);
     auto end_time = std::chrono::high_resolution_clock::now();
