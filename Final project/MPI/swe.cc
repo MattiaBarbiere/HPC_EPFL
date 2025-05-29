@@ -383,9 +383,11 @@ SWESolver::solve(const double Tend, const bool full_log, const std::size_t outpu
     
     this->exchange_halos();
 
-    this->solve_step(dt);
+    
 
     this->update_bcs();
+
+    this->solve_step(dt);
 
     
     
@@ -601,13 +603,13 @@ SWESolver::update_bcs()
   if (nbr_east_ == MPI_PROC_NULL){
     for (std::size_t j = 1; j < local_ny_ + 1; ++j)
     {
-    at(h1_, local_nx_, j) = at(h0_, local_nx_ - 1, j);
-    at(hu1_, local_nx_, j) = coef * at(hu0_, local_nx_ - 1, j);
-    at(hv1_, local_nx_, j) = at(hv0_, local_nx_ - 1, j);
+    at(h1_, local_nx_ + 1, j) = at(h0_, local_nx_, j);
+    at(hu1_, local_nx_ + 1, j) = coef * at(hu0_, local_nx_, j);
+    at(hv1_, local_nx_ + 1, j) = at(hv0_, local_nx_, j);
     }
   }
 
-  if (nbr_north_ == MPI_PROC_NULL){
+  if (nbr_south_ == MPI_PROC_NULL){
     // Top boundary
     for (std::size_t i = 1; i < local_nx_ + 1; ++i)
     {
@@ -617,13 +619,13 @@ SWESolver::update_bcs()
     }
   }
 
-  if (nbr_south_ == MPI_PROC_NULL){
+  if (nbr_north_ == MPI_PROC_NULL){
     // Bottom boundary
     for (std::size_t i = 1; i < local_nx_ + 1; ++i)
     {
-      at(h1_, i, local_ny_) = at(h0_, i, local_ny_ - 1);
-      at(hu1_, i, local_ny_) = at(hu0_, i, local_ny_ - 1);
-      at(hv1_, i, local_ny_) = coef * at(hv0_, i, local_ny_ - 1);
+      at(h1_, i, local_ny_ + 1) = at(h0_, i, local_ny_);
+      at(hu1_, i, local_ny_ + 1) = at(hu0_, i, local_ny_);
+      at(hv1_, i, local_ny_ + 1) = coef * at(hv0_, i, local_ny_);
     }
   }
 };
