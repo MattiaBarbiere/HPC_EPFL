@@ -74,7 +74,7 @@ private:
    * @brief Initializes the initial conditions and topography using
    * a dummy tsunami function.
    */
-  void init_dummy_tsunami();
+  void local_init_dummy_tsunami();
 
   /**
    * @brief Initializes the initial conditions and topography using
@@ -123,24 +123,24 @@ private:
   /**
    * @brief Accessor for 2D vector elements.
    */
-  inline double &at(std::vector<double> &vec, const std::size_t i, const std::size_t j) const
-  {
-    return vec[j * nx_ + i];
-  }
+  // inline double &at(std::vector<double> &vec, const std::size_t i, const std::size_t j) const
+  // {
+  //   return vec[j * nx_ + i];
+  // }
 
-  inline double &at(std::vector<double> &vec, const std::size_t i, const std::size_t j, std::size_t step) const
+  inline double &at(std::vector<double> &vec, const std::size_t i, const std::size_t j)
   {
-    return vec[j * step + i];
+    return vec[j * (local_nx_ + 2) + i];
   }
 
   /**
    * @brief Accessor for 2D vector elements.
    * @note Constant vector version.
    */
-  inline const double &at(const std::vector<double> &vec, const std::size_t i, const std::size_t j) const
-  {
-    return vec[j * nx_ + i];
-  }
+  // inline const double &at(const std::vector<double> &vec, const std::size_t i, const std::size_t j) const
+  // {
+  //   return vec[j * nx_ + i];
+  // }
 
   /**
    * @brief Updates the water height and velocities using the SWE kernel at a given cell.
@@ -156,13 +156,7 @@ private:
    */
   void compute_kernel(const std::size_t i,
                       const std::size_t j,
-                      const double dt,
-                      const std::vector<double> &h0,
-                      const std::vector<double> &hu0,
-                      const std::vector<double> &hv0,
-                      std::vector<double> &h,
-                      std::vector<double> &hu,
-                      std::vector<double> &hv) const;
+                      const double dt);
 
   /**
    * @brief Computes the time step size that satisfied the CFL condition.
@@ -174,11 +168,8 @@ private:
    * @param Tend Final time.
    * @return Compute time step.
    */
-  double compute_time_step(const std::vector<double> &h,
-                           const std::vector<double> &hu,
-                           const std::vector<double> &hv,
-                           const double T,
-                           const double Tend) const;
+  double compute_time_step(const double T,
+                           const double Tend);
 
   /**
    * @brief Solve one step of the SWE.
@@ -190,13 +181,7 @@ private:
    * @param hu The x water velocity in the current time step.
    * @param hv The y water velocity in the current time step.
    */
-  void solve_step(const double dt,
-                  const std::vector<double> &h0,
-                  const std::vector<double> &hu0,
-                  const std::vector<double> &hv0,
-                  std::vector<double> &h,
-                  std::vector<double> &hu,
-                  std::vector<double> &hv) const;
+  void solve_step(const double dt);
 
   /**
    * @brief Update boundary conditions.
@@ -208,10 +193,5 @@ private:
    * @param hu The x water velocity in the current time step.
    * @param hv The y water velocity in the current time step.
    */
-  void update_bcs(const std::vector<double> &h0,
-                  const std::vector<double> &hu0,
-                  const std::vector<double> &hv0,
-                  std::vector<double> &h,
-                  std::vector<double> &hu,
-                  std::vector<double> &hv) const;
+  void update_bcs();
 };
