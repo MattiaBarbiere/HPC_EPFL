@@ -172,7 +172,7 @@ SWESolver::init_from_HDF5_file(const std::string &h5_file)
   this->hu1_.resize(this->hu0_.size(), 0.0);
   this->hv1_.resize(this->hv0_.size(), 0.0);
 
-  this->init_dx_dy();
+  this->init_dx_dy_local();
 }
 
 void SWESolver::local_init_gaussian(){
@@ -255,7 +255,7 @@ SWESolver::init_dummy_tsunami()
       at(h0_, i, j) = h0;
     }
   }
-  this->init_dx_dy();
+  this->init_dx_dy_local();
 }
 
 void
@@ -296,7 +296,7 @@ SWESolver::init_dummy_slope()
       at(h0_, i, j) = h0;
     }
   }
-  this->init_dx_dy();
+  this->init_dx_dy_local();
 }
 
 void

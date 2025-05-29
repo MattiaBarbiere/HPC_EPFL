@@ -82,10 +82,12 @@ private:
    */
   void init_dummy_slope();
 
+  void exchange_halos();
+
   /**
    * @brief Initializes the derivatives dx and dy from the topography.
    */
-  void init_dx_dy();
+  void init_dx_dy_local();
 
   std::size_t nx_;
   std::size_t ny_;
