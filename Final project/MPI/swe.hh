@@ -68,13 +68,13 @@ private:
    * The water height is initialized with two separated Gaussian peaks.
    * The initial water velocity is set to zero and the topography is set to zero.
    */
-  void local_init_gaussian();
+  void init_gaussian_local();
 
   /**
    * @brief Initializes the initial conditions and topography using
    * a dummy tsunami function.
    */
-  void local_init_dummy_tsunami();
+  void init_dummy_tsunami_local();
 
   /**
    * @brief Initializes the initial conditions and topography using
@@ -82,7 +82,7 @@ private:
    */
   void init_dummy_slope();
 
-  void exchange_halos();
+  void exchange_data();
 
   /**
    * @brief Initializes the derivatives dx and dy from the topography.
@@ -114,10 +114,10 @@ private:
   int dims_[2], coords_[2];
 
   // Neighbors
-  int nbr_west_, nbr_east_, nbr_south_, nbr_north_;
+  int nbr_left_, nbr_right_, nbr_down_, nbr_up_;
 
   // Local values of grid size and offsets
-  std::size_t local_nx_, local_ny_;
+  std::size_t nx_local_, ny_local_;
   std::size_t offset_x_, offset_y_;
 
   /**
@@ -128,9 +128,11 @@ private:
   //   return vec[j * nx_ + i];
   // }
 
+  // This at function is used to access the local grids
   inline double &at(std::vector<double> &vec, const std::size_t i, const std::size_t j)
   {
-    return vec[j * (local_nx_ + 2) + i];
+    // Accessing the local grids
+    return vec[j * (nx_local_ + 2) + i];
   }
 
   /**
