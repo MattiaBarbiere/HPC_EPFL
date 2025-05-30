@@ -84,6 +84,8 @@ private:
 
   void exchange_data();
 
+  std::vector<double> remove_halo(std::vector<double>& Fs);
+
   /**
    * @brief Initializes the derivatives dx and dy from the topography.
    */

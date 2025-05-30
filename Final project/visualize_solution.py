@@ -6,6 +6,8 @@ import glob
 import numpy as np
 import re
 import tqdm
+import imageio.v2 as imageio
+from natsort import natsorted
 
 import matplotlib.pyplot as plt
 
@@ -26,8 +28,6 @@ def extract_index_from_path(path):
 
 
 if __name__ == "__main__":
-    # Print the current working directory
-    print(f"Current working directory: {os.getcwd()}")
     parser = argparse.ArgumentParser(description="Program for visualizing SWE results.")
     parser.add_argument("--path", type=str, help="Path to the generated files. Defaults to current directory.", default=".")
     parser.add_argument("--basename", type=str, help="Base name for generated files (eg. water_drops). Defaults to 'water_drops'.", default="water_drops")
@@ -158,3 +158,39 @@ if __name__ == "__main__":
             else:
                 plotter.show()
                 plotter.close()
+
+
+    ## Make the annimation video from the frames
+    frame_dir = "frames"
+    pattern = os.path.join(frame_dir, "water_drops_vis_*.png")
+
+    # Output video file
+    output_video = "water_animation_3d.mp4"
+
+    # Collect frame filenames and sort them
+    frame_files = natsorted(glob.glob(pattern))
+
+    # Check if frames exist
+    if not frame_files:
+        raise FileNotFoundError(f"No PNG files found in {pattern}")
+
+    # Set frame rate
+    fps = 20
+
+    # Write video
+    with imageio.get_writer(output_video, fps=fps, codec='libx264') as writer:
+        for filename in frame_files:
+            image = imageio.imread(filename)
+            writer.append_data(image)
+
+    print(f"Video saved as {output_video}")
+
+    # Clean up frame directory if it exists
+    if os.path.exists(frame_dir):
+        for file in frame_files:
+            os.remove(file)
+        os.rmdir(frame_dir)
+        print(f"Cleaned up temporary files in {frame_dir}")
+    else:
+        print(f"No temporary files to clean up in {frame_dir}")
+                
