@@ -383,8 +383,6 @@ SWESolver::solve(const double Tend, const bool full_log, const std::size_t outpu
     
     this->exchange_halos();
 
-    
-
     this->update_bcs();
 
     this->solve_step(dt);
