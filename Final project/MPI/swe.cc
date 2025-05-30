@@ -184,8 +184,8 @@ void SWESolver::local_init_gaussian(){
   const double dx = size_x_ / nx_;
   const double dy = size_y_ / ny_;
 
-  for (std::size_t j = 1; j < local_ny_ + 1; ++j){
-    for (std::size_t i = 1; i < local_nx_ + 1; ++i){
+  for (std::size_t j = 0; j < local_ny_ + 2; ++j){
+    for (std::size_t i = 0; i < local_nx_ + 2; ++i){
       int gi = offset_x_ + i - 1;
       int gj = offset_y_ + j - 1;
       const double x = dx * (static_cast<double>(gi) + 0.5);

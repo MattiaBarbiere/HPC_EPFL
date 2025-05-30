@@ -38,6 +38,7 @@ lap2D_5pt_n2000.mtx
 weak_matrix*
 
 extra.cu
+extra.cc
 
 # For final project
 water_drops*
