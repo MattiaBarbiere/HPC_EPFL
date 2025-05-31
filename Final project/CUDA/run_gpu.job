@@ -8,11 +8,22 @@
 #SBATCH --array=0
 #SBATCH --output=results/times_%a.txt
 
-
+###############
+### Modules ###
+###############
 module purge
 module load gcc cuda openblas
 
 # 1,2,4,8,16,32,64,128,256,512,1024
-# Run the code
-# srun nvprof ./cgsolver lap2D_5pt_n100.mtx $SLURM_ARRAY_TASK_ID
-python results/plot.py
+
+############
+### Runs ###
+############
+# <test_case_id> <nx> <ny> <output_n>
+srun nvprof ./swe 1 1000 1000 10
+
+
+##############
+### Visual ###
+##############
+python ../visualize_solution.py --frame -1 --vis-type 3d --path output_files --basename water_drops --output frames
