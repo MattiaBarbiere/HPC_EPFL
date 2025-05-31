@@ -94,7 +94,14 @@ read_2d_array_from_DF5(const std::string &filename,
 
 SWESolver::SWESolver(const int test_case_id, const std::size_t nx, const std::size_t ny) :
   nx_(nx), ny_(ny), size_x_(500.0), size_y_(500.0)
-{
+
+  // Make the variables in the gpu memory
+  
+
+
+
+
+  {
   assert(test_case_id == 1 || test_case_id == 2);
   if (test_case_id == 1)
   {
@@ -118,8 +125,7 @@ SWESolver::SWESolver(const std::string &h5_file, const double size_x, const doub
   this->init_from_HDF5_file(h5_file);
 }
 
-void
-SWESolver::init_from_HDF5_file(const std::string &h5_file)
+void SWESolver::init_from_HDF5_file(const std::string &h5_file)
 {
   read_2d_array_from_DF5(h5_file, "h0", this->h0_, this->nx_, this->ny_);
   read_2d_array_from_DF5(h5_file, "hu0", this->hu0_, this->nx_, this->ny_);
@@ -133,8 +139,8 @@ SWESolver::init_from_HDF5_file(const std::string &h5_file)
   this->init_dx_dy();
 }
 
-void
-SWESolver::init_gaussian()
+__global__
+void SWESolver::init_gaussian()
 {
   hu0_.resize(nx_ * ny_, 0.0);
   hv0_.resize(nx_ * ny_, 0.0);
@@ -175,8 +181,8 @@ SWESolver::init_gaussian()
   this->init_dx_dy();
 }
 
-void
-SWESolver::init_dummy_tsunami()
+__global__
+void SWESolver::init_dummy_tsunami()
 {
   hu0_.resize(nx_ * ny_);
   hv0_.resize(nx_ * ny_);
@@ -224,49 +230,8 @@ SWESolver::init_dummy_tsunami()
   this->init_dx_dy();
 }
 
-void
-SWESolver::init_dummy_slope()
-{
-  hu0_.resize(nx_ * ny_);
-  hv0_.resize(nx_ * ny_);
-  std::fill(hu0_.begin(), hu0_.end(), 0.0);
-  std::fill(hv0_.begin(), hv0_.end(), 0.0);
-
-  h1_.resize(nx_ * ny_);
-  hu1_.resize(nx_ * ny_);
-  hv1_.resize(nx_ * ny_);
-  std::fill(h1_.begin(), h1_.end(), 0.0);
-  std::fill(hu1_.begin(), hu1_.end(), 0.0);
-  std::fill(hv1_.begin(), hv1_.end(), 0.0);
-
-  const double dx = size_x_ / nx_;
-  const double dy = size_y_ / ny_;
-
-  const double dz = 10.0;
-
-  // Creating topography and initial water height
-  z_.resize(nx_ * ny_);
-  h0_.resize(nx_ * ny_);
-  for (std::size_t j = 0; j < ny_; ++j)
-  {
-    for (std::size_t i = 0; i < nx_; ++i)
-    {
-      const double x = dx * (static_cast<double>(i) + 0.5);
-      const double y = dy * (static_cast<double>(j) + 0.5);
-      static_cast<void>(y);
-
-      const double z = -10.0 - 0.5 * dz + dz / size_x_ * x;
-      at(z_, i, j) = z;
-
-      double h0 = z < 0.0 ? -z : 0.00001;
-      at(h0_, i, j) = h0;
-    }
-  }
-  this->init_dx_dy();
-}
-
-void
-SWESolver::init_dx_dy()
+__global__
+void SWESolver::init_dx_dy()
 {
   zdx_.resize(this->z_.size(), 0.0);
   zdy_.resize(this->z_.size(), 0.0);
@@ -283,8 +248,7 @@ SWESolver::init_dx_dy()
   }
 }
 
-void
-SWESolver::solve(const double Tend, const bool full_log, const std::size_t output_n, const std::string &fname_prefix)
+void SWESolver::solve(const double Tend, const bool full_log, const std::size_t output_n, const std::string &fname_prefix)
 {
   std::shared_ptr<XDMFWriter> writer;
   if (output_n > 0)
@@ -349,8 +313,8 @@ SWESolver::solve(const double Tend, const bool full_log, const std::size_t outpu
   std::cout << "Finished solving SWE." << std::endl;
 }
 
-double
-SWESolver::compute_time_step(const std::vector<double> &h,
+__global__
+double SWESolver::compute_time_step(const std::vector<double> &h,
                              const std::vector<double> &hu,
                              const std::vector<double> &hv,
                              const double T,
@@ -377,8 +341,8 @@ SWESolver::compute_time_step(const std::vector<double> &h,
   return std::min(dt, Tend - T);
 }
 
-void
-SWESolver::compute_kernel(const std::size_t i,
+__global__
+void SWESolver::compute_kernel(const std::size_t i,
                           const std::size_t j,
                           const double dt,
                           const std::vector<double> &h0,
@@ -448,8 +412,8 @@ SWESolver::compute_kernel(const std::size_t i,
   //     hv0(3:nx,2:nx-1).^2./h0(3:nx,2:nx-1) - 0.5*g*h0(3:nx,2:nx-1).^2  );
 }
 
-void
-SWESolver::solve_step(const double dt,
+__global__
+void SWESolver::solve_step(const double dt,
                       const std::vector<double> &h0,
                       const std::vector<double> &hu0,
                       const std::vector<double> &hv0,
@@ -466,8 +430,8 @@ SWESolver::solve_step(const double dt,
   }
 }
 
-void
-SWESolver::update_bcs(const std::vector<double> &h0,
+__global__
+void SWESolver::update_bcs(const std::vector<double> &h0,
                       const std::vector<double> &hu0,
                       const std::vector<double> &hv0,
                       std::vector<double> &h,

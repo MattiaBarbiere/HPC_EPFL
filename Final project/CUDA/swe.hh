@@ -76,12 +76,6 @@ private:
   void init_dummy_tsunami();
 
   /**
-   * @brief Initializes the initial conditions and topography using
-   * a slope function.
-   */
-  void init_dummy_slope();
-
-  /**
    * @brief Initializes the derivatives dx and dy from the topography.
    */
   void init_dx_dy();

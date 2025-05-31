@@ -1,6 +1,5 @@
 #include "swe.hh"
 #include "xdmf_writer.hh"
-#include <mpi.h>
 #include <iostream>
 #include <cstddef>
 #include <vector>
