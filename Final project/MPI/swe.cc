@@ -140,6 +140,15 @@ SWESolver::SWESolver(const int test_case_id, const std::size_t nx, const std::si
   alloc(z_);
   alloc(zdx_);
   alloc(zdy_);
+
+  if (DEBUG){
+  //   std::cout << "SWESolver initialized with " << size_ << " processes." << std::endl;
+  //   std::cout << "Local grid size: " << nx_local_ << " x " << ny_local_ << std::endl;
+  //   std::cout << "Global grid size: " << nx_ << " x " << ny_ << std::endl;
+    std::cout << "Rank: " <<  std::endl;
+    std::cout << "SWESolver initialized with " << size_ << " processes." << std::endl;
+    std::cout << rank_ <<"Process coordinates: (" << coords_[0] << ", " << coords_[1] << ")" << std::endl;
+  }
   
   // Initialize the pde based on the test case id
   assert(test_case_id == 1 || test_case_id == 2);
@@ -336,17 +345,48 @@ std::vector<double> SWESolver::gather_data(const std::vector<double>& local_data
   std::vector<double> local_no_halo = this->remove_halo(const_cast<std::vector<double>&>(local_data));
   
   // Prepare global vector on rank 0
-  std::vector<double> global_data;
+  std::vector<double> gathered_data;
+  std::vector<double> organized_data;
   if (rank_ == 0) {
-    global_data.resize(nx_ * ny_);
+    gathered_data.resize(nx_ * ny_);
+    organized_data.resize(nx_ * ny_, 0.0);
   }
   
   // Gather data from all ranks to rank 0
   MPI_Gather(local_no_halo.data(), nx_local_ * ny_local_, MPI_DOUBLE,
-             rank_ == 0 ? global_data.data() : nullptr, nx_local_ * ny_local_, MPI_DOUBLE,
+             rank_ == 0 ? gathered_data.data() : nullptr, nx_local_ * ny_local_, MPI_DOUBLE,
              0, cart_comm_);
   
-  return global_data;
+  if (rank_ == 0)
+  {
+    // Organize the data for visuals
+    for (int r = 0; r < size_; ++r)
+    {
+        // Get the coordinates of the rank
+      int coords[2];
+      MPI_Cart_coords(cart_comm_, r, 2, coords);
+      std::size_t offset_x = coords[0] * nx_local_;
+      std::size_t offset_y = coords[1] * ny_local_;
+
+      // Organize the data
+      for (std::size_t j = 0; j < ny_local_; ++j)
+      {
+        for (std::size_t i = 0; i < nx_local_; ++i)
+        {
+          // Index for the gathered array
+          std::size_t gathered_index = r * (nx_local_ * ny_local_) + j * nx_local_ + i;
+          // Index for the organized array
+          std::size_t global_index = (offset_y + j) * nx_ + (offset_x + i);
+          organized_data[global_index] = gathered_data[gathered_index];
+        }
+      }
+
+    }
+  }
+  // Add a barrier 
+  MPI_Barrier(cart_comm_);
+
+  return organized_data;
 }
 
 void SWESolver::solve(const double Tend, const bool full_log, const std::size_t output_n, const std::string &fname_prefix)
@@ -354,34 +394,6 @@ void SWESolver::solve(const double Tend, const bool full_log, const std::size_t 
   std::shared_ptr<XDMFWriter> writer;
   if (output_n > 0)
   {
-    // // Some global variables
-    // std::vector<double> z_global;
-    // std::vector<double> h_global;
-
-    // // Resize the global vectors to hold the full topography and initial condition
-    // if (rank_ == 0) {
-    //   z_global.resize(nx_ * ny_);
-    //   h_global.resize(nx_ * ny_);
-    // }
-
-    // // Gather z_ from all ranks to rank 0
-    // std::vector<double> z_no_halo = this->remove_halo(z_);
-    // MPI_Gather(z_no_halo.data(), nx_local_ * ny_local_, MPI_DOUBLE,
-    //            rank_ == 0 ? z_global.data() : nullptr, nx_local_ * ny_local_, MPI_DOUBLE,
-    //            0, cart_comm_);
-    
-    // if (rank_ == 0) {
-    //   // Print size of z_global
-    //   writer = std::make_shared<XDMFWriter>(fname_prefix, this->nx_, this->ny_, this->size_x_, this->size_y_, z_global);
-    //   h_global.resize(nx_ * ny_);
-    // }
-
-    // // Remove the halo cells from h0_
-    
-    // std::vector<double> h0_no_halo = this->remove_halo(h0_);
-    // MPI_Gather(h0_no_halo.data(), nx_local_ * ny_local_, MPI_DOUBLE,
-    //            rank_ == 0 ? h_global.data() : nullptr, nx_local_ * ny_local_, MPI_DOUBLE,
-    //            0, cart_comm_);
 
     std::vector<double> z_global = this->gather_data(z_);
     std::vector<double> h_global = this->gather_data(h0_);
