@@ -330,43 +330,68 @@ std::vector<double> SWESolver::remove_halo(std::vector<double>& F)
   return F_no_halo;
 }
 
+std::vector<double> SWESolver::gather_data(const std::vector<double>& local_data)
+{
+  // Remove halo cells from local data
+  std::vector<double> local_no_halo = this->remove_halo(const_cast<std::vector<double>&>(local_data));
+  
+  // Prepare global vector on rank 0
+  std::vector<double> global_data;
+  if (rank_ == 0) {
+    global_data.resize(nx_ * ny_);
+  }
+  
+  // Gather data from all ranks to rank 0
+  MPI_Gather(local_no_halo.data(), nx_local_ * ny_local_, MPI_DOUBLE,
+             rank_ == 0 ? global_data.data() : nullptr, nx_local_ * ny_local_, MPI_DOUBLE,
+             0, cart_comm_);
+  
+  return global_data;
+}
+
 void SWESolver::solve(const double Tend, const bool full_log, const std::size_t output_n, const std::string &fname_prefix)
 {
   std::shared_ptr<XDMFWriter> writer;
   if (output_n > 0)
   {
-    // Some global variables
-    std::vector<double> z_global;
-    std::vector<double> h_global;
+    // // Some global variables
+    // std::vector<double> z_global;
+    // std::vector<double> h_global;
 
-    // Resize the global vectors to hold the full topography and initial condition
-    if (rank_ == 0) {
-      z_global.resize(nx_ * ny_);
-      h_global.resize(nx_ * ny_);
-    }
+    // // Resize the global vectors to hold the full topography and initial condition
+    // if (rank_ == 0) {
+    //   z_global.resize(nx_ * ny_);
+    //   h_global.resize(nx_ * ny_);
+    // }
 
-    // Gather z_ from all ranks to rank 0
-    std::vector<double> z_no_halo = this->remove_halo(z_);
-    MPI_Gather(z_no_halo.data(), nx_local_ * ny_local_, MPI_DOUBLE,
-               rank_ == 0 ? z_global.data() : nullptr, nx_local_ * ny_local_, MPI_DOUBLE,
-               0, cart_comm_);
+    // // Gather z_ from all ranks to rank 0
+    // std::vector<double> z_no_halo = this->remove_halo(z_);
+    // MPI_Gather(z_no_halo.data(), nx_local_ * ny_local_, MPI_DOUBLE,
+    //            rank_ == 0 ? z_global.data() : nullptr, nx_local_ * ny_local_, MPI_DOUBLE,
+    //            0, cart_comm_);
     
+    // if (rank_ == 0) {
+    //   // Print size of z_global
+    //   writer = std::make_shared<XDMFWriter>(fname_prefix, this->nx_, this->ny_, this->size_x_, this->size_y_, z_global);
+    //   h_global.resize(nx_ * ny_);
+    // }
+
+    // // Remove the halo cells from h0_
+    
+    // std::vector<double> h0_no_halo = this->remove_halo(h0_);
+    // MPI_Gather(h0_no_halo.data(), nx_local_ * ny_local_, MPI_DOUBLE,
+    //            rank_ == 0 ? h_global.data() : nullptr, nx_local_ * ny_local_, MPI_DOUBLE,
+    //            0, cart_comm_);
+
+    std::vector<double> z_global = this->gather_data(z_);
+    std::vector<double> h_global = this->gather_data(h0_);
+
     if (rank_ == 0) {
       // Print size of z_global
       writer = std::make_shared<XDMFWriter>(fname_prefix, this->nx_, this->ny_, this->size_x_, this->size_y_, z_global);
-      h_global.resize(nx_ * ny_);
-    }
-
-    // Remove the halo cells from h0_
-    
-    std::vector<double> h0_no_halo = this->remove_halo(h0_);
-    MPI_Gather(h0_no_halo.data(), nx_local_ * ny_local_, MPI_DOUBLE,
-               rank_ == 0 ? h_global.data() : nullptr, nx_local_ * ny_local_, MPI_DOUBLE,
-               0, cart_comm_);
-
-    if (rank_ == 0) {
-        // Write the initial condition to the XDMF file
-        writer->add_h(h_global, 0.0);
+      
+      // Write to the XDMF file
+      writer->add_h(h_global, 0.0);
     }
   
   }
@@ -401,19 +426,9 @@ void SWESolver::solve(const double Tend, const bool full_log, const std::size_t 
 
     if (output_n > 0 && nt % output_n == 0)
     {
-      // Remove the halo cells from h1_ and write to the XDMF file
-      std::vector<double> h1_no_halo = this->remove_halo(h1_);
-
       // Perform the gather operation to get the global h1_no_halo
-      std::vector<double> h1_global;
-      if (rank_ == 0) {
-          h1_global.resize(nx_ * ny_);
-      }
+      std::vector<double> h1_global = this->gather_data(h1_);
 
-      MPI_Gather(h1_no_halo.data(), nx_local_ * ny_local_, MPI_DOUBLE,
-                 rank_ == 0 ? h1_global.data() : nullptr, nx_local_ * ny_local_, MPI_DOUBLE,
-                 0, cart_comm_);
-      
       // If rank 0, write the gathered data to the XDMF file
       if (rank_ == 0)
       {
@@ -442,21 +457,12 @@ void SWESolver::solve(const double Tend, const bool full_log, const std::size_t 
   if (output_n > 0)
   {
     // Remove the halo cells from h1_ and write to the XDMF file
-    std::vector<double> h1_no_halo = this->remove_halo(h1_);
-
-    // Perform the gather operation to get the global h1_no_halo
-    std::vector<double> h1_global;
-    h1_global.resize(nx_ * ny_);
-    MPI_Gather(h1_no_halo.data(), nx_local_ * ny_local_, MPI_DOUBLE,
-               rank_ == 0 ? h1_global.data() : nullptr, nx_local_ * ny_local_, MPI_DOUBLE,
-               0, cart_comm_);
+    std::vector<double> h1_global = this->gather_data(h1_);
 
     // Print size of h1_global
     if (rank_ == 0){
       std::cout << "Final solution size: " << h1_global.size() << std::endl;
-    }
     // Write the final solution to the XDMF file
-    if (rank_ == 0){
       writer->add_h(h1_global, T);
     }
   }

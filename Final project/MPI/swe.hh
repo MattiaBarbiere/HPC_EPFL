@@ -86,6 +86,8 @@ private:
 
   std::vector<double> remove_halo(std::vector<double>& Fs);
 
+  std::vector<double> gather_data(const std::vector<double>& local_data);
+
   /**
    * @brief Initializes the derivatives dx and dy from the topography.
    */
