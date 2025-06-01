@@ -35,7 +35,7 @@ int main(int argc, char* argv[])
   if (test_case_id == 1) {
     // Option 1 - Solving simple problem: water drops in a box
     const std::string output_fname = "output_files/water_drops";
-    const bool full_log = false;
+    const bool full_log = true;
 
     SWESolver solver(test_case_id, nx, ny);
     // Time the solver

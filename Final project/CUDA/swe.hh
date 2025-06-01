@@ -54,6 +54,9 @@ public:
              const std::size_t output_n = 0,
              const std::string &fname_prefix = "test");
 
+  // Destructor
+  ~SWESolver();
+
 private:
   /**
    * @brief Initializes the initial conditions and topography using
@@ -81,7 +84,7 @@ private:
   /**
    * @brief Initializes the derivatives dx and dy from the topography.
    */
-  void init_dx_dy();
+  // void init_dx_dy();
 
   std::size_t nx_;
   std::size_t ny_;
@@ -100,7 +103,7 @@ private:
 
   // CUDA device pointers
   SWEData* data_device_;
-  double* dt_device_;
+  double* dt_;
   bool* reflective_device_;
 
   /**
@@ -156,7 +159,7 @@ private:
    * @brief Solve one step of the SWE.
    * @param dt The time step size.
    */
-  void solve_step(const double dt) const;
+  void solve_step() const;
 
   /**
    * @brief Update boundary conditions.
@@ -164,6 +167,6 @@ private:
    */
   void update_bcs() const;
 
-  // Destructor
-  ~SWESolver();
+
+  void swap_data() const;
 };

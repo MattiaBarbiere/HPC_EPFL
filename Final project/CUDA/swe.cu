@@ -202,12 +202,9 @@ void compute_time_step_kernel(const SWEData* data,  const double T,
 
     for (std::size_t j = 1; j < data->ny - 1; ++j) {
         for (std::size_t i = 1; i < data->nx - 1; ++i) {
-            double h_val = data->h[j * data->nx + i];
-            double hu_val = data->hu[j * data->nx + i];
-            double hv_val = data->hv[j * data->nx + i];
-
-            au = fmax(au, fabs(hu_val));
-            av = fmax(av, fabs(hv_val));
+            double h_val = data->h0[j * data->nx + i];
+            double hu_val = data->hu0[j * data->nx + i];
+            double hv_val = data->hv0[j * data->nx + i];
 
             const double nu_u = fabs(hu_val) / h_val + sqrt(g * h_val);
             const double nu_v = fabs(hv_val) / h_val + sqrt(g * h_val);
@@ -220,18 +217,20 @@ void compute_time_step_kernel(const SWEData* data,  const double T,
     const double dy = data->size_y / data->ny;
     double dt = fmin(dx, dy) / sqrt(2.0 * max_nu_sqr);
 
-    *dt_out = fmin(dt, data->Tend - data->T);
+    *dt_out = fmin(dt, Tend - T);
 }
 
 
 __global__
-void solve_step_kernel(SWEData* data, const double dt)
+void solve_step_kernel(SWEData* data, double* dt)
 {
+
+  double dt_val = *dt; 
   for (std::size_t j = 1; j < data->ny - 1; ++j)
   {
     for (std::size_t i = 1; i < data->nx - 1; ++i)
     {
-      compute_kernel_device(data, i, j, dt);
+      compute_kernel_device(data, i, j, dt_val);
     }
   }
 }
@@ -266,6 +265,25 @@ void update_bc_kernel(SWEData* data, bool reflective){
     at_device(data, 0, j, data->hv1) = at_device(data, 1, j, data->hv0);
     at_device(data, data->nx - 1, j, data->hv1) = at_device(data, data->nx - 2, j, data->hv0);
   }
+}
+
+__global__
+void swap_data_kernel(SWEData* data)
+{
+    // Swap h0 <-> h1
+    double* temp_h = data->h0;
+    data->h0 = data->h1;
+    data->h1 = temp_h;
+    
+    // Swap hu0 <-> hu1
+    double* temp_hu = data->hu0;
+    data->hu0 = data->hu1;
+    data->hu1 = temp_hu;
+    
+    // Swap hv0 <-> hv1
+    double* temp_hv = data->hv0;
+    data->hv0 = data->hv1;
+    data->hv1 = temp_hv;
 }
 
 
@@ -371,7 +389,7 @@ SWESolver::SWESolver(const int test_case_id, const std::size_t nx, const std::si
   cudaMalloc(&z_device, numb_entries * sizeof(double));
   cudaMalloc(&zdx_device, numb_entries * sizeof(double));
   cudaMalloc(&zdy_device, numb_entries * sizeof(double));
-  cudaMalloc(&dt_device_, sizeof(double));
+  cudaMallocManaged(&dt_, sizeof(double));
 
   // Allocate memory for SWEData struct on host and device
   SWEData h_data;
@@ -393,6 +411,7 @@ SWESolver::SWESolver(const int test_case_id, const std::size_t nx, const std::si
 
   // Copy struct to device
   cudaMemcpy(data_device_, &h_data, sizeof(SWEData), cudaMemcpyHostToDevice);
+
 
   assert(test_case_id == 1 || test_case_id == 2);
   if (test_case_id == 1)
@@ -433,7 +452,9 @@ void SWESolver::init_from_HDF5_file(const std::string &h5_file)
   this->hu1_.resize(this->hu0_.size(), 0.0);
   this->hv1_.resize(this->hv0_.size(), 0.0);
 
-  this->init_dx_dy();
+  assert(false);
+
+  // this->init_dx_dy();
 }
 
 
@@ -457,34 +478,46 @@ void SWESolver::solve(const double Tend, const bool full_log, const std::size_t 
   std::shared_ptr<XDMFWriter> writer;
   if (output_n > 0)
   {
+    // First, copy the SWEData struct from device to host to get the device pointers
+    SWEData data_host;
+    cudaMemcpy(&data_host, data_device_, sizeof(SWEData), cudaMemcpyDeviceToHost);
+
+    // Initialize host vectors if not already done
+    this->z_.resize(nx_ * ny_);
+    this->h0_.resize(nx_ * ny_);
+    
+    // Now copy the z array data from device to host
+    cudaMemcpy(this->z_.data(), data_host.z, this->z_.size() * sizeof(double), cudaMemcpyDeviceToHost);
+
+    // Also copy initial h0 data for the writer
+    cudaMemcpy(this->h0_.data(), data_host.h0, this->h0_.size() * sizeof(double), cudaMemcpyDeviceToHost);
+
     writer = std::make_shared<XDMFWriter>(fname_prefix, this->nx_, this->ny_, this->size_x_, this->size_y_, this->z_);
     writer->add_h(h0_, 0.0);
   }
 
   double T = 0.0;
 
-  std::vector<double> &h = h1_;
-  std::vector<double> &hu = hu1_;
-  std::vector<double> &hv = hv1_;
+  // std::vector<double> &h = h1_;
+  // std::vector<double> &hu = hu1_;
+  // std::vector<double> &hv = hv1_;
 
-  std::vector<double> &h0 = h0_;
-  std::vector<double> &hu0 = hu0_;
-  std::vector<double> &hv0 = hv0_;
+  // std::vector<double> &h0 = h0_;
+  // std::vector<double> &hu0 = hu0_;
+  // std::vector<double> &hv0 = hv0_;
 
   std::cout << "Solving SWE..." << std::endl;
+  
 
   std::size_t nt = 1;
   while (T < Tend)
   {
+    *dt_ = 0.0;
     this->compute_time_step(T, Tend);
-    
-    // Copy dt back from device
-    double dt;
-    cudaMemcpy(&dt, dt_device_, sizeof(double), cudaMemcpyDeviceToHost);
 
-    const double T1 = T + dt;
+    const double T1 = T + *dt_;
 
-    printf("Computing T: %2.4f hr  (dt = %.2e s) -- %3.3f%%", T1, dt * 3600, 100 * T1 / Tend);
+    printf("Computing T: %2.4f hr  (dt = %.2e s) -- %3.3f%%", T1, *dt_ * 3600, 100 * T1 / Tend);
     std::cout << (full_log ? "\n" : "\r") << std::flush;
 
     this->update_bcs();
@@ -493,28 +526,33 @@ void SWESolver::solve(const double Tend, const bool full_log, const std::size_t 
 
     if (output_n > 0 && nt % output_n == 0)
     {
-      writer->add_h(h, T1);
+      // Copy current h data from GPU for output
+      SWEData data_host;
+      cudaMemcpy(&data_host, data_device_, sizeof(SWEData), cudaMemcpyDeviceToHost);
+
+      std::vector<double> h1(nx_ * ny_);
+      cudaMemcpy(h1.data(), data_host.h1, h1.size() * sizeof(double), cudaMemcpyDeviceToHost);
+      writer->add_h(h1, T1);
     }
     ++nt;
 
     // Swap the old and new solutions
-    std::swap(h, h0);
-    std::swap(hu, hu0);
-    std::swap(hv, hv0);
+    this->swap_data();
 
     T = T1;
   }
 
-  // Copying last computed values to h1_, hu1_, hv1_ (if needed)
-  if (&h0 != &h1_)
-  {
-    h1_ = h0;
-    hu1_ = hu0;
-    hv1_ = hv0;
-  }
-
+  this->swap_data();
+  
+  
   if (output_n > 0)
   {
+    // Copy final h data for output
+    SWEData data_host;
+    cudaMemcpy(&data_host, data_device_, sizeof(SWEData), cudaMemcpyDeviceToHost);
+
+    this->h1_.resize(nx_ * ny_);
+    cudaMemcpy(this->h1_.data(), data_host.h1, this->h1_.size() * sizeof(double), cudaMemcpyDeviceToHost);
     writer->add_h(h1_, T);
   }
 
@@ -523,14 +561,14 @@ void SWESolver::solve(const double Tend, const bool full_log, const std::size_t 
 
 void SWESolver::compute_time_step(const double T, const double Tend)
 {
-  compute_time_step_kernel<<<1, 1>>>(data_device_, T, Tend, dt_device_);
+  compute_time_step_kernel<<<1, 1>>>(data_device_, T, Tend, dt_);
   cudaDeviceSynchronize();
 }
 
 void SWESolver::solve_step() const
 {
   // Launch the kernel to compute the next step
-  solve_step_kernel<<<1, 1>>>(data_device_, dt_device_);
+  solve_step_kernel<<<1, 1>>>(data_device_, dt_);
   cudaDeviceSynchronize();
 }
 
@@ -538,7 +576,14 @@ void SWESolver::update_bcs() const
 {
   // Call the kernel
   update_bc_kernel<<<1, 1>>>(data_device_, reflective_device_);
+  cudaDeviceSynchronize();
 };
+
+void SWESolver::swap_data() const
+{
+    swap_data_kernel<<<1, 1>>>(data_device_);
+    cudaDeviceSynchronize();
+}
 
 SWESolver::~SWESolver()
 {
@@ -553,6 +598,6 @@ SWESolver::~SWESolver()
   cudaFree(zdx_.data());
   cudaFree(zdy_.data());
   cudaFree(data_device_);
-  cudaFree(dt_device_);
+  cudaFree(dt_);
   cudaFree(reflective_device_);
 }

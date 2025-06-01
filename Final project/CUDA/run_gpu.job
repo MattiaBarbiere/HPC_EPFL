@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --nodes=1
-#SBATCH --time=00:10:00
+#SBATCH --time=10:10:00
 #SBATCH --partition=gpu
 #SBATCH --gres=gpu:1
 #SBATCH --qos=math-454
@@ -21,7 +21,8 @@ module load gcc cuda openblas hdf5
 ### Runs ###
 ############
 # <test_case_id> <nx> <ny> <output_n>
-# srun nvprof ./swe 1 1000 1000 10
+# srun ./swe 1 1000 1000 0
+srun nvprof ./swe 1 1000 1000 5
 
 
 ##############
