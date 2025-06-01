@@ -237,6 +237,38 @@ void solve_step_kernel(SWEData* data, const double dt)
 }
 
 
+__global__
+void update_bc_kernel(SWEData* data, bool reflective){
+  const double coef = reflective ? -1.0 : 1.0;
+
+  // Top and bottom boundaries.
+  for (std::size_t i = 0; i < data->nx; ++i)
+  {
+    at_device(data, i, 0, data->h1) = at_device(data, i, 1, data->h0);
+    at_device(data, i, data->ny - 1, data->h1) = at_device(data, i, data->ny - 2, data->h0);
+
+    at_device(data, i, 0, data->hu1) = at_device(data, i, 1, data->hu0);
+    at_device(data, i, data->ny - 1, data->hu1) = at_device(data, i, data->ny - 2, data->hu0);
+
+    at_device(data, i, 0, data->hv1) = coef * at_device(data, i, 1, data->hv0);
+    at_device(data, i, data->ny - 1, data->hv1) = coef * at_device(data, i, data->ny - 2, data->hv0);
+  }
+
+  // Left and right boundaries.
+  for (std::size_t j = 0; j < data->ny; ++j)
+  {
+    at_device(data, 0, j, data->h1) = at_device(data, 1, j, data->h0);
+    at_device(data, data->nx - 1, j, data->h1) = at_device(data, data->nx - 2, j, data->h0);
+
+    at_device(data, 0, j, data->hu1) = coef * at_device(data, 1, j, data->hu0);
+    at_device(data, data->nx - 1, j, data->hu1) = coef * at_device(data, data->nx - 2, j, data->hu0);
+
+    at_device(data, 0, j, data->hv1) = at_device(data, 1, j, data->hv0);
+    at_device(data, data->nx - 1, j, data->hv1) = at_device(data, data->nx - 2, j, data->hv0);
+  }
+}
+
+
 // %%%%%%%%%%%%%%%%%
 // %%% Host code %%%
 // %%%%%%%%%%%%%%%%%
@@ -444,16 +476,20 @@ void SWESolver::solve(const double Tend, const bool full_log, const std::size_t 
   std::size_t nt = 1;
   while (T < Tend)
   {
-    const double dt = this->compute_time_step(h0, hu0, hv0, T, Tend);
+    this->compute_time_step(T, Tend);
+    
+    // Copy dt back from device
+    double dt;
+    cudaMemcpy(&dt, dt_device_, sizeof(double), cudaMemcpyDeviceToHost);
 
     const double T1 = T + dt;
 
     printf("Computing T: %2.4f hr  (dt = %.2e s) -- %3.3f%%", T1, dt * 3600, 100 * T1 / Tend);
     std::cout << (full_log ? "\n" : "\r") << std::flush;
 
-    this->update_bcs(h0, hu0, hv0, h, hu, hv);
+    this->update_bcs();
 
-    this->solve_step(dt, h0, hu0, hv0, h, hu, hv);
+    this->solve_step();
 
     if (output_n > 0 && nt % output_n == 0)
     {
@@ -485,75 +521,23 @@ void SWESolver::solve(const double Tend, const bool full_log, const std::size_t 
   std::cout << "Finished solving SWE." << std::endl;
 }
 
-
 void SWESolver::compute_time_step(const double T, const double Tend)
 {
   compute_time_step_kernel<<<1, 1>>>(data_device_, T, Tend, dt_device_);
   cudaDeviceSynchronize();
 }
 
-
-// void SWESolver::compute_kernel(const std::size_t i, const std::size_t j) const
-// {
-//   // Call the kernel
-//   compute_kernel_kernel<<<1, 1>>>(data_device_, i, j, *dt_device_);
-//   cudaDeviceSynchronize();
-  
-// }
-
-
-void SWESolver::solve_step(const double dt,
-                      const std::vector<double> &h0,
-                      const std::vector<double> &hu0,
-                      const std::vector<double> &hv0,
-                      std::vector<double> &h,
-                      std::vector<double> &hu,
-                      std::vector<double> &hv) const
+void SWESolver::solve_step() const
 {
-  for (std::size_t j = 1; j < ny_ - 1; ++j)
-  {
-    for (std::size_t i = 1; i < nx_ - 1; ++i)
-    {
-      this->compute_kernel(i, j, dt, h0, hu0, hv0, h, hu, hv);
-    }
-  }
+  // Launch the kernel to compute the next step
+  solve_step_kernel<<<1, 1>>>(data_device_, dt_device_);
+  cudaDeviceSynchronize();
 }
 
-
-void SWESolver::update_bcs(const std::vector<double> &h0,
-                      const std::vector<double> &hu0,
-                      const std::vector<double> &hv0,
-                      std::vector<double> &h,
-                      std::vector<double> &hu,
-                      std::vector<double> &hv) const
+void SWESolver::update_bcs() const
 {
-  const double coef = this->reflective_ ? -1.0 : 1.0;
-
-  // Top and bottom boundaries.
-  for (std::size_t i = 0; i < nx_; ++i)
-  {
-    at(h, i, 0) = at(h0, i, 1);
-    at(h, i, ny_ - 1) = at(h0, i, ny_ - 2);
-
-    at(hu, i, 0) = at(hu0, i, 1);
-    at(hu, i, ny_ - 1) = at(hu0, i, ny_ - 2);
-
-    at(hv, i, 0) = coef * at(hv0, i, 1);
-    at(hv, i, ny_ - 1) = coef * at(hv0, i, ny_ - 2);
-  }
-
-  // Left and right boundaries.
-  for (std::size_t j = 0; j < ny_; ++j)
-  {
-    at(h, 0, j) = at(h0, 1, j);
-    at(h, nx_ - 1, j) = at(h0, nx_ - 2, j);
-
-    at(hu, 0, j) = coef * at(hu0, 1, j);
-    at(hu, nx_ - 1, j) = coef * at(hu0, nx_ - 2, j);
-
-    at(hv, 0, j) = at(hv0, 1, j);
-    at(hv, nx_ - 1, j) = at(hv0, nx_ - 2, j);
-  }
+  // Call the kernel
+  update_bc_kernel<<<1, 1>>>(data_device_, reflective_device_);
 };
 
 SWESolver::~SWESolver()
