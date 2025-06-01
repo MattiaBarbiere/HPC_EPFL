@@ -2,6 +2,9 @@
 #include <vector>
 #include <string>
 
+// Forward declaration for CUDA struct
+struct SWEData;
+
 class SWESolver
 {
 public:
@@ -95,6 +98,11 @@ private:
   std::vector<double> zdx_;
   std::vector<double> zdy_;
 
+  // CUDA device pointers
+  SWEData* data_device_;
+  double* dt_device_;
+  bool* reflective_device_;
+
   /**
    * @brief Accessor for 2D vector elements.
    */
@@ -137,18 +145,12 @@ private:
   /**
    * @brief Computes the time step size that satisfied the CFL condition.
    *
-   * @param h The water height in the current time step.
-   * @param hu The x water velocity in the current time step.
-   * @param hv The y water velocity in the current time step.
+   * @param data Pointer to SWEData struct on device.
    * @param T Current time.
    * @param Tend Final time.
-   * @return Compute time step.
    */
-  double compute_time_step(const std::vector<double> &h,
-                           const std::vector<double> &hu,
-                           const std::vector<double> &hv,
-                           const double T,
-                           const double Tend) const;
+  void compute_time_step(const double T,
+                         const double Tend);
 
   /**
    * @brief Solve one step of the SWE.
@@ -184,4 +186,7 @@ private:
                   std::vector<double> &h,
                   std::vector<double> &hu,
                   std::vector<double> &hv) const;
+
+  // Destructor
+  ~SWESolver();
 };
