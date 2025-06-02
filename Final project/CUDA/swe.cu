@@ -728,8 +728,25 @@ void SWESolver::update_bcs() const
 
 void SWESolver::swap_data() const
 {
-    swap_data_kernel<<<grid_dims_, block_dims_>>>(data_device_);
-    cudaDeviceSynchronize();
+    // Copy SWEData struct from device to host
+    SWEData data_host;
+    cudaMemcpy(&data_host, data_device_, sizeof(SWEData), cudaMemcpyDeviceToHost);
+    
+    // Perform swaps on host
+    double* temp_h = data_host.h0;
+    data_host.h0 = data_host.h1;
+    data_host.h1 = temp_h;
+    
+    double* temp_hu = data_host.hu0;
+    data_host.hu0 = data_host.hu1;
+    data_host.hu1 = temp_hu;
+    
+    double* temp_hv = data_host.hv0;
+    data_host.hv0 = data_host.hv1;
+    data_host.hv1 = temp_hv;
+    
+    // Copy modified struct back to device
+    cudaMemcpy(data_device_, &data_host, sizeof(SWEData), cudaMemcpyHostToDevice);
 }
 
 SWESolver::~SWESolver()
