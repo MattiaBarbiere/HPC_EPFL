@@ -23,7 +23,6 @@ struct SWEData {
     double* z;
     double* zdx;
     double* zdy;
-
     size_t nx;
     size_t ny;
     double size_x;
@@ -34,6 +33,22 @@ struct SWEData {
 // %%% Device functions %%%
 // %%%%%%%%%%%%%%%%%%%%%%%%
 
+__device__
+int get_row_id() {
+  return blockIdx.x * blockDim.x + threadIdx.x;
+}
+
+__device__
+int get_col_id() {
+  return blockIdx.y * blockDim.y + threadIdx.y;
+}
+
+__device__
+int get_id() {
+  int id_in_block = threadIdx.y * blockDim.x + threadIdx.x;
+  int offset = blockIdx.y * gridDim.x + blockIdx.x;
+  return offset * blockDim.x * blockDim.y + id_in_block;
+}
 
 __device__ 
 double& at_device(SWEData* data, std::size_t i, std::size_t j, double* arr)
@@ -136,7 +151,7 @@ void init_gaussian_kernel(SWEData* data)
             double gauss_1 = 10.0 * exp(-((x - x0_1) * (x - x0_1) + (y - y0_1) * (y - y0_1)) / 1000.0);
 
             data->h0[j * data->nx + i] = 10.0 + gauss_0 + gauss_1;
-        }
+         }
     }
 
     for (size_t idx = 0; idx < data->nx * data->ny; ++idx) {
@@ -194,45 +209,141 @@ void init_dummy_tsunami_kernel(SWEData* data)
     init_dx_dy_device(data);
 }
 
+// __global__
+// void compute_time_step_kernel(const SWEData* data,  const double T,
+//                              const double Tend, double* dt_out) {
+//     double max_nu_sqr_local = 0.0;
+//     static constexpr double g = 127267.20000000;
+
+//       // Get row and column indices
+//     size_t j = get_col_id();
+//     size_t i = get_row_id();
+
+//     if (0 < j < data->nx - 1 && 0 < i < data->ny - 1)
+//     {
+
+//     // for (std::size_t j = 1; j < data->ny - 1; ++j) {
+//     //     for (std::size_t i = 1; i < data->nx - 1; ++i) {
+//           idx = j * data->nx + i;
+//             double h_val = data->h0[idx];
+//             double hu_val = data->hu0[idx];
+//             double hv_val = data->hv0[idx];
+
+//             const double nu_u = fabs(hu_val) / h_val + sqrt(g * h_val);
+//             const double nu_v = fabs(hv_val) / h_val + sqrt(g * h_val);
+
+//             max_nu_sqr_local = fmax(max_nu_sqr_local, nu_u * nu_u + nu_v * nu_v);
+//         // }
+    
+
+//     // Get the shared memory ready for reduction
+//     __shared__ double max_nu_sqr_shared[1024];
+//     id = get_id();
+//     max_nu_sqr_shared[id] = max_nu_sqr_local;
+//     __syncthreads();
+//     }
+
+//     // Perform reduction to find the maximum value across all threads
+//     for (size_t stride = blockDim.x * blockDim.y / 2; stride > 0; stride /= 2) {
+//         if (id < stride) {
+//             max_nu_sqr_shared[id] = fmax(max_nu_sqr_shared[id], max_nu_sqr_shared[id + stride]);
+//         }
+//         __syncthreads();
+//     }
+//     // The first thread in the block writes the result to the global memory
+//     if (id == 0) {
+//         double max_nu_sqr = max_nu_sqr_shared[0];
+//     }
+
+//     const double dx = data->size_x / data->nx;
+//     const double dy = data->size_y / data->ny;
+//     double dt = fmin(dx, dy) / sqrt(2.0 * max_nu_sqr);
+
+//     *dt_out = fmin(dt, Tend - T);
+// }
+
 __global__
-void compute_time_step_kernel(const SWEData* data,  const double T,
-                             const double Tend, double* dt_out) {
-    double max_nu_sqr = 0.0;
+void compute_time_step_block_kernel(const SWEData* data, double* max_partial) {
+    extern __shared__ double shared_max[];
+
+    int thread_id = threadIdx.x + threadIdx.y * blockDim.x;
+    int i = get_row_id();
+    int j = get_col_id();
+    int block_size = blockDim.x * blockDim.y;
+
+    double max_nu_sqr_local = 0.0;
     static constexpr double g = 127267.20000000;
 
-    for (std::size_t j = 1; j < data->ny - 1; ++j) {
-        for (std::size_t i = 1; i < data->nx - 1; ++i) {
-            double h_val = data->h0[j * data->nx + i];
-            double hu_val = data->hu0[j * data->nx + i];
-            double hv_val = data->hv0[j * data->nx + i];
+    if (0 < i < data->nx - 1 && 0 < j < data->ny - 1) {
 
-            const double nu_u = fabs(hu_val) / h_val + sqrt(g * h_val);
-            const double nu_v = fabs(hv_val) / h_val + sqrt(g * h_val);
+        int idx = j * data->nx + i;
+        double h_val = data->h0[idx];
+        double hu_val = data->hu0[idx];
+        double hv_val = data->hv0[idx];
 
-            max_nu_sqr = fmax(max_nu_sqr, nu_u * nu_u + nu_v * nu_v);
-        }
+        const double nu_u = fabs(hu_val) / h_val + sqrt(g * h_val);
+        const double nu_v = fabs(hv_val) / h_val + sqrt(g * h_val);
+        max_nu_sqr_local = nu_u * nu_u + nu_v * nu_v;
     }
 
-    const double dx = data->size_x / data->nx;
-    const double dy = data->size_y / data->ny;
-    double dt = fmin(dx, dy) / sqrt(2.0 * max_nu_sqr);
+    shared_max[thread_id] = max_nu_sqr_local;
+    __syncthreads();
 
-    *dt_out = fmin(dt, Tend - T);
+    // Parallel reduction within block
+    for (int s = block_size / 2; s > 0; s >>= 1) {
+        if (thread_id < s){
+            shared_max[thread_id] = fmax(shared_max[thread_id], shared_max[thread_id + s]);
+        }
+        __syncthreads();
+    }
+
+    // Write block's max to global memory
+    if (thread_id == 0){
+        max_partial[blockIdx.y * gridDim.x + blockIdx.x] = shared_max[0];
+    }
 }
 
+__global__
+void compute_time_step_kernel(const SWEData* data, double* max_partial, int length_max,
+                            const double T, const double Tend, double* dt_out) {
+
+  // Reduce the maximum value across all blocks from the max_partial array
+  double max_nu_sqr = 0.0;
+  for (int i = 0; i < length_max; ++i) {
+    max_nu_sqr = fmax(max_nu_sqr, max_partial[i]);
+  }
+  // Compute the time step based on the maximum value
+  const double dx = data->size_x / data->nx;
+  const double dy = data->size_y / data->ny;
+  // Print
+  printf("max_nu_sqr = %f\n", max_nu_sqr);
+  double dt = fmin(dx, dy) / sqrt(2.0 * max_nu_sqr);
+
+  *dt_out = fmin(dt, Tend - T);
+}
 
 __global__
 void solve_step_kernel(SWEData* data, double* dt)
 {
 
   double dt_val = *dt; 
-  for (std::size_t j = 1; j < data->ny - 1; ++j)
-  {
-    for (std::size_t i = 1; i < data->nx - 1; ++i)
+
+      // Get row and column indices
+    size_t j = get_col_id();
+    size_t i = get_row_id();
+
+    if (0 < j < data->nx - 1 && 0 < i < data->ny - 1)
     {
+      // Compute the kernel for the current cell
       compute_kernel_device(data, i, j, dt_val);
     }
-  }
+//   for (std::size_t j = 1; j < data->ny - 1; ++j)
+//   {
+//     for (std::size_t i = 1; i < data->nx - 1; ++i)
+//     {
+//       compute_kernel_device(data, i, j, dt_val);
+//     }
+//   }
 }
 
 
@@ -290,6 +401,17 @@ void swap_data_kernel(SWEData* data)
 // %%%%%%%%%%%%%%%%%
 // %%% Host code %%%
 // %%%%%%%%%%%%%%%%%
+
+
+// Simple function to split the threads per block into a 2D grid
+dim3 divide_threads_2D(int threadsPerBlock) {
+    int dimX = (int)sqrtf((float)threadsPerBlock);
+    while (threadsPerBlock % dimX != 0) {
+        dimX--;
+    }
+    int dimY = threadsPerBlock / dimX;
+    return dim3(dimX, dimY);
+}
 
 
 namespace
@@ -372,8 +494,12 @@ read_2d_array_from_DF5(const std::string &filename,
 
 } // namespace
 
-SWESolver::SWESolver(const int test_case_id, const std::size_t nx, const std::size_t ny) :
-  nx_(nx), ny_(ny), size_x_(500.0), size_y_(500.0) {
+SWESolver::SWESolver(const int test_case_id, const std::size_t nx, const std::size_t ny, const int threads_per_block) :
+  nx_(nx), ny_(ny), size_x_(500.0), size_y_(500.0), threads_per_block_(threads_per_block) {
+
+  // Compute the block and grid dims
+  block_dims_ = divide_threads_2D(threads_per_block);
+  grid_dims_ = dim3((nx + block_dims_.x - 1) / block_dims_.x, (ny + block_dims_.y - 1) / block_dims_.y);
 
   // Send variables to the device
   double *h0_device, *hu0_device, *hv0_device, *h1_device, *hu1_device, *hv1_device, *z_device, *zdx_device, *zdy_device;
@@ -390,6 +516,7 @@ SWESolver::SWESolver(const int test_case_id, const std::size_t nx, const std::si
   cudaMalloc(&zdx_device, numb_entries * sizeof(double));
   cudaMalloc(&zdy_device, numb_entries * sizeof(double));
   cudaMallocManaged(&dt_, sizeof(double));
+  cudaMallocManaged(&max_partial_, grid_dims_.x * grid_dims_.y * sizeof(double));
 
   // Allocate memory for SWEData struct on host and device
   SWEData h_data;
@@ -430,9 +557,8 @@ SWESolver::SWESolver(const int test_case_id, const std::size_t nx, const std::si
   }
 
   // Send the reflective_ variable to the device
-  bool* reflective_device;
-  cudaMalloc(&reflective_device, sizeof(bool));
-  cudaMemcpy(reflective_device, &this->reflective_, sizeof(bool), cudaMemcpyHostToDevice);
+  cudaMalloc(&reflective_device_, sizeof(bool));
+  cudaMemcpy(reflective_device_, &this->reflective_, sizeof(bool), cudaMemcpyHostToDevice);
 }
 
 SWESolver::SWESolver(const std::string &h5_file, const double size_x, const double size_y) :
@@ -460,16 +586,23 @@ void SWESolver::init_from_HDF5_file(const std::string &h5_file)
 
 void SWESolver::init_gaussian()
 {
+  // Print when finished initializing
+  std::cout << "Starting Gaussian test case." << std::endl;
+
+
   // Call the init gaussian kernel
-  init_gaussian_kernel<<<1, 1>>>(data_device_);
+  init_gaussian_kernel<<<grid_dims_, block_dims_>>>(data_device_);
   cudaDeviceSynchronize();
+
+  // Print when finished initializing
+  std::cout << "Initialized Gaussian test case." << std::endl;
 }
 
 
 void SWESolver::init_dummy_tsunami()
 {
   // Call the init dummy tsunami kernel
-  init_dummy_tsunami_kernel<<<1, 1>>>(data_device_);
+  init_dummy_tsunami_kernel<<<grid_dims_, block_dims_>>>(data_device_);
   cudaDeviceSynchronize();
 }
 
@@ -561,42 +694,59 @@ void SWESolver::solve(const double Tend, const bool full_log, const std::size_t 
 
 void SWESolver::compute_time_step(const double T, const double Tend)
 {
-  compute_time_step_kernel<<<1, 1>>>(data_device_, T, Tend, dt_);
+  // Allocate memory for max_partial_ on the device's share memory
+  size_t shared_memory_size = block_dims_.x * block_dims_.y * sizeof(double);
+
+
+  compute_time_step_block_kernel<<<grid_dims_, block_dims_, shared_memory_size>>>(data_device_, max_partial_);
   cudaDeviceSynchronize();
+  for (int i = 0; i < grid_dims_.x * grid_dims_.y; ++i) {
+    if (max_partial_[i] <= 0.0){
+    printf("max_partial[%d] = %f\n", i, max_partial_[i]);
+    }
+  }
+  // Perform reduction to find the maximum value across all blocks
+  int max_partial_length = grid_dims_.x * grid_dims_.y;
+  compute_time_step_kernel<<<1, 1>>>(data_device_, max_partial_, max_partial_length, T, Tend, dt_);
+  cudaDeviceSynchronize();
+
 }
 
 void SWESolver::solve_step() const
 {
   // Launch the kernel to compute the next step
-  solve_step_kernel<<<1, 1>>>(data_device_, dt_);
+  solve_step_kernel<<<grid_dims_, block_dims_>>>(data_device_, dt_);
   cudaDeviceSynchronize();
 }
 
 void SWESolver::update_bcs() const
 {
   // Call the kernel
-  update_bc_kernel<<<1, 1>>>(data_device_, reflective_device_);
+  update_bc_kernel<<<grid_dims_, block_dims_>>>(data_device_, reflective_device_);
   cudaDeviceSynchronize();
 };
 
 void SWESolver::swap_data() const
 {
-    swap_data_kernel<<<1, 1>>>(data_device_);
+    swap_data_kernel<<<grid_dims_, block_dims_>>>(data_device_);
     cudaDeviceSynchronize();
 }
 
 SWESolver::~SWESolver()
 {
-  // Free device memory
-  cudaFree(h0_.data());
-  cudaFree(hu0_.data());
-  cudaFree(hv0_.data());
-  cudaFree(h1_.data());
-  cudaFree(hu1_.data());
-  cudaFree(hv1_.data());
-  cudaFree(z_.data());
-  cudaFree(zdx_.data());
-  cudaFree(zdy_.data());
+  // Free device memory - get device pointers first
+  SWEData data_host;
+  cudaMemcpy(&data_host, data_device_, sizeof(SWEData), cudaMemcpyDeviceToHost);
+  
+  cudaFree(data_host.h0);
+  cudaFree(data_host.hu0);
+  cudaFree(data_host.hv0);
+  cudaFree(data_host.h1);
+  cudaFree(data_host.hu1);
+  cudaFree(data_host.hv1);
+  cudaFree(data_host.z);
+  cudaFree(data_host.zdx);
+  cudaFree(data_host.zdy);
   cudaFree(data_device_);
   cudaFree(dt_);
   cudaFree(reflective_device_);

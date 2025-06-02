@@ -1,6 +1,7 @@
 #include <cstddef>
 #include <vector>
 #include <string>
+#include <cuda_runtime.h>
 
 // Forward declaration for CUDA struct
 struct SWEData;
@@ -23,7 +24,7 @@ public:
    * @param nx  Number of cells along the x direction.
    * @param ny  Number of cells along the y direction.
    */
-  SWESolver(const int test_case_id, const std::size_t nx, const std::size_t ny);
+  SWESolver(const int test_case_id, const std::size_t nx, const std::size_t ny, const int threads_per_block);
 
   /**
    * @brief Constructor for the SWESolver class.
@@ -105,6 +106,12 @@ private:
   SWEData* data_device_;
   double* dt_;
   bool* reflective_device_;
+  double* max_partial_;
+
+  // Threads blocks and grids
+  int threads_per_block_;
+  dim3 block_dims_;
+  dim3 grid_dims_;
 
   /**
    * @brief Accessor for 2D vector elements.

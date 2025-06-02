@@ -10,8 +10,8 @@ int main(int argc, char* argv[])
 
 
     // Ensure the correct number of arguments are passed
-    if (argc != 5) {
-        std::cerr << "Usage: " << argv[0] << " <test_case_id> <nx> <ny> <output_n>\n";
+    if (argc != 6) {
+        std::cerr << "Usage: " << argv[0] << " <test_case_id> <nx> <ny> <output_n> <threads_per_block>\n";
         return 1;
     }
 
@@ -20,12 +20,14 @@ int main(int argc, char* argv[])
     std::size_t nx = std::atoi(argv[2]);
     std::size_t ny = std::atoi(argv[3]);
     std::size_t output_n = std::atoi(argv[4]);
+    int threads_per_block = std::atoi(argv[5]);
 
     // Simulation time
     double Tend = 1.0;
 
     std::cout << "Running test case " << test_case_id << " with grid " 
-                  << nx << "x" << ny << " and " << output_n << " outputs.\n";
+                  << nx << "x" << ny << " and " << output_n << " outputs computed with "
+                  << threads_per_block << " threads per block.\n";
                   std::cout.flush();
 
     // Variable to store elapsed time
@@ -37,7 +39,7 @@ int main(int argc, char* argv[])
     const std::string output_fname = "output_files/water_drops";
     const bool full_log = true;
 
-    SWESolver solver(test_case_id, nx, ny);
+    SWESolver solver(test_case_id, nx, ny, threads_per_block);
     // Time the solver
     auto start_time = std::chrono::high_resolution_clock::now();
     solver.solve(Tend, full_log, output_n, output_fname);
@@ -51,7 +53,7 @@ int main(int argc, char* argv[])
     const std::string output_fname = "output_files/analytical_tsunami";
     const bool full_log = false;
 
-    SWESolver solver(test_case_id, nx, ny);
+    SWESolver solver(test_case_id, nx, ny, threads_per_block);
     auto start_time = std::chrono::high_resolution_clock::now();
     solver.solve(Tend, full_log, output_n, output_fname);
     auto end_time = std::chrono::high_resolution_clock::now();

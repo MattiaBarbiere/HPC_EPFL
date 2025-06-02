@@ -20,12 +20,12 @@ module load gcc cuda openblas hdf5
 ############
 ### Runs ###
 ############
-# <test_case_id> <nx> <ny> <output_n>
+# <test_case_id> <nx> <ny> <output_n> <threads per block>
 # srun ./swe 1 1000 1000 0
-srun nvprof ./swe 1 1000 1000 5
+srun nvprof ./swe 1 1000 1000 5 256
 
 
 ##############
 ### Visual ###
 ##############
-python ../visualize_solution.py --frame -1 --vis-type 3d --path output_files --basename water_drops --output frames
+# python ../visualize_solution.py --frame -1 --vis-type 3d --path output_files --basename water_drops --output frames
