@@ -274,8 +274,8 @@ void compute_time_step_block_kernel(const SWEData* data, double* max_partial) {
     double max_nu_sqr_local = 0.0;
     static constexpr double g = 127267.20000000;
 
-    if (0 < i < data->nx - 1 && 0 < j < data->ny - 1) {
-
+    // Fix: correct boundary check
+    if (i > 0 && i < data->nx - 1 && j > 0 && j < data->ny - 1) {
         int idx = j * data->nx + i;
         double h_val = data->h0[idx];
         double hu_val = data->hu0[idx];
@@ -325,17 +325,17 @@ void compute_time_step_kernel(const SWEData* data, double* max_partial, int leng
 __global__
 void solve_step_kernel(SWEData* data, double* dt)
 {
+    double dt_val = *dt; 
 
-  double dt_val = *dt; 
-
-      // Get row and column indices
+    // Get row and column indices
     size_t j = get_col_id();
     size_t i = get_row_id();
 
-    if (0 < j < data->nx - 1 && 0 < i < data->ny - 1)
+    // Fix: correct boundary check
+    if (i > 0 && i < data->nx - 1 && j > 0 && j < data->ny - 1)
     {
-      // Compute the kernel for the current cell
-      compute_kernel_device(data, i, j, dt_val);
+        // Compute the kernel for the current cell
+        compute_kernel_device(data, i, j, dt_val);
     }
 //   for (std::size_t j = 1; j < data->ny - 1; ++j)
 //   {
@@ -728,25 +728,9 @@ void SWESolver::update_bcs() const
 
 void SWESolver::swap_data() const
 {
-    // Copy SWEData struct from device to host
-    SWEData data_host;
-    cudaMemcpy(&data_host, data_device_, sizeof(SWEData), cudaMemcpyDeviceToHost);
-    
-    // Perform swaps on host
-    double* temp_h = data_host.h0;
-    data_host.h0 = data_host.h1;
-    data_host.h1 = temp_h;
-    
-    double* temp_hu = data_host.hu0;
-    data_host.hu0 = data_host.hu1;
-    data_host.hu1 = temp_hu;
-    
-    double* temp_hv = data_host.hv0;
-    data_host.hv0 = data_host.hv1;
-    data_host.hv1 = temp_hv;
-    
-    // Copy modified struct back to device
-    cudaMemcpy(data_device_, &data_host, sizeof(SWEData), cudaMemcpyHostToDevice);
+    // Launch the swap kernel on the device to swap pointers in the device struct
+    swap_data_kernel<<<1, 1>>>(data_device_);
+    cudaDeviceSynchronize();
 }
 
 SWESolver::~SWESolver()

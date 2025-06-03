@@ -28,6 +28,7 @@ def extract_index_from_path(path):
 
 
 if __name__ == "__main__":
+    print("Visualizing SWE results...")
     parser = argparse.ArgumentParser(description="Program for visualizing SWE results.")
     parser.add_argument("--path", type=str, help="Path to the generated files. Defaults to current directory.", default=".")
     parser.add_argument("--basename", type=str, help="Base name for generated files (eg. water_drops). Defaults to 'water_drops'.", default="water_drops")
@@ -73,6 +74,11 @@ if __name__ == "__main__":
     
     h_data = []
     for fname in solution_files:
+        # Before opening the file:
+        if not (fname.endswith('.h5') or fname.endswith('.hdf5')):
+            print(f"Skipping non-HDF5 file: {fname}")
+            continue
+
         with h5py.File(fname, "r") as f:
             h_data.append(f["h"][:])
 
@@ -193,4 +199,3 @@ if __name__ == "__main__":
         print(f"Cleaned up temporary files in {frame_dir}")
     else:
         print(f"No temporary files to clean up in {frame_dir}")
-                
