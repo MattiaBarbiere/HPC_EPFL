@@ -41,5 +41,13 @@ extra.cu
 extra.cc
 
 # For final project
-water_drops*
-analytical_tsunami*
+water_drops_h*
+water_drops_vis*
+water_drops_mesh*
+water_drops_topography*
+water_drops.xdmf
+analytical_tsunami_h*
+analytical_tsunami_vis*
+analytical_tsunami_mesh*
+analytical_tsunami_topography*
+analytical_tsunami.xdmf

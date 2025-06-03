@@ -36,7 +36,7 @@ public:
    * @param size_x  Size in km along the x direction.
    * @param size_y  Size in km along the y direction.
    */
-  SWESolver(const std::string &h5_file, const double size_x, const double size_y);
+  SWESolver(const std::string &h5_file, const double size_x, const double size_y, const int threads_per_block);
 
   /**
    * @brief Solve the shallow water equations.

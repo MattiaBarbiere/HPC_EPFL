@@ -57,7 +57,7 @@ double& at_device(SWEData* data, std::size_t i, std::size_t j, double* arr)
 }
 
 __device__
-void init_dx_dy_device(SWEData* data)
+void init_dx_dy(SWEData* data)
 {
     const double dx = data->size_x / data->nx;
     const double dy = data->size_y / data->ny;
@@ -125,6 +125,14 @@ void compute_kernel_device(SWEData* data, const std::size_t i, const std::size_t
 // %%%%%%%%%%%%%%%%%%%%%%%%
 
 __global__
+void init_dx_dy_kernel(SWEData* data)
+{
+    if (get_row_id() == 0 && get_col_id() == 0) {
+        init_dx_dy(data);
+    }
+}
+
+__global__
 void init_gaussian_kernel(SWEData* data)
 {
     size_t i = get_row_id();
@@ -157,7 +165,7 @@ void init_gaussian_kernel(SWEData* data)
 
     // Only one thread calls this
     if (i == 0 && j == 0) {
-        init_dx_dy_device(data);
+        init_dx_dy(data);
     }
 }
 
@@ -201,7 +209,7 @@ void init_dummy_tsunami_kernel(SWEData* data)
 
     // Only one thread calls this
     if (i == 0 && j == 0) {
-        init_dx_dy_device(data);
+        init_dx_dy(data);
     }
 }
 
@@ -279,13 +287,6 @@ void solve_step_kernel(SWEData* data, double* dt)
         // Compute the kernel for the current cell
         compute_kernel_device(data, i, j, dt_val);
     }
-//   for (std::size_t j = 1; j < data->ny - 1; ++j)
-//   {
-//     for (std::size_t i = 1; i < data->nx - 1; ++i)
-//     {
-//       compute_kernel_device(data, i, j, dt_val);
-//     }
-//   }
 }
 
 
@@ -504,26 +505,50 @@ SWESolver::SWESolver(const int test_case_id, const std::size_t nx, const std::si
   cudaMemcpy(reflective_device_, &this->reflective_, sizeof(bool), cudaMemcpyHostToDevice);
 }
 
-SWESolver::SWESolver(const std::string &h5_file, const double size_x, const double size_y) :
-  size_x_(size_x), size_y_(size_y), reflective_(false)
+SWESolver::SWESolver(const std::string &h5_file, const double size_x, const double size_y, const int threads_per_block) :
+  size_x_(size_x), size_y_(size_y), reflective_(false), threads_per_block_(threads_per_block)
 {
   this->init_from_HDF5_file(h5_file);
 }
 
 void SWESolver::init_from_HDF5_file(const std::string &h5_file)
 {
+  
+
   read_2d_array_from_DF5(h5_file, "h0", this->h0_, this->nx_, this->ny_);
   read_2d_array_from_DF5(h5_file, "hu0", this->hu0_, this->nx_, this->ny_);
   read_2d_array_from_DF5(h5_file, "hv0", this->hv0_, this->nx_, this->ny_);
   read_2d_array_from_DF5(h5_file, "topography", this->z_, this->nx_, this->ny_);
 
+  // Compute the block and grid dims
+  block_dims_ = divide_threads_2D(threads_per_block_);
+  grid_dims_ = dim3((this->nx_ + block_dims_.x - 1) / block_dims_.x, (this->ny_ + block_dims_.y - 1) / block_dims_.y);
+
   this->h1_.resize(this->h0_.size(), 0.0);
   this->hu1_.resize(this->hu0_.size(), 0.0);
   this->hv1_.resize(this->hv0_.size(), 0.0);
 
-  assert(false);
+  // Write the data to the device SWEData struct
+  SWEData data_host;
+  cudaMemcpy(&data_host, data_device_, sizeof(SWEData), cudaMemcpyDeviceToHost);
 
-  // this->init_dx_dy();
+  cudaMemcpy(data_host.h0, this->h0_.data(), this->h0_.size() * sizeof(double), cudaMemcpyHostToDevice);
+  cudaMemcpy(data_host.hu0, this->hu0_.data(), this->hu0_.size() * sizeof(double), cudaMemcpyHostToDevice);
+  cudaMemcpy(data_host.hv0, this->hv0_.data(), this->hv0_.size() * sizeof(double), cudaMemcpyHostToDevice);
+  cudaMemcpy(data_host.z, this->z_.data(), this->z_.size() * sizeof(double), cudaMemcpyHostToDevice);
+
+  // Optionally zero out h1, hu1, hv1 on device
+  // cudaMemset(data_host.h1, 0, this->h1_.size() * sizeof(double));
+  // cudaMemset(data_host.hu1, 0, this->hu1_.size() * sizeof(double));
+  // cudaMemset(data_host.hv1, 0, this->hv1_.size() * sizeof(double));
+
+  // Compute zdx and zdy on device
+  // Launch a kernel or call a host function as appropriate
+  // Here, we call the device kernel for dx/dy initialization
+
+  // Only one thread needed for init_dx_dy
+  init_dx_dy_kernel<<<1, 1>>>(data_device_);
+  cudaDeviceSynchronize();
 }
 
 

@@ -171,7 +171,7 @@ if __name__ == "__main__":
     pattern = os.path.join(frame_dir, f"{basename}_vis_*.png")
 
     # Output video file
-    output_video = f"{basename}_animation.mp4"
+    output_video = f"animations/{basename}_animation.mp4"
 
     # Collect frame filenames and sort them
     frame_files = natsorted(glob.glob(pattern))
