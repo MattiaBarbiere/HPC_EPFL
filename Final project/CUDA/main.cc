@@ -76,7 +76,7 @@ int main(int argc, char* argv[])
     // const std::string fname = "Data_nx4001_500km.h5"; // File containg initial data (4001x4001 mesh).
     // const std::string fname = "Data_nx8001_500km.h5"; // File containg initial data (8001x8001 mesh).
 
-    const std::size_t output_n = 0;
+    // const std::size_t output_n = 0;
     const std::string output_fname = "output_files/tsunami";
     const bool full_log = false;
 

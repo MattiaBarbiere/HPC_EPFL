@@ -264,6 +264,7 @@ void compute_time_step_kernel(const SWEData* data, double* max_partial, int leng
   for (int i = 0; i < length_max; ++i) {
     max_nu_sqr = fmax(max_nu_sqr, max_partial[i]);
   }
+
   // Compute the time step based on the maximum value
   const double dx = data->size_x / data->nx;
   const double dy = data->size_y / data->ny;
@@ -513,42 +514,82 @@ SWESolver::SWESolver(const std::string &h5_file, const double size_x, const doub
 
 void SWESolver::init_from_HDF5_file(const std::string &h5_file)
 {
-  
+  // Print when started initializing
+  std::cout << "Starting reading from HDF5 file" << std::endl;
 
   read_2d_array_from_DF5(h5_file, "h0", this->h0_, this->nx_, this->ny_);
   read_2d_array_from_DF5(h5_file, "hu0", this->hu0_, this->nx_, this->ny_);
   read_2d_array_from_DF5(h5_file, "hv0", this->hv0_, this->nx_, this->ny_);
   read_2d_array_from_DF5(h5_file, "topography", this->z_, this->nx_, this->ny_);
 
+  // Check if the arrays were read successfully
+  std::cout << this->h0_[100] << this->hu0_[100] << this->hv0_[100] << this->z_[100] << std::endl;
+
   // Compute the block and grid dims
   block_dims_ = divide_threads_2D(threads_per_block_);
   grid_dims_ = dim3((this->nx_ + block_dims_.x - 1) / block_dims_.x, (this->ny_ + block_dims_.y - 1) / block_dims_.y);
+
+  // Check if the arrays were read successfully
+  std::cout << this->h0_[100] << this->hu0_[100] << this->hv0_[100] << this->z_[100] << std::endl;
 
   this->h1_.resize(this->h0_.size(), 0.0);
   this->hu1_.resize(this->hu0_.size(), 0.0);
   this->hv1_.resize(this->hv0_.size(), 0.0);
 
-  // Write the data to the device SWEData struct
-  SWEData data_host;
-  cudaMemcpy(&data_host, data_device_, sizeof(SWEData), cudaMemcpyDeviceToHost);
+  // Send variables to the device
+  double *h0_device, *hu0_device, *hv0_device, *h1_device, *hu1_device, *hv1_device, *z_device, *zdx_device, *zdy_device;
+  size_t numb_entries = this->nx_ * this->ny_;
 
-  cudaMemcpy(data_host.h0, this->h0_.data(), this->h0_.size() * sizeof(double), cudaMemcpyHostToDevice);
-  cudaMemcpy(data_host.hu0, this->hu0_.data(), this->hu0_.size() * sizeof(double), cudaMemcpyHostToDevice);
-  cudaMemcpy(data_host.hv0, this->hv0_.data(), this->hv0_.size() * sizeof(double), cudaMemcpyHostToDevice);
-  cudaMemcpy(data_host.z, this->z_.data(), this->z_.size() * sizeof(double), cudaMemcpyHostToDevice);
+  // Allocate device memory for arrays
+  cudaMalloc(&h0_device, numb_entries * sizeof(double));
+  cudaMalloc(&hu0_device, numb_entries * sizeof(double));
+  cudaMalloc(&hv0_device, numb_entries * sizeof(double));
+  cudaMalloc(&h1_device, numb_entries * sizeof(double));
+  cudaMalloc(&hu1_device, numb_entries * sizeof(double));
+  cudaMalloc(&hv1_device, numb_entries * sizeof(double));
+  cudaMalloc(&z_device, numb_entries * sizeof(double));
+  cudaMalloc(&zdx_device, numb_entries * sizeof(double));
+  cudaMalloc(&zdy_device, numb_entries * sizeof(double));
+  cudaMallocManaged(&dt_, sizeof(double));
+  cudaMallocManaged(&max_partial_, grid_dims_.x * grid_dims_.y * sizeof(double));
 
-  // Optionally zero out h1, hu1, hv1 on device
-  // cudaMemset(data_host.h1, 0, this->h1_.size() * sizeof(double));
-  // cudaMemset(data_host.hu1, 0, this->hu1_.size() * sizeof(double));
-  // cudaMemset(data_host.hv1, 0, this->hv1_.size() * sizeof(double));
+  // Allocate memory for SWEData struct on host and device
+  SWEData h_data;
+  h_data.h0 = h0_device;
+  h_data.hu0 = hu0_device;
+  h_data.hv0 = hv0_device;
+  h_data.h1 = h1_device;
+  h_data.hu1 = hu1_device;
+  h_data.hv1 = hv1_device;
+  h_data.z = z_device;
+  h_data.zdx = zdx_device;
+  h_data.zdy = zdy_device;
+  h_data.nx = this->nx_;
+  h_data.ny = this->ny_;
+  h_data.size_x = this->size_x_;
+  h_data.size_y = this->size_y_;
 
-  // Compute zdx and zdy on device
-  // Launch a kernel or call a host function as appropriate
-  // Here, we call the device kernel for dx/dy initialization
+  cudaMalloc(&data_device_, sizeof(SWEData));
+
+  // Copy struct to device
+  cudaMemcpy(data_device_, &h_data, sizeof(SWEData), cudaMemcpyHostToDevice);
+
+  // Move the data given from the file from host to device
+  cudaMemcpy(h0_device, this->h0_.data(), numb_entries * sizeof(double), cudaMemcpyHostToDevice);
+  cudaMemcpy(hu0_device, this->hu0_.data(), numb_entries * sizeof(double), cudaMemcpyHostToDevice);
+  cudaMemcpy(hv0_device, this->hv0_.data(), numb_entries * sizeof(double), cudaMemcpyHostToDevice);
+  cudaMemcpy(z_device, this->z_.data(), numb_entries * sizeof(double), cudaMemcpyHostToDevice);
+  cudaMemcpy(h1_device, this->h1_.data(), numb_entries * sizeof(double), cudaMemcpyHostToDevice);
+  cudaMemcpy(hu1_device, this->hu1_.data(), numb_entries * sizeof(double), cudaMemcpyHostToDevice);
+  cudaMemcpy(hv1_device, this->hv1_.data(), numb_entries * sizeof(double), cudaMemcpyHostToDevice);
+
 
   // Only one thread needed for init_dx_dy
   init_dx_dy_kernel<<<1, 1>>>(data_device_);
   cudaDeviceSynchronize();
+
+  // Print finished initializing
+  std::cout << "Finished reading from HDF5 file." << std::endl;
 }
 
 
@@ -595,12 +636,13 @@ void SWESolver::solve(const double Tend, const bool full_log, const std::size_t 
     
     // Now copy the z array data from device to host
     cudaMemcpy(this->z_.data(), data_host.z, this->z_.size() * sizeof(double), cudaMemcpyDeviceToHost);
-
+    
     // Also copy initial h0 data for the writer
     cudaMemcpy(this->h0_.data(), data_host.h0, this->h0_.size() * sizeof(double), cudaMemcpyDeviceToHost);
 
     writer = std::make_shared<XDMFWriter>(fname_prefix, this->nx_, this->ny_, this->size_x_, this->size_y_, this->z_);
     writer->add_h(h0_, 0.0);
+
   }
 
   double T = 0.0;
@@ -613,12 +655,13 @@ void SWESolver::solve(const double Tend, const bool full_log, const std::size_t 
   // std::vector<double> &hu0 = hu0_;
   // std::vector<double> &hv0 = hv0_;
 
-  std::cout << "Solving SWE..." << std::endl;
+  std::cout << "Solving SWE..." <<  std::endl;
   
 
   std::size_t nt = 1;
   while (T < Tend)
   {
+   
     *dt_ = 0.0;
     this->compute_time_step(T, Tend);
 

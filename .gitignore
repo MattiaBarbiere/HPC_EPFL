@@ -51,3 +51,8 @@ analytical_tsunami_vis*
 analytical_tsunami_mesh*
 analytical_tsunami_topography*
 analytical_tsunami.xdmf
+tsunami_h*
+tsunami_vis*
+tsunami_mesh*
+tsunami_topography*
+tsunami.xdmf
