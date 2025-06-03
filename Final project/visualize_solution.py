@@ -168,10 +168,10 @@ if __name__ == "__main__":
 
     ## Make the annimation video from the frames
     frame_dir = "frames"
-    pattern = os.path.join(frame_dir, "water_drops_vis_*.png")
+    pattern = os.path.join(frame_dir, f"{basename}_vis_*.png")
 
     # Output video file
-    output_video = "water_animation_3d.mp4"
+    output_video = f"{basename}_animation.mp4"
 
     # Collect frame filenames and sort them
     frame_files = natsorted(glob.glob(pattern))

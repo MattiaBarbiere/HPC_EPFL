@@ -127,140 +127,84 @@ void compute_kernel_device(SWEData* data, const std::size_t i, const std::size_t
 __global__
 void init_gaussian_kernel(SWEData* data)
 {
-    // Initialize hu0, hv0 to 0.0
-    for (size_t idx = 0; idx < data->nx * data->ny; ++idx) {
-        data->hu0[idx] = 0.0;
-        data->hv0[idx] = 0.0;
+    size_t i = get_row_id();
+    size_t j = get_col_id();
+    size_t index_val = i + j * data->nx;
+
+    if (i < data->nx && j < data->ny) {
+        data->hu0[index_val] = 0.0;
+        data->hv0[index_val] = 0.0;
+
+        const double x0_0 = data->size_x / 4.0;
+        const double y0_0 = data->size_y / 3.0;
+        const double x0_1 = data->size_x / 2.0;
+        const double y0_1 = 0.75 * data->size_y;
+
+        const double dx = data->size_x / data->nx;
+        const double dy = data->size_y / data->ny;
+
+        double x = dx * (static_cast<double>(i) + 0.5);
+        double y = dy * (static_cast<double>(j) + 0.5);
+        double gauss_0 = 10.0 * exp(-((x - x0_0) * (x - x0_0) + (y - y0_0) * (y - y0_0)) / 1000.0);
+        double gauss_1 = 10.0 * exp(-((x - x0_1) * (x - x0_1) + (y - y0_1) * (y - y0_1)) / 1000.0);
+
+        data->h0[index_val] = 10.0 + gauss_0 + gauss_1;
+        data->h1[index_val] = 0.0;
+        data->hu1[index_val] = 0.0;
+        data->hv1[index_val] = 0.0;
+        data->z[index_val] = 0.0;
     }
 
-    const double x0_0 = data->size_x / 4.0;
-    const double y0_0 = data->size_y / 3.0;
-    const double x0_1 = data->size_x / 2.0;
-    const double y0_1 = 0.75 * data->size_y;
-
-    const double dx = data->size_x / data->nx;
-    const double dy = data->size_y / data->ny;
-
-    for (size_t j = 0; j < data->ny; ++j)
-    {
-        for (size_t i = 0; i < data->nx; ++i)
-        {
-            double x = dx * (static_cast<double>(i) + 0.5);
-            double y = dy * (static_cast<double>(j) + 0.5);
-            double gauss_0 = 10.0 * exp(-((x - x0_0) * (x - x0_0) + (y - y0_0) * (y - y0_0)) / 1000.0);
-            double gauss_1 = 10.0 * exp(-((x - x0_1) * (x - x0_1) + (y - y0_1) * (y - y0_1)) / 1000.0);
-
-            data->h0[j * data->nx + i] = 10.0 + gauss_0 + gauss_1;
-         }
+    // Only one thread calls this
+    if (i == 0 && j == 0) {
+        init_dx_dy_device(data);
     }
-
-    for (size_t idx = 0; idx < data->nx * data->ny; ++idx) {
-        data->h1[idx] = 0.0;
-        data->hu1[idx] = 0.0;
-        data->hv1[idx] = 0.0;
-    }
-
-    for (size_t idx = 0; idx < data->nx * data->ny; ++idx) {
-        data->z[idx] = 0.0;
-    }
-
-    init_dx_dy_device(data);
 }
 
 __global__
 void init_dummy_tsunami_kernel(SWEData* data)
 {
-    for (size_t idx = 0; idx < data->nx * data->ny; ++idx) {
+    size_t i = get_row_id();
+    size_t j = get_col_id();
+    size_t idx = i + j * data->nx;
+
+    if (i < data->nx && j < data->ny) {
         data->hu0[idx] = 0.0;
         data->hv0[idx] = 0.0;
         data->h1[idx] = 0.0;
         data->hu1[idx] = 0.0;
         data->hv1[idx] = 0.0;
+
+        const double x0_0 = 0.6 * data->size_x;
+        const double y0_0 = 0.6 * data->size_y;
+        const double x0_1 = 0.4 * data->size_x;
+        const double y0_1 = 0.4 * data->size_y;
+        const double x0_2 = 0.7 * data->size_x;
+        const double y0_2 = 0.3 * data->size_y;
+
+        const double dx = data->size_x / data->nx;
+        const double dy = data->size_y / data->ny;
+
+        const double x = dx * (static_cast<double>(i) + 0.5);
+        const double y = dy * (static_cast<double>(j) + 0.5);
+
+        const double gauss_0 = 2.0 * exp(-((x - x0_0) * (x - x0_0) + (y - y0_0) * (y - y0_0)) / 3000.0);
+        const double gauss_1 = 3.0 * exp(-((x - x0_1) * (x - x0_1) + (y - y0_1) * (y - y0_1)) / 10000.0);
+        const double gauss_2 = 5.0 * exp(-((x - x0_2) * (x - x0_2) + (y - y0_2) * (y - y0_2)) / 100.0);
+
+        double z_val = -1.0 + gauss_0 + gauss_1;
+        data->z[idx] = z_val;
+
+        double h0_val = (z_val < 0.0) ? (-z_val + gauss_2) : 0.00001;
+        data->h0[idx] = h0_val;
     }
 
-    const double x0_0 = 0.6 * data->size_x;
-    const double y0_0 = 0.6 * data->size_y;
-    const double x0_1 = 0.4 * data->size_x;
-    const double y0_1 = 0.4 * data->size_y;
-    const double x0_2 = 0.7 * data->size_x;
-    const double y0_2 = 0.3 * data->size_y;
-
-    const double dx = data->size_x / data->nx;
-    const double dy = data->size_y / data->ny;
-
-    for (size_t j = 0; j < data->ny; ++j) {
-        for (size_t i = 0; i < data->nx; ++i)
-        {
-            const double x = dx * (static_cast<double>(i) + 0.5);
-            const double y = dy * (static_cast<double>(j) + 0.5);
-
-            const double gauss_0 = 2.0 * exp(-((x - x0_0) * (x - x0_0) + (y - y0_0) * (y - y0_0)) / 3000.0);
-            const double gauss_1 = 3.0 * exp(-((x - x0_1) * (x - x0_1) + (y - y0_1) * (y - y0_1)) / 10000.0);
-            const double gauss_2 = 5.0 * exp(-((x - x0_2) * (x - x0_2) + (y - y0_2) * (y - y0_2)) / 100.0);
-
-            double z_val = -1.0 + gauss_0 + gauss_1;
-            at_device(data, i, j, data->z) = z_val;
-
-            double h0_val = (z_val < 0.0) ? (-z_val + gauss_2) : 0.00001;
-            at_device(data, i, j, data->h0) = h0_val;
-        }
+    // Only one thread calls this
+    if (i == 0 && j == 0) {
+        init_dx_dy_device(data);
     }
-
-    init_dx_dy_device(data);
 }
 
-// __global__
-// void compute_time_step_kernel(const SWEData* data,  const double T,
-//                              const double Tend, double* dt_out) {
-//     double max_nu_sqr_local = 0.0;
-//     static constexpr double g = 127267.20000000;
-
-//       // Get row and column indices
-//     size_t j = get_col_id();
-//     size_t i = get_row_id();
-
-//     if (0 < j < data->nx - 1 && 0 < i < data->ny - 1)
-//     {
-
-//     // for (std::size_t j = 1; j < data->ny - 1; ++j) {
-//     //     for (std::size_t i = 1; i < data->nx - 1; ++i) {
-//           idx = j * data->nx + i;
-//             double h_val = data->h0[idx];
-//             double hu_val = data->hu0[idx];
-//             double hv_val = data->hv0[idx];
-
-//             const double nu_u = fabs(hu_val) / h_val + sqrt(g * h_val);
-//             const double nu_v = fabs(hv_val) / h_val + sqrt(g * h_val);
-
-//             max_nu_sqr_local = fmax(max_nu_sqr_local, nu_u * nu_u + nu_v * nu_v);
-//         // }
-    
-
-//     // Get the shared memory ready for reduction
-//     __shared__ double max_nu_sqr_shared[1024];
-//     id = get_id();
-//     max_nu_sqr_shared[id] = max_nu_sqr_local;
-//     __syncthreads();
-//     }
-
-//     // Perform reduction to find the maximum value across all threads
-//     for (size_t stride = blockDim.x * blockDim.y / 2; stride > 0; stride /= 2) {
-//         if (id < stride) {
-//             max_nu_sqr_shared[id] = fmax(max_nu_sqr_shared[id], max_nu_sqr_shared[id + stride]);
-//         }
-//         __syncthreads();
-//     }
-//     // The first thread in the block writes the result to the global memory
-//     if (id == 0) {
-//         double max_nu_sqr = max_nu_sqr_shared[0];
-//     }
-
-//     const double dx = data->size_x / data->nx;
-//     const double dy = data->size_y / data->ny;
-//     double dt = fmin(dx, dy) / sqrt(2.0 * max_nu_sqr);
-
-//     *dt_out = fmin(dt, Tend - T);
-// }
 
 __global__
 void compute_time_step_block_kernel(const SWEData* data, double* max_partial) {
@@ -315,8 +259,6 @@ void compute_time_step_kernel(const SWEData* data, double* max_partial, int leng
   // Compute the time step based on the maximum value
   const double dx = data->size_x / data->nx;
   const double dy = data->size_y / data->ny;
-  // Print
-  printf("max_nu_sqr = %f\n", max_nu_sqr);
   double dt = fmin(dx, dy) / sqrt(2.0 * max_nu_sqr);
 
   *dt_out = fmin(dt, Tend - T);
@@ -351,9 +293,11 @@ __global__
 void update_bc_kernel(SWEData* data, bool reflective){
   const double coef = reflective ? -1.0 : 1.0;
 
+  // Single thread computes the boundary conditions
+  size_t i = get_row_id();
+
   // Top and bottom boundaries.
-  for (std::size_t i = 0; i < data->nx; ++i)
-  {
+  if (i < data->nx){
     at_device(data, i, 0, data->h1) = at_device(data, i, 1, data->h0);
     at_device(data, i, data->ny - 1, data->h1) = at_device(data, i, data->ny - 2, data->h0);
 
@@ -365,16 +309,15 @@ void update_bc_kernel(SWEData* data, bool reflective){
   }
 
   // Left and right boundaries.
-  for (std::size_t j = 0; j < data->ny; ++j)
-  {
-    at_device(data, 0, j, data->h1) = at_device(data, 1, j, data->h0);
-    at_device(data, data->nx - 1, j, data->h1) = at_device(data, data->nx - 2, j, data->h0);
+  if (i < data->ny) {
+    at_device(data, 0, i, data->h1) = at_device(data, 1, i, data->h0);
+    at_device(data, data->nx - 1, i, data->h1) = at_device(data, data->nx - 2, i, data->h0);
 
-    at_device(data, 0, j, data->hu1) = coef * at_device(data, 1, j, data->hu0);
-    at_device(data, data->nx - 1, j, data->hu1) = coef * at_device(data, data->nx - 2, j, data->hu0);
+    at_device(data, 0, i, data->hu1) = coef * at_device(data, 1, i, data->hu0);
+    at_device(data, data->nx - 1, i, data->hu1) = coef * at_device(data, data->nx - 2, i, data->hu0);
 
-    at_device(data, 0, j, data->hv1) = at_device(data, 1, j, data->hv0);
-    at_device(data, data->nx - 1, j, data->hv1) = at_device(data, data->nx - 2, j, data->hv0);
+    at_device(data, 0, i, data->hv1) = at_device(data, 1, i, data->hv0);
+    at_device(data, data->nx - 1, i, data->hv1) = at_device(data, data->nx - 2, i, data->hv0);
   }
 }
 
@@ -586,7 +529,7 @@ void SWESolver::init_from_HDF5_file(const std::string &h5_file)
 
 void SWESolver::init_gaussian()
 {
-  // Print when finished initializing
+  // Print when started initializing
   std::cout << "Starting Gaussian test case." << std::endl;
 
 
@@ -601,9 +544,15 @@ void SWESolver::init_gaussian()
 
 void SWESolver::init_dummy_tsunami()
 {
+  // Print when started initializing
+  std::cout << "Starting Dummy Tsunami test case." << std::endl;
+
   // Call the init dummy tsunami kernel
   init_dummy_tsunami_kernel<<<grid_dims_, block_dims_>>>(data_device_);
   cudaDeviceSynchronize();
+
+  // Print when finished initializing
+  std::cout << "Initialized Dummy Tsunami test case." << std::endl;
 }
 
 void SWESolver::solve(const double Tend, const bool full_log, const std::size_t output_n, const std::string &fname_prefix)
@@ -700,11 +649,7 @@ void SWESolver::compute_time_step(const double T, const double Tend)
 
   compute_time_step_block_kernel<<<grid_dims_, block_dims_, shared_memory_size>>>(data_device_, max_partial_);
   cudaDeviceSynchronize();
-  for (int i = 0; i < grid_dims_.x * grid_dims_.y; ++i) {
-    if (max_partial_[i] <= 0.0){
-    printf("max_partial[%d] = %f\n", i, max_partial_[i]);
-    }
-  }
+
   // Perform reduction to find the maximum value across all blocks
   int max_partial_length = grid_dims_.x * grid_dims_.y;
   compute_time_step_kernel<<<1, 1>>>(data_device_, max_partial_, max_partial_length, T, Tend, dt_);
@@ -721,8 +666,9 @@ void SWESolver::solve_step() const
 
 void SWESolver::update_bcs() const
 {
-  // Call the kernel
-  update_bc_kernel<<<grid_dims_, block_dims_>>>(data_device_, reflective_device_);
+  // Call a single block with enough threads
+  int threads_for_bc = std::max(nx_, ny_);
+  update_bc_kernel<<<1, threads_for_bc>>>(data_device_, reflective_device_);
   cudaDeviceSynchronize();
 };
 

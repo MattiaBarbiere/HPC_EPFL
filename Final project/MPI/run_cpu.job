@@ -16,7 +16,7 @@ module load gcc hdf5 openmpi
 ### Runs ###
 ############
 # <test_case_id> <nx> <ny> <output_n>
-# srun ./swe 1 1000 1000 10
+# srun ./swe 2 1000 1000 10
 
 
 ##############
