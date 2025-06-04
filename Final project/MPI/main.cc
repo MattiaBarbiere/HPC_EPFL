@@ -75,16 +75,13 @@ int main(int argc, char* argv[])
     // Option 3 - Solving tsunami problem with data loaded from file.
     Tend = 0.2;   // Simulation time in hours
 
-    // Make sure that input nx and ny are the same
-    if (nx != ny) {
-        if (rank == 0) {
-            std::cerr << "nx and ny must be the same for test case 3.\n";
-        }
-        MPI_Abort(MPI_COMM_WORLD, 1);
-        return 1;
+    // Print that we are solving the tsunami problem
+    if (rank == 0) {
+        std::cout << "Solving tsunami problem with data loaded from file.\n";
+        std::cout.flush();
     }
     // Convert nx and ny to double
-    const double size = static_cast<double>(nx); // Size of the domain in km
+    const double size = 500.0; // Size of the domain in km
 
     // const std::string fname = "Data_nx501_500km.h5"; // File containg initial data (501x501 mesh).
     const std::string fname = "Data_nx1001_500km.h5"; // File containg initial data (1001x1001 mesh).
@@ -92,11 +89,10 @@ int main(int argc, char* argv[])
     // const std::string fname = "Data_nx4001_500km.h5"; // File containg initial data (4001x4001 mesh).
     // const std::string fname = "Data_nx8001_500km.h5"; // File containg initial data (8001x8001 mesh).
 
-    const std::size_t output_n = 0;
     const std::string output_fname = "output_files/tsunami";
     const bool full_log = false;
 
-    SWESolver solver(fname, size, size);
+    SWESolver solver(fname, size, size, MPI_COMM_WORLD);
     auto start_time = std::chrono::high_resolution_clock::now();
     solver.solve(Tend, full_log, output_n, output_fname);
     auto end_time = std::chrono::high_resolution_clock::now();

@@ -141,10 +141,7 @@ SWESolver::SWESolver(const int test_case_id, const std::size_t nx, const std::si
   alloc(zdy_);
 
   if (DEBUG){
-  //   std::cout << "SWESolver initialized with " << size_ << " processes." << std::endl;
-  //   std::cout << "Local grid size: " << nx_local_ << " x " << ny_local_ << std::endl;
-  //   std::cout << "Global grid size: " << nx_ << " x " << ny_ << std::endl;
-    std::cout << "Rank: " <<  std::endl;
+    std::cout << "Rank: " << rank_ << std::endl;
     std::cout << "SWESolver initialized with " << size_ << " processes." << std::endl;
     std::cout << rank_ <<"Process coordinates: (" << coords_[0] << ", " << coords_[1] << ")" << std::endl;
   }
@@ -169,22 +166,90 @@ SWESolver::SWESolver(const int test_case_id, const std::size_t nx, const std::si
 
 }
 
-SWESolver::SWESolver(const std::string &h5_file, const double size_x, const double size_y) :
-  size_x_(size_x), size_y_(size_y), reflective_(false)
+SWESolver::SWESolver(const std::string &h5_file, const double size_x, const double size_y, MPI_Comm comm):
+  size_x_(size_x), size_y_(size_y), reflective_(false), cart_comm_(MPI_COMM_NULL)
 {
-  this->init_from_HDF5_file(h5_file);
+  this->init_from_HDF5_file(h5_file, comm);
 }
 
-void SWESolver::init_from_HDF5_file(const std::string &h5_file)
+void SWESolver::init_from_HDF5_file(const std::string &h5_file, MPI_Comm comm)
 {
-  read_2d_array_from_DF5(h5_file, "h0", this->h0_, this->nx_, this->ny_);
-  read_2d_array_from_DF5(h5_file, "hu0", this->hu0_, this->nx_, this->ny_);
-  read_2d_array_from_DF5(h5_file, "hv0", this->hv0_, this->nx_, this->ny_);
-  read_2d_array_from_DF5(h5_file, "topography", this->z_, this->nx_, this->ny_);
+  // Initialize the global variables to read from file
+  std::vector<double> h0_global, hu0_global, hv0_global, z_global;
 
-  this->h1_.resize(this->h0_.size(), 0.0);
-  this->hu1_.resize(this->hu0_.size(), 0.0);
-  this->hv1_.resize(this->hv0_.size(), 0.0);
+  read_2d_array_from_DF5(h5_file, "h0", h0_global, this->nx_, this->ny_);
+  read_2d_array_from_DF5(h5_file, "hu0", hu0_global, this->nx_, this->ny_);
+  read_2d_array_from_DF5(h5_file, "hv0", hv0_global, this->nx_, this->ny_);
+  read_2d_array_from_DF5(h5_file, "topography", z_global, this->nx_, this->ny_);
+
+  // The communicator 
+  MPI_Comm_size(comm, &size_);
+  MPI_Comm_rank(comm, &rank_);
+  dims_[0] = dims_[1] = 0;
+
+  // Make the sure dims_[0]*dims_[1] = size_
+  MPI_Dims_create(size_, 2, dims_);            
+
+  // Set the periodicity to false
+  int periods[2] = {0, 0};
+
+  // Create the Cartesian communicator
+  MPI_Cart_create(comm, 2, dims_, periods, 1, &cart_comm_);
+  MPI_Cart_coords(cart_comm_, rank_, 2, coords_);
+  MPI_Cart_shift(cart_comm_, 0, 1, &nbr_left_, &nbr_right_);
+  MPI_Cart_shift(cart_comm_, 1, 1, &nbr_down_, &nbr_up_);
+
+  // I assume that the number of points in each direction is divisible by dims_[0] and dims_[1]
+  assert(nx_ % dims_[0] == 0 && ny_ % dims_[1] == 0);
+  
+  // Set the size of the local grid
+  nx_local_ = nx_ / dims_[0];
+  ny_local_ = ny_ / dims_[1];
+
+  // Set the offsets
+  offset_x_ = coords_[0] * nx_local_;
+  offset_y_ = coords_[1] * ny_local_;
+
+  // Function that adds the halo cells to the edges of the local grid
+  auto alloc = [&](std::vector<double>& v){
+    v.resize((nx_local_ + 2) * (ny_local_ + 2), 0.0);
+  };
+
+  // Add the halo cells to each variable
+  alloc(h0_);
+  alloc(h1_);
+  alloc(hu0_);
+  alloc(hu1_);
+  alloc(hv0_);
+  alloc(hv1_);
+  alloc(z_);
+  alloc(zdx_);
+  alloc(zdy_);
+
+  // Fill the local grids with only they data they need
+  for (std::size_t j = 0; j < ny_local_ + 2; ++j)
+  {
+    for (std::size_t i = 0; i < nx_local_ + 2; ++i)
+    {
+      int i_global = offset_x_ + i - 1;
+      int j_global = offset_y_ + j - 1;
+
+      // Make sure the global indices are within the correct bounds
+      i_global = std::min(std::max(i_global, 0), (int)nx_ - 1);
+      j_global = std::min(std::max(j_global, 0), (int)ny_ - 1);
+      at(h0_, i, j) = h0_global[j_global * nx_ + i_global];
+      at(hu0_, i, j) = hu0_global[j_global * nx_ + i_global];
+      at(hv0_, i, j) = hv0_global[j_global * nx_ + i_global];
+      at(z_, i, j) = z_global[j_global * nx_ + i_global];
+      }
+    }
+
+
+  // this->h1_.resize(this->h0_.size(), 0.0);
+  // this->hu1_.resize(this->hu0_.size(), 0.0);
+  // this->hv1_.resize(this->hv0_.size(), 0.0);
+  // Communicate to all neighbors the initial conditions
+  this->exchange_data();
 
   this->init_dx_dy_local();
 }

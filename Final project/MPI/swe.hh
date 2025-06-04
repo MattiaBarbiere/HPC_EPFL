@@ -33,7 +33,7 @@ public:
    * @param size_x  Size in km along the x direction.
    * @param size_y  Size in km along the y direction.
    */
-  SWESolver(const std::string &h5_file, const double size_x, const double size_y);
+  SWESolver(const std::string &h5_file, const double size_x, const double size_y, MPI_Comm comm);
 
   /**
    * @brief Solve the shallow water equations.
@@ -59,7 +59,7 @@ private:
    *
    * @param h5_file HDF5 file name containing the initial conditions and topography.
    */
-  void init_from_HDF5_file(const std::string &h5_file);
+  void init_from_HDF5_file(const std::string &h5_file, MPI_Comm comm);
 
   /**
    * @brief Initializes the initial conditions and topography using
