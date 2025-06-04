@@ -165,39 +165,31 @@ private:
                       const double dt);
 
   /**
-   * @brief Computes the time step size that satisfied the CFL condition.
+   * @brief Computes the time step size that satisfies the CFL condition.
    *
-   * @param h The water height in the current time step.
-   * @param hu The x water velocity in the current time step.
-   * @param hv The y water velocity in the current time step.
-   * @param T Current time.
-   * @param Tend Final time.
-   * @return Compute time step.
+   * Computes the maximum wave speed over the local domain, performs an MPI_Allreduce
+   * to get the global maximum, and returns the stable time step for the next iteration.
+   *
+   * @param T    Current simulation time.
+   * @param Tend Final simulation time.
+   * @return     Computed time step size.
    */
   double compute_time_step(const double T,
                            const double Tend);
 
   /**
-   * @brief Solve one step of the SWE.
+   * @brief Compute the next time step for all interior cells.
+   *
+   * Applies the SWE kernel to each interior cell of the local domain for the given time step.
+   *
    * @param dt The time step size.
-   * @param h0 The water height in the previous time step.
-   * @param hu0 The x water velocity in the previous time step.
-   * @param hv0 The y water velocity in the previous time step.
-   * @param h The water height in the current time step.
-   * @param hu The x water velocity in the current time step.
-   * @param hv The y water velocity in the current time step.
    */
   void solve_step(const double dt);
 
   /**
-   * @brief Update boundary conditions.
-   * @note This function updates the boundary conditions for the SWE solver.
-   * @param h0 The water height in the previous time step.
-   * @param hu0 The x water velocity in the previous time step.
-   * @param hv0 The y water velocity in the previous time step.
-   * @param h The water height in the current time step.
-   * @param hu The x water velocity in the current time step.
-   * @param hv The y water velocity in the current time step.
+   * @brief Update boundary conditions for all edges.
+   *
+   * Sets the ghost cell values at the domain boundaries according to the reflective or open boundary condition.
    */
   void update_bcs();
 };

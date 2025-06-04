@@ -95,7 +95,7 @@ void compute_kernel_device(SWEData* data, const std::size_t i, const std::size_t
     const double C2 = dt * g;
     constexpr double C3 = 0.5 * g;
 
-    // Compute updated water height using a 2D stencil and fluxes
+    // Compute updated water height
     double hij = 0.25 * (at_device(data, i, j - 1, data->h0) + at_device(data, i, j + 1, data->h0) + at_device(data, i - 1, j, data->h0) + at_device(data, i + 1, j, data->h0))
                 + C1x * (at_device(data, i - 1, j, data->hu0) - at_device(data, i + 1, j, data->hu0)) + C1y * (at_device(data, i, j - 1, data->hv0) - at_device(data, i, j + 1, data->hv0));
     
