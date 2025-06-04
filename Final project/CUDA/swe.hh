@@ -10,88 +10,71 @@ class SWESolver
 {
 public:
   /**
-   * @brief Constructor for the SWESolver class.
-   * @warning Not allowed to be used.
+   * @brief Deleted default constructor. SWESolver must be constructed with parameters.
    */
   SWESolver() = delete;
 
-  /// Gravity 9.82 * (3.6)^2 * 1000 in[km / hour^2]
+  /// Gravity constant in [km/hour^2]: 9.82 * (3.6)^2 * 1000
   static constexpr double g = 127267.20000000;
 
   /**
-   * @brief Construtor.
-   * @param test_case_id It can be 1 (water drops in a box) or 2 (analytical tsunami).
-   * @param nx  Number of cells along the x direction.
-   * @param ny  Number of cells along the y direction.
+   * @brief Construct solver for built-in test cases.
+   * @param test_case_id 1: water drop, 2: dummy tsunami.
+   * @param nx Number of grid cells in x.
+   * @param ny Number of grid cells in y.
+   * @param threads_per_block Number of CUDA threads per block.
    */
   SWESolver(const int test_case_id, const std::size_t nx, const std::size_t ny, const int threads_per_block);
 
   /**
-   * @brief Constructor for the SWESolver class.
-   *
-   * This constructor corresponds to the case in which the initial conditions
-   * and topography are read from a HDF5 file.
-   *
-   * @param h5_file HDF5 file name containing the initial conditions and topography.
-   * @param size_x  Size in km along the x direction.
-   * @param size_y  Size in km along the y direction.
+   * @brief Construct solver using initial conditions and topography from HDF5 file.
+   * @param h5_file HDF5 file name.
+   * @param size_x Domain size in x (km).
+   * @param size_y Domain size in y (km).
+   * @param threads_per_block Number of CUDA threads per block.
    */
   SWESolver(const std::string &h5_file, const double size_x, const double size_y, const int threads_per_block);
 
   /**
    * @brief Solve the shallow water equations.
-   * @brief Tend Total simulation time.
-   * @brief full_log If true, the simulation will log the time step
-   * and the time step size at each time step. Otherwise, only
-   * the progress of the simulation will be logged.
-   * @brief output_n If different from 0, the simulation will write
-   * a solution each output_n time steps. E.g., if set to 10,
-   * a solution file will be written each 10 steps.
-   * @brief fname_prefix If @p output_n is different from 0, the generated
-   * files will use this file name prefix.
+   * @param Tend End time (hours).
+   * @param full_log If true, print log at every step.
+   * @param output_n Output every n steps (0 disables output).
+   * @param fname_prefix Output file prefix.
    */
   void solve(const double Tend,
              const bool full_log = false,
              const std::size_t output_n = 0,
              const std::string &fname_prefix = "test");
 
-  // Destructor
+  /// Destructor: releases device memory.
   ~SWESolver();
 
 private:
   /**
-   * @brief Initializes the initial conditions and topography using
-   * the provided HDF5 file.
-   *
-   * @param h5_file HDF5 file name containing the initial conditions and topography.
+   * @brief Initialize from HDF5 file.
+   * @param h5_file HDF5 file name.
    */
   void init_from_HDF5_file(const std::string &h5_file);
 
   /**
-   * @brief Initializes the initial conditions and topography using
-   * a Gaussian function.
-   *
-   * The water height is initialized with two separated Gaussian peaks.
-   * The initial water velocity is set to zero and the topography is set to zero.
+   * @brief Initialize with two Gaussian peaks (water drop test).
    */
   void init_gaussian();
 
   /**
-   * @brief Initializes the initial conditions and topography using
-   * a dummy tsunami function.
+   * @brief Initialize with dummy tsunami scenario.
    */
   void init_dummy_tsunami();
 
-  /**
-   * @brief Initializes the derivatives dx and dy from the topography.
-   */
-  // void init_dx_dy();
-
+  // Grid and domain parameters
   std::size_t nx_;
   std::size_t ny_;
   double size_x_;
   double size_y_;
   bool reflective_;
+
+  // Host-side solution arrays
   std::vector<double> h0_;
   std::vector<double> h1_;
   std::vector<double> hu0_;
@@ -102,19 +85,19 @@ private:
   std::vector<double> zdx_;
   std::vector<double> zdy_;
 
-  // CUDA device pointers
+  // Device pointers
   SWEData* data_device_;
   double* dt_;
   bool* reflective_device_;
   double* max_partial_;
 
-  // Threads blocks and grids
+  // CUDA launch configuration
   int threads_per_block_;
   dim3 block_dims_;
   dim3 grid_dims_;
 
   /**
-   * @brief Accessor for 2D vector elements.
+   * @brief 2D accessor for mutable host vectors.
    */
   inline double &at(std::vector<double> &vec, const std::size_t i, const std::size_t j) const
   {
@@ -122,8 +105,7 @@ private:
   }
 
   /**
-   * @brief Accessor for 2D vector elements.
-   * @note Constant vector version.
+   * @brief 2D accessor for const host vectors.
    */
   inline const double &at(const std::vector<double> &vec, const std::size_t i, const std::size_t j) const
   {
@@ -131,16 +113,16 @@ private:
   }
 
   /**
-   * @brief Updates the water height and velocities using the SWE kernel at a given cell.
-   * @param i x index of the cell.
-   * @param j y index of the cell.
+   * @brief Update cell (i,j) using SWE kernel (host-side, unused in CUDA).
+   * @param i x-index.
+   * @param j y-index.
    * @param dt Time step.
-   * @param h0 The water height in the previous time step.
-   * @param hu0 The x water velocity in the previous time step.
-   * @param hv0 The y water velocity in the previous time step.
-   * @param h The water height in the current time step.
-   * @param hu The x water velocity in the current time step.
-   * @param hv The y water velocity in the current time step.
+   * @param h0 Water height at previous step.
+   * @param hu0 x-velocity at previous step.
+   * @param hv0 y-velocity at previous step.
+   * @param h Water height at current step.
+   * @param hu x-velocity at current step.
+   * @param hv y-velocity at current step.
    */
   void compute_kernel(const std::size_t i,
                       const std::size_t j,
@@ -153,27 +135,25 @@ private:
                       std::vector<double> &hv) const;
 
   /**
-   * @brief Computes the time step size that satisfied the CFL condition.
-   *
-   * @param data Pointer to SWEData struct on device.
+   * @brief Compute time step size satisfying CFL condition (device).
    * @param T Current time.
-   * @param Tend Final time.
+   * @param Tend End time.
    */
   void compute_time_step(const double T,
                          const double Tend);
 
   /**
-   * @brief Solve one step of the SWE.
-   * @param dt The time step size.
+   * @brief Advance solution by one time step (device).
    */
   void solve_step() const;
 
   /**
-   * @brief Update boundary conditions.
-   * @note This function updates the boundary conditions for the SWE solver.
+   * @brief Update boundary conditions (device).
    */
   void update_bcs() const;
 
-
+  /**
+   * @brief Swap pointers for old/new solution arrays (device).
+   */
   void swap_data() const;
 };
