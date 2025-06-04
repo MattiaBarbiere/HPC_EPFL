@@ -292,8 +292,8 @@ void solve_step_kernel(SWEData* data, double* dt)
 
 
 __global__
-void update_bc_kernel(SWEData* data, bool reflective){
-  const double coef = reflective ? -1.0 : 1.0;
+void update_bc_kernel(SWEData* data, bool* reflective){
+  const double coef = *reflective ? -1.0 : 1.0;
 
   // Single thread computes the boundary conditions
   size_t i = get_row_id();
@@ -522,15 +522,9 @@ void SWESolver::init_from_HDF5_file(const std::string &h5_file)
   read_2d_array_from_DF5(h5_file, "hv0", this->hv0_, this->nx_, this->ny_);
   read_2d_array_from_DF5(h5_file, "topography", this->z_, this->nx_, this->ny_);
 
-  // Check if the arrays were read successfully
-  std::cout << this->h0_[100] << this->hu0_[100] << this->hv0_[100] << this->z_[100] << std::endl;
-
   // Compute the block and grid dims
   block_dims_ = divide_threads_2D(threads_per_block_);
   grid_dims_ = dim3((this->nx_ + block_dims_.x - 1) / block_dims_.x, (this->ny_ + block_dims_.y - 1) / block_dims_.y);
-
-  // Check if the arrays were read successfully
-  std::cout << this->h0_[100] << this->hu0_[100] << this->hv0_[100] << this->z_[100] << std::endl;
 
   this->h1_.resize(this->h0_.size(), 0.0);
   this->hu1_.resize(this->hu0_.size(), 0.0);
@@ -582,6 +576,10 @@ void SWESolver::init_from_HDF5_file(const std::string &h5_file)
   cudaMemcpy(h1_device, this->h1_.data(), numb_entries * sizeof(double), cudaMemcpyHostToDevice);
   cudaMemcpy(hu1_device, this->hu1_.data(), numb_entries * sizeof(double), cudaMemcpyHostToDevice);
   cudaMemcpy(hv1_device, this->hv1_.data(), numb_entries * sizeof(double), cudaMemcpyHostToDevice);
+
+  // Send the reflective_ variable to the device
+  cudaMalloc(&reflective_device_, sizeof(bool));
+  cudaMemcpy(reflective_device_, &this->reflective_, sizeof(bool), cudaMemcpyHostToDevice);
 
 
   // Only one thread needed for init_dx_dy
@@ -646,14 +644,6 @@ void SWESolver::solve(const double Tend, const bool full_log, const std::size_t 
   }
 
   double T = 0.0;
-
-  // std::vector<double> &h = h1_;
-  // std::vector<double> &hu = hu1_;
-  // std::vector<double> &hv = hv1_;
-
-  // std::vector<double> &h0 = h0_;
-  // std::vector<double> &hu0 = hu0_;
-  // std::vector<double> &hv0 = hv0_;
 
   std::cout << "Solving SWE..." <<  std::endl;
   
