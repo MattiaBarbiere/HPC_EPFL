@@ -94,5 +94,6 @@ int main(int argc, char* argv[])
 
   // Print the elapsed time and number of processors used
   std::cout << "Elapsed time: " << elapsed_time_seconds << " seconds" << std::endl;
+  std::cout << "Number of threads per block: " << threads_per_block << std::endl;
   return 0;
 }
