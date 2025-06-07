@@ -93,7 +93,7 @@ for idx, grid in enumerate(unique_grid_sizes):
 ideal_speedup = [1 / (1 - ALPHA + ALPHA / p) for p in sorted(set(n_processors))]
 plt.plot(range(len(ideal_speedup)), ideal_speedup, linestyle='--', color='black', label='Ideal (Amdahl\'s Law)')
 plt.title('Speedup vs Number of Processors')
-plt.xlabel('Number of processors used (log scale)')
+plt.xlabel('Number of processors (log scale)')
 plt.ylabel('Speedup (log scale)')
 plt.xticks(range(len(times)), sorted(set(n_processors)))
 plt.grid(True)
@@ -116,8 +116,8 @@ for idx, grid in enumerate(unique_grid_sizes):
 # Ideal efficiency line based on Amdahl's Law
 ideal_eff = [ideal_speedup[i]/p for i, p in enumerate(sorted(set(n_processors)))]
 plt.plot(range(len(ideal_eff)), ideal_eff, linestyle='--', color='black', label='Ideal (Amdahl\'s Law)')
-plt.title('Speedup vs Number of Processors')
-plt.xlabel('Number of processors used (log scale)')
+plt.title('Efficiency vs Number of Processors')
+plt.xlabel('Number of processors (log scale)')
 plt.ylabel('Efficiency (log scale)')
 plt.xticks(range(len(times)), sorted(set(n_processors)))
 plt.grid(True)

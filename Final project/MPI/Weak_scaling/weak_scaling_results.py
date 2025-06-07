@@ -136,7 +136,7 @@ for idx, grid in enumerate(unique_grid_sizes):
 # Ideal efficiency line based on Gustafson's Law
 ideal_eff = [ideal_speedup[i]/p for i, p in enumerate(sorted(unique_n_processors))]
 plt.plot(range(len(ideal_eff)), ideal_eff, linestyle='--', color='black', label='Ideal (Gustafson\'s Law)')
-plt.title('Speedup vs Number of Processors')
+plt.title('Efficiency vs Number of Processors')
 plt.xlabel('Number of processors used (log scale)')
 plt.ylabel('Efficiency (log scale)')
 plt.xticks(range(len(times)), sorted(unique_n_processors))
