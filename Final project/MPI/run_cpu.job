@@ -1,10 +1,10 @@
 #!/bin/bash
 #SBATCH --qos=math-454
 #SBATCH --account=math-454
-#SBATCH --nodes=2
-#SBATCH --ntasks=128
+#SBATCH --nodes=1
+#SBATCH --ntasks=64
 #SBATCH --time=00:20:00
-#SBATCH --output=Strong_scaling/times_128.txt
+#SBATCH --output=Weak_scaling/times_64.txt
 
 
 
@@ -17,10 +17,15 @@ module load gcc hdf5 openmpi
 ############
 ### Runs ###
 ############
+
 # <test_case_id> <nx> <ny> <output_n>
-srun ./swe 1 1024 1024 0
-# srun ./swe 2 1001 1001 10
+# srun ./swe 1 1000 1000 10
+# srun ./swe 2 1000 1000 10
 # srun ./swe 3 1000 1000 10
+
+# For weak scaling
+N_VAL=$((SLURM_NTASKS * 16))
+srun ./swe 1 $N_VAL $N_VAL 0
 
 
 ##############
