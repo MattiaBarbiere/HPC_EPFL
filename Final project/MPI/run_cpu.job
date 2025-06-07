@@ -2,9 +2,9 @@
 #SBATCH --qos=math-454
 #SBATCH --account=math-454
 #SBATCH --nodes=1
-#SBATCH --ntasks=64
+#SBATCH --ntasks=8
 #SBATCH --time=00:20:00
-#SBATCH --output=Strong_scaling/times_64_256.txt
+#SBATCH --output=Strong_scaling/times_8_512.txt
 
 
 
@@ -19,7 +19,7 @@ module load gcc hdf5 openmpi
 ############
 
 # <test_case_id> <nx> <ny> <output_n>
-srun ./swe 1 256 256 0
+srun ./swe 1 512 512 0
 # srun ./swe 2 1000 1000 10
 # srun ./swe 3 1000 1000 10
 
