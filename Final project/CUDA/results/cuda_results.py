@@ -30,6 +30,18 @@ for filename in os.listdir(path):
                 elapsed_times.append(float(time_match.group(1)))
                 threads_per_block.append(int(threads_match.group(1)))
 
+# Prepare for plotting
+GLOBAL_FONT_SIZE = 17
+plt.rcParams.update({
+    'font.size': GLOBAL_FONT_SIZE,
+    'axes.titlesize': GLOBAL_FONT_SIZE,
+    'axes.labelsize': GLOBAL_FONT_SIZE,
+    'xtick.labelsize': GLOBAL_FONT_SIZE,
+    'ytick.labelsize': GLOBAL_FONT_SIZE,
+    'legend.fontsize': GLOBAL_FONT_SIZE,
+    'legend.title_fontsize': GLOBAL_FONT_SIZE
+})
+
 # Plotting
 plt.figure(figsize=(10, 6))
 threads_per_block, elapsed_times = zip(*sorted(zip(threads_per_block, elapsed_times)))
