@@ -49,7 +49,6 @@ assert len(n_processors) == len(elapsed_times) == len(grid_sizes), "Data lists m
 
 # Get unique grid sizes (sorted for consistent color mapping)
 unique_grid_sizes = sorted(set(grid_sizes))
-colors = sns.color_palette("tab10", n_colors=len(unique_grid_sizes))
 
 # Dicts to keep track of efficiency values: grid_size: [values]
 speedups = {}
@@ -70,6 +69,19 @@ for idx, grid in enumerate(unique_grid_sizes):
     speedups[grid] = speedup
     efficiencies[grid] = efficiency
 
+
+# Prepare for plotting
+colors = sns.color_palette("tab10", n_colors=len(unique_grid_sizes))
+GLOBAL_FONT_SIZE = 14
+plt.rcParams.update({
+    'font.size': GLOBAL_FONT_SIZE,
+    'axes.titlesize': GLOBAL_FONT_SIZE,
+    'axes.labelsize': GLOBAL_FONT_SIZE,
+    'xtick.labelsize': GLOBAL_FONT_SIZE,
+    'ytick.labelsize': GLOBAL_FONT_SIZE,
+    'legend.fontsize': GLOBAL_FONT_SIZE,
+    'legend.title_fontsize': GLOBAL_FONT_SIZE
+})
 
 # Plotting speedups
 plt.figure(figsize=(10, 6))
