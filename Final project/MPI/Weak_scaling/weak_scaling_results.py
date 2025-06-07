@@ -92,7 +92,7 @@ for idx, grid in enumerate(unique_grid_sizes):
 
 # Prepare for plotting
 colors = sns.color_palette("tab10", n_colors=len(unique_grid_sizes))
-GLOBAL_FONT_SIZE = 14
+GLOBAL_FONT_SIZE = 17
 plt.rcParams.update({
     'font.size': GLOBAL_FONT_SIZE,
     'axes.titlesize': GLOBAL_FONT_SIZE,
@@ -111,7 +111,7 @@ for idx, grid in enumerate(unique_grid_sizes):
 
 # Ideal speedup line based on Gustafson's Law
 ideal_speedup = [1 + (p - 1) * ALPHA for p in sorted(unique_n_processors)]
-plt.plot(range(len(ideal_speedup)), ideal_speedup, linestyle='--', color='black', label='Ideal Speedup (Gustafson\'s Law)')
+plt.plot(range(len(ideal_speedup)), ideal_speedup, linestyle='--', color='black', label='Ideal (Gustafson\'s Law)')
 plt.title('Speedup vs Number of Processors')
 plt.xlabel('Number of processors used (log scale)')
 plt.ylabel('Speedup (log scale)')
@@ -135,7 +135,7 @@ for idx, grid in enumerate(unique_grid_sizes):
 
 # Ideal efficiency line based on Gustafson's Law
 ideal_eff = [ideal_speedup[i]/p for i, p in enumerate(sorted(unique_n_processors))]
-plt.plot(range(len(ideal_eff)), ideal_eff, linestyle='--', color='black', label='Ideal Efficiency (Gustafson\'s Law)')
+plt.plot(range(len(ideal_eff)), ideal_eff, linestyle='--', color='black', label='Ideal (Gustafson\'s Law)')
 plt.title('Speedup vs Number of Processors')
 plt.xlabel('Number of processors used (log scale)')
 plt.ylabel('Efficiency (log scale)')
