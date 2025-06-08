@@ -49,7 +49,6 @@ assert len(n_processors) == len(elapsed_times) == len(grid_sizes), "Data lists m
 
 # Get unique grid sizes (sorted for consistent color mapping)
 unique_grid_sizes = sorted(set(grid_sizes))
-colors = sns.color_palette("tab10", n_colors=len(unique_grid_sizes))
 
 # Dicts to keep track of efficiency values: grid_size: [values]
 speedups = {}
@@ -71,6 +70,19 @@ for idx, grid in enumerate(unique_grid_sizes):
     efficiencies[grid] = efficiency
 
 
+# Prepare for plotting
+colors = sns.color_palette("tab10", n_colors=len(unique_grid_sizes))
+GLOBAL_FONT_SIZE = 17
+plt.rcParams.update({
+    'font.size': GLOBAL_FONT_SIZE,
+    'axes.titlesize': GLOBAL_FONT_SIZE,
+    'axes.labelsize': GLOBAL_FONT_SIZE,
+    'xtick.labelsize': GLOBAL_FONT_SIZE,
+    'ytick.labelsize': GLOBAL_FONT_SIZE,
+    'legend.fontsize': GLOBAL_FONT_SIZE,
+    'legend.title_fontsize': GLOBAL_FONT_SIZE
+})
+
 # Plotting speedups
 plt.figure(figsize=(10, 6))
 for idx, grid in enumerate(unique_grid_sizes):
@@ -79,9 +91,9 @@ for idx, grid in enumerate(unique_grid_sizes):
 
 # Ideal speedup line based on Amdahl's Law
 ideal_speedup = [1 / (1 - ALPHA + ALPHA / p) for p in sorted(set(n_processors))]
-plt.plot(range(len(ideal_speedup)), ideal_speedup, linestyle='--', color='black', label='Ideal Speedup (Amdahl\'s Law)')
+plt.plot(range(len(ideal_speedup)), ideal_speedup, linestyle='--', color='black', label='Ideal (Amdahl\'s Law)')
 plt.title('Speedup vs Number of Processors')
-plt.xlabel('Number of processors used (log scale)')
+plt.xlabel('Number of processors (log scale)')
 plt.ylabel('Speedup (log scale)')
 plt.xticks(range(len(times)), sorted(set(n_processors)))
 plt.grid(True)
@@ -103,9 +115,9 @@ for idx, grid in enumerate(unique_grid_sizes):
 
 # Ideal efficiency line based on Amdahl's Law
 ideal_eff = [ideal_speedup[i]/p for i, p in enumerate(sorted(set(n_processors)))]
-plt.plot(range(len(ideal_eff)), ideal_eff, linestyle='--', color='black', label='Ideal Efficiency (Amdahl\'s Law)')
-plt.title('Speedup vs Number of Processors')
-plt.xlabel('Number of processors used (log scale)')
+plt.plot(range(len(ideal_eff)), ideal_eff, linestyle='--', color='black', label='Ideal (Amdahl\'s Law)')
+plt.title('Efficiency vs Number of Processors')
+plt.xlabel('Number of processors (log scale)')
 plt.ylabel('Efficiency (log scale)')
 plt.xticks(range(len(times)), sorted(set(n_processors)))
 plt.grid(True)
