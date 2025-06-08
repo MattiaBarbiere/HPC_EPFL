@@ -2,9 +2,9 @@
 #SBATCH --qos=math-454
 #SBATCH --account=math-454
 #SBATCH --nodes=1
-#SBATCH --ntasks=64
+#SBATCH --ntasks=8
 #SBATCH --time=00:20:00
-#SBATCH --output=Weak_scaling/times_64_8.txt
+#SBATCH --output=perf_slurm.txt
 
 
 
@@ -24,8 +24,8 @@ module load gcc hdf5 openmpi
 # srun ./swe 3 1000 1000 10
 
 # For weak scaling
-N_VAL=$((SLURM_NTASKS * 8))
-srun ./swe 1 $N_VAL $N_VAL 0
+# N_VAL=$((SLURM_NTASKS * 8))
+# srun ./swe 1 $N_VAL $N_VAL 0
 
 
 ##############
@@ -38,5 +38,5 @@ srun ./swe 1 $N_VAL $N_VAL 0
 ############
 ### Perf ###
 ############
-# perf record -F 4000 -m 512 -o perf.data --call-graph dwarf ./swe 1 1000 1000 0 >> perf_output_first_parallel_p1.txt 2>&1
+perf record -F 4000 -m 512 -o perf.data --call-graph dwarf ./swe 1 256 256 0 >> perf_output_first_parallel_p1.txt 2>&1
 # perf report -g
