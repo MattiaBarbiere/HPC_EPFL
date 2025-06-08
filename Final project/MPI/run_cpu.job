@@ -1,10 +1,9 @@
 #!/bin/bash
 #SBATCH --qos=math-454
 #SBATCH --account=math-454
-#SBATCH --nodes=1
-#SBATCH --ntasks=8
+#SBATCH --nodes=2
+#SBATCH --ntasks=100
 #SBATCH --time=00:20:00
-#SBATCH --output=Weak_scaling/times_8_16.txt
 
 
 
@@ -24,8 +23,26 @@ module load gcc hdf5 openmpi
 # srun ./swe 3 1000 1000 10
 
 # For weak scaling with N_VAL**2 / p = constant
-N_VAL=
-srun ./swe 1 $N_VAL $N_VAL 0
+# N_VAL=$((8 * 9))
+# srun ./swe 1 $N_VAL $N_VAL 0
+
+# For weak scaling
+MAX_SQRT=10
+GRID_SIZE=256
+
+for ((i=1; i<=MAX_SQRT; i++)); do
+    NTASKS=$((i * i))
+    N_VAL=$(($GRID_SIZE * i))
+    OUTFILE="Weak_scaling/times_${NTASKS}_${GRID_SIZE}.txt"
+    echo "Running with $NTASKS tasks (N_VAL=$N_VAL)"
+    if [[ $NTASKS -le 64 ]]; then
+        # Restrict to 1 node for small runs
+        srun --nodes=1 -n $NTASKS ./swe 1 $N_VAL $N_VAL 0 > "$OUTFILE"
+    else
+        # Use both nodes for large runs
+        srun --nodes=2 -n $NTASKS ./swe 1 $N_VAL $N_VAL 0 > "$OUTFILE"
+    fi
+done
 
 
 ##############
@@ -38,5 +55,5 @@ srun ./swe 1 $N_VAL $N_VAL 0
 ############
 ### Perf ###
 ############
-perf record -F 4000 -m 512 -o perf.data --call-graph dwarf ./swe 1 256 256 0 >> perf_output_first_parallel_p1.txt 2>&1
+# perf record -F 4000 -m 512 -o perf.data --call-graph dwarf ./swe 1 256 256 0 >> perf_output_first_parallel_p1.txt 2>&1
 # perf report -g
