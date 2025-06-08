@@ -103,7 +103,7 @@ plt.ylabel('Speedup (log scale)')
 plt.grid(True)
 plt.yscale('log')
 plt.xscale('log')
-plt.xticks(sorted(unique_n_processors), labels=[str(p) for p in sorted(unique_n_processors)])  # Set ticks to all processor counts
+plt.xticks(sorted(unique_n_processors), labels=[str(p) for p in sorted(unique_n_processors)])
 plt.legend(title="Grid Size per processor")
 
 # Shift the "100" label to the left if present
@@ -145,7 +145,7 @@ plt.ylabel('Efficiency (log scale)')
 plt.grid(True)
 plt.yscale('log')
 plt.xscale('log')
-plt.xticks(sorted(unique_n_processors), labels=[str(p) for p in sorted(unique_n_processors)])  # Set ticks to all processor counts
+plt.xticks(sorted(unique_n_processors), labels=[str(p) for p in sorted(unique_n_processors)])
 plt.legend(title="Grid Size per processor")
 
 # Shift the "100" label to the left if present
