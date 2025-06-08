@@ -106,6 +106,23 @@ plt.xscale('log')
 plt.xticks(sorted(unique_n_processors), labels=[str(p) for p in sorted(unique_n_processors)])  # Set ticks to all processor counts
 plt.legend(title="Grid Size per processor")
 
+# Shift the "100" label to the left if present
+ax = plt.gca()
+xticks = ax.get_xticks()
+xticklabels = ax.get_xticklabels()
+for i, label in enumerate(xticklabels):
+    if label.get_text() == "100":
+        # Hide the original label
+        label.set_visible(False)
+        # Annotate a new label slightly to the left
+        ax.annotate(
+            "100",
+            xy=(xticks[i], 0), xycoords=('data', 'axes fraction'),
+            xytext=(20, -10), textcoords='offset points',
+            ha='right', va='top', fontsize=GLOBAL_FONT_SIZE
+        )
+        break
+
 # Save the plot
 saving_path = os.path.join(os.path.dirname(os.path.dirname(path)), "scaling_images")
 plt.savefig(os.path.join(saving_path, 'speedup_weak_scaling.png'))
@@ -130,6 +147,23 @@ plt.yscale('log')
 plt.xscale('log')
 plt.xticks(sorted(unique_n_processors), labels=[str(p) for p in sorted(unique_n_processors)])  # Set ticks to all processor counts
 plt.legend(title="Grid Size per processor")
+
+# Shift the "100" label to the left if present
+ax = plt.gca()
+xticks = ax.get_xticks()
+xticklabels = ax.get_xticklabels()
+for i, label in enumerate(xticklabels):
+    if label.get_text() == "100":
+        # Hide the original label
+        label.set_visible(False)
+        # Annotate a new label slightly to the left
+        ax.annotate(
+            "100",
+            xy=(xticks[i], 0), xycoords=('data', 'axes fraction'),
+            xytext=(20, -10), textcoords='offset points',
+            ha='right', va='top', fontsize=GLOBAL_FONT_SIZE
+        )
+        break
 
 # Save the plot
 saving_path = os.path.join(os.path.dirname(os.path.dirname(path)), "scaling_images")
