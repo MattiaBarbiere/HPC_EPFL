@@ -23,8 +23,10 @@ module load gcc hdf5 openmpi
 # srun ./swe 2 1000 1000 10
 # srun ./swe 3 1000 1000 10
 
-# For weak scaling
-N_VAL=$((SLURM_NTASKS * 8))
+# For weak scaling with N_VAL**2 / p = constant
+N0=512   # Set this to your desired base problem size per process
+N_VAL=$(echo "$N0 * sqrt($SLURM_NTASKS)" | bc)
+N_VAL=${N_VAL%.*}  # Convert to integer if needed
 srun ./swe 1 $N_VAL $N_VAL 0
 
 
