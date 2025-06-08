@@ -56,3 +56,5 @@ tsunami_vis*
 tsunami_mesh*
 tsunami_topography*
 tsunami.xdmf
+
+*/Weak_scaling_old/*
