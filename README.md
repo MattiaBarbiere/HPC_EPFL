@@ -58,6 +58,8 @@ This repository showcases solutions to various parallel programming and high per
 - **Challenges**: Highlighted the impact of communication overhead and serial code sections on overall performance.
 - **Future Work**: Suggested further optimizations and advanced techniques to mitigate current bottlenecks.
 
+The full report is avaliable [here](./Final%20project/Report_Mattia_Barbiere.pdf). All the MPI code is localed [here](./Final%20project/MPI/swe.cc) while all the CUDA code is avaliable [here](./Final%20project/CUDA/swe.cu).
+
 ---
 
 ## Additional Projects
