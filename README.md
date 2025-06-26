@@ -1,7 +1,6 @@
 # Parallel and High Performance Computing @ EPFL
-
-![](./Final%20project/MPI/animations/water_drops_animation.mp4)
-
+![Demo Animation](./Final%20project/water_drops_animation.gif)
+---
 Welcome to the repository for the graded projects of the **Parallel and High Performance Computing** course at EPFL, Spring 2025. This repository contains all code, reports, and results for the course assignments.
 
 ---
@@ -31,8 +30,7 @@ This repository showcases solutions to various parallel programming and high per
 
 ### Overview
 - **Objective**: Parallelize the solution of shallow water equations using MPI and CUDA to enhance computational performance.
-- **Theoretical Analysis**:
-  - Computational cost analysis of grid initialization and time-step calculations.
+- **Theoretical Analysis**: Computational cost analysis of grid initialization and time-step calculations.
 
 ### MPI Parallelization
 - **Domain Subdivision**: Divided the 2D grid into subgrids for each processor to handle computations locally.
