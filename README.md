@@ -10,6 +10,8 @@ Welcome to the repository for the graded projects of the **Parallel and High Per
 - [Overview](#overview)
 - [Final Project](#final-project-parallelized-shallow-water-equations-solver-using-mpi-and-cuda)
 - [Additional Projects](#additional-projects)
+- [Usage](#usage)
+- [License](#license)
 
 ---
 
@@ -26,7 +28,7 @@ This repository showcases solutions to various parallel programming and high per
 
 ## Final Project: Parallelized Shallow Water Equations Solver using MPI and CUDA
 
-**This was the main project for the course.**
+**This was the main project for the course. The full report is avaliable [here](./Final%20project/Report_Mattia_Barbiere.pdf). All the MPI code is localed [here](./Final%20project/MPI/swe.cc) while all the CUDA code is avaliable [here](./Final%20project/CUDA/swe.cu).**
 
 ### Overview
 - **Objective**: Parallelize the solution of shallow water equations using MPI and CUDA to enhance computational performance.
@@ -37,9 +39,7 @@ This repository showcases solutions to various parallel programming and high per
 - **Communication**: Utilized MPI's Cartesian communicator for efficient neighbor communication and halo updates.
 - **Performance Metrics**:
   - **Strong Scaling**: Demonstrated significant speedup with increasing processors, aligning with Amdahl's law initially but deviating due to communication overheads.
-  ![](./Final%20project/scaling_images/speedup_strong_scaling.png)
   - **Weak Scaling**: Showed efficiency and speedup trends with constant work per processor, highlighting communication costs as processors increased.
-  ![](./Final%20project/scaling_images/efficiency_weak_scaling.png)
 
 ### CUDA Parallelization
 - **Conceptual Similarity**: Subdivided the grid into blocks for parallel computation within each block.
@@ -47,18 +47,6 @@ This repository showcases solutions to various parallel programming and high per
   - Parallelized the large majority of functions.
   - Implemented a two-kernel approach for global maximum computation, inspired by NVIDIA's reduction techniques.
 - **Performance Results**: Illustrated significant time reduction with increasing threads per block, eventually plateauing due to serial bottlenecks.
-![](./Final%20project/scaling_images/cuda_scaling.png)
-
-### Results and Analysis
-- **Speedup and Efficiency**: Graphical representation of speedup and efficiency for both strong and weak scaling under MPI, and performance gains with CUDA.
-- **Bottlenecks**: Identified memory and communication bottlenecks as limiting factors in scalability and performance.
-
-### Conclusion
-- **Parallel Potential**: Demonstrated substantial performance improvements through parallelization of shallow water equations.
-- **Challenges**: Highlighted the impact of communication overhead and serial code sections on overall performance.
-- **Future Work**: Suggested further optimizations and advanced techniques to mitigate current bottlenecks.
-
-The full report is avaliable [here](./Final%20project/Report_Mattia_Barbiere.pdf). All the MPI code is localed [here](./Final%20project/MPI/swe.cc) while all the CUDA code is avaliable [here](./Final%20project/CUDA/swe.cu).
 
 ---
 
@@ -75,6 +63,23 @@ Other than the final project, two other projects were completed with the goal of
    This project focuses on transitioning from CBLAS to CUDA to parallelize linear algebra functions on GPUs. The primary goal was to create CUDA kernels for these functions to enhance computational performance. Timing the conjugate gradient function with varying threads per block revealed that performance improved initially but plateaued after 8 threads per block and degraded significantly beyond 256 threads, likely due to memory bottlenecks.
 
    The full report is avaliable [here](./Project%202/report_Mattia_Barbiere.pdf) and all the code is localed [here](./Project%202/).
+
+---
+
+## Usage 
+
+Each project has a Makefile to compile the code. By running `>>> make` in the corresponding directory will compile the code. Below are the links for the Makefiles 
+- [Project 1](./Project%201/Makefile)
+- [Project 2](./Project%202/Makefile)
+- [Final project MPI](./Final%20project/MPI/Makefile)
+- [Final project CUDA](./Final%20project/CUDA/Makefile)
+
+To run the code and the python visualizations SLURM job files are avaliable for each project. They were created to that the project could be run on SLURM clusters, nevertheless the instructions can be run locally. Below are the links for the SLURM job files
+
+- [Project 1](./Project%201/run.job)
+- [Project 2](./Project%202/run.job)
+- [Final project MPI](./Final%20project/MPI/run_cpu.job)
+- [Final project CUDA](./Final%20project/CUDA/run_gpu.job)
 
 ---
 
