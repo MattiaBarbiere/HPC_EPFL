@@ -35,18 +35,22 @@ This repository showcases solutions to various parallel programming and high per
 - **Theoretical Analysis**: Computational cost analysis of grid initialization and time-step calculations.
 
 ### MPI Parallelization
-- **Domain Subdivision**: Divided the 2D grid into subgrids for each processor to handle computations locally.
+- **Domain decomposition**: Divided the 2D grid into subgrids for each processor to handle computations locally.
 - **Communication**: Utilized MPI's Cartesian communicator for efficient neighbor communication and halo updates.
 - **Performance Metrics**:
   - **Strong Scaling**: Demonstrated significant speedup with increasing processors, aligning with Amdahl's law initially but deviating due to communication overheads.
   - **Weak Scaling**: Showed efficiency and speedup trends with constant work per processor, highlighting communication costs as processors increased.
+ 
+![Speedup Strong Scaling](./Final%20project/scaling_images/speedup_strong_scaling.png)
+![Efficiency Strong Scaling](./Final%20project/scaling_images/efficiency_strong_scaling.png)
 
 ### CUDA Parallelization
-- **Conceptual Similarity**: Subdivided the grid into blocks for parallel computation within each block.
+- **Approach**: Subdivided the grid into blocks for parallel computation within each block.
 - **Optimizations**:
   - Parallelized the large majority of functions.
   - Implemented a two-kernel approach for global maximum computation, inspired by NVIDIA's reduction techniques.
 - **Performance Results**: Illustrated significant time reduction with increasing threads per block, eventually plateauing due to serial bottlenecks.
+  ![CUDA Scaling](./Final%20project/scaling_images/cuda_scaling.png)
 
 ---
 
