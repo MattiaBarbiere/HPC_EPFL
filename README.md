@@ -40,9 +40,14 @@ This repository showcases solutions to various parallel programming and high per
 - **Performance Metrics**:
   - **Strong Scaling**: Demonstrated significant speedup with increasing processors, aligning with Amdahl's law initially but deviating due to communication overheads.
   - **Weak Scaling**: Showed efficiency and speedup trends with constant work per processor, highlighting communication costs as processors increased.
- 
-![Speedup Strong Scaling](./Final%20project/scaling_images/speedup_strong_scaling.png)
-![Efficiency Strong Scaling](./Final%20project/scaling_images/efficiency_strong_scaling.png)
+
+
+<table>
+  <tr>
+    <td align="center"><img src="./Final%20project/scaling_images/speedup_strong_scaling.png" width="100%"></td>
+    <td align="center"><img src="./Final%20project/scaling_images/efficiency_strong_scaling.png" width="100%"></td>
+  </tr>
+</table>
 
 ### CUDA Parallelization
 - **Approach**: Subdivided the grid into blocks for parallel computation within each block.
@@ -50,8 +55,9 @@ This repository showcases solutions to various parallel programming and high per
   - Parallelized the large majority of functions.
   - Implemented a two-kernel approach for global maximum computation, inspired by NVIDIA's reduction techniques.
 - **Performance Results**: Illustrated significant time reduction with increasing threads per block, eventually plateauing due to serial bottlenecks.
-  ![CUDA Scaling](./Final%20project/scaling_images/cuda_scaling.png)
-
+  <div align="center">
+  <img src="./Final%20project/scaling_images/cuda_scaling.png" alt="CUDA Scaling" width="65%"/>
+  </div>
 ---
 
 ## Additional Projects
